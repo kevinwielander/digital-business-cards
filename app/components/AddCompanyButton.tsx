@@ -13,7 +13,7 @@ export default function AddCompanyButton() {
             >
                 + Add Company
                 </button>
-            {isOpen &&  <CompanyModal  onClose={() => setIsOpen(false)} name={""} address={""} domain={""} logo={null} />}
+            {isOpen &&  <CompanyModal  onClose={() => setIsOpen(false)} name={""} domain={""} logo={null} />}
         </>
     );
 }

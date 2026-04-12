@@ -5,7 +5,6 @@ import { useState } from "react";
 interface CompanyProps {
     onClose: () => void;
     name: string;
-    address: string;
     domain: string;
     logo: File | null;
 }
@@ -13,7 +12,6 @@ interface CompanyProps {
 export function CompanyModal(props: CompanyProps) {
 
     const [name, setName] = useState(props.name);
-    const [address, setAddress] = useState(props.address);
     const [domain, setDomain] = useState(props.domain);
     const [logo, setLogo] = useState<File | null>(null);
 
@@ -48,19 +46,6 @@ export function CompanyModal(props: CompanyProps) {
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             placeholder="Acme Inc."
-                            className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none transition focus:border-zinc-500 focus:ring-2 focus:ring-zinc-200"
-                        />
-                    </div>
-
-                    <div>
-                        <label className="mb-1 block text-sm font-medium text-zinc-700">
-                            Address
-                        </label>
-                        <input
-                            type="text"
-                            value={address}
-                            onChange={(e) => setAddress(e.target.value)}
-                            placeholder="123 Main St, City"
                             className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none transition focus:border-zinc-500 focus:ring-2 focus:ring-zinc-200"
                         />
                     </div>
