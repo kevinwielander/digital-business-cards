@@ -16,6 +16,7 @@ export async function Navbar() {
           <>
             <Link href="/" className="text-sm hover:text-zinc-400">Home</Link>
             <Link href="/companies" className="text-sm hover:text-zinc-400">Companies</Link>
+            <Link href="/templates" className="text-sm hover:text-zinc-400">Templates</Link>
             <span className="text-sm text-zinc-400">{user.email}</span>
             <LogoutButton />
           </>
