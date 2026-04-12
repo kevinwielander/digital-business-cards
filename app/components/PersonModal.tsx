@@ -189,6 +189,7 @@ export default function PersonModal({ onClose, companyId, templates, person }: P
                     <ImageUpload
                         label="Photo"
                         onImageReady={(file) => setPhoto(file)}
+                        currentImageUrl={person?.photoSignedUrl}
                         aspectRatio={1}
                         shape="round"
                     />
