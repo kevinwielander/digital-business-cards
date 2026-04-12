@@ -1,12 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { TABLES } from "@/lib/supabase/constants";
+import { TABLES, STORAGE } from "@/lib/supabase/constants";
 import { DEFAULT_TEMPLATE_CONFIG, SAMPLE_CARD_DATA } from "@/lib/types";
-import type { TemplateConfig } from "@/lib/types";
+import type { TemplateConfig, SampleCardData } from "@/lib/types";
 import CardPreview from "./CardPreview";
+
+interface Company {
+    id: string;
+    name: string;
+    logo_url: string | null;
+}
 
 interface TemplateDesignerProps {
     initialName?: string;
@@ -25,6 +31,46 @@ export default function TemplateDesigner({
         initialConfig ?? DEFAULT_TEMPLATE_CONFIG
     );
     const [error, setError] = useState<string | null>(null);
+    const [companies, setCompanies] = useState<Company[]>([]);
+    const [selectedCompanyId, setSelectedCompanyId] = useState<string>("");
+    const [previewData, setPreviewData] = useState<SampleCardData>(SAMPLE_CARD_DATA);
+
+    useEffect(() => {
+        async function loadCompanies() {
+            const supabase = createClient();
+            const { data } = await supabase
+                .from(TABLES.COMPANIES)
+                .select("id, name, logo_url");
+            if (data) setCompanies(data);
+        }
+        loadCompanies();
+    }, []);
+
+    useEffect(() => {
+        async function loadLogo() {
+            const company = companies.find((c) => c.id === selectedCompanyId);
+            if (!company) {
+                setPreviewData(SAMPLE_CARD_DATA);
+                return;
+            }
+
+            let logoUrl: string | null = null;
+            if (company.logo_url) {
+                const supabase = createClient();
+                const { data } = await supabase.storage
+                    .from(STORAGE.LOGOS)
+                    .createSignedUrl(company.logo_url, 3600);
+                logoUrl = data?.signedUrl ?? null;
+            }
+
+            setPreviewData({
+                ...SAMPLE_CARD_DATA,
+                company: company.name,
+                logoUrl,
+            });
+        }
+        loadLogo();
+    }, [selectedCompanyId, companies]);
 
     function updateConfig<K extends keyof TemplateConfig>(key: K, value: TemplateConfig[K]) {
         setConfig((prev) => ({ ...prev, [key]: value }));
@@ -70,6 +116,20 @@ export default function TemplateDesigner({
                         placeholder="My Template"
                         className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500"
                     />
+                </div>
+
+                <div>
+                    <label className="mb-1 block text-sm font-medium">Preview with Company</label>
+                    <select
+                        value={selectedCompanyId}
+                        onChange={(e) => setSelectedCompanyId(e.target.value)}
+                        className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500"
+                    >
+                        <option value="">Sample data</option>
+                        {companies.map((c) => (
+                            <option key={c.id} value={c.id}>{c.name}</option>
+                        ))}
+                    </select>
                 </div>
 
                 <div>
@@ -162,7 +222,7 @@ export default function TemplateDesigner({
 
             {/* Live Preview */}
             <div className="flex flex-1 items-start justify-center rounded-xl bg-zinc-100 p-10">
-                <CardPreview config={config} data={SAMPLE_CARD_DATA} />
+                <CardPreview config={config} data={previewData} />
             </div>
         </div>
     );

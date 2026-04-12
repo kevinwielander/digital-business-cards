@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { STORAGE, TABLES } from "@/lib/supabase/constants";
 import CompanyCard from "./CompanyCard";
@@ -34,12 +35,13 @@ export async function CompanyList(){
             ) : (
                 <div className="grid gap-4">
                     {companiesWithLogos.map((company) => (
-                        <CompanyCard
-                            key={company.id}
-                            name={company.name}
-                            domain={company.domain}
-                            logoUrl={company.logoUrl}
-                        />
+                        <Link key={company.id} href={`/companies/${company.id}`}>
+                            <CompanyCard
+                                name={company.name}
+                                domain={company.domain}
+                                logoUrl={company.logoUrl}
+                            />
+                        </Link>
                     ))}
                 </div>
             )}

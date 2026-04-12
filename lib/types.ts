@@ -30,6 +30,7 @@ export interface SampleCardData {
     address: string;
     company: string;
     logoUrl: string | null;
+    photoUrl: string | null;
 }
 
 export const SAMPLE_CARD_DATA: SampleCardData = {
@@ -40,4 +41,5 @@ export const SAMPLE_CARD_DATA: SampleCardData = {
     address: "123 Main St, San Francisco",
     company: "Acme Inc.",
     logoUrl: null,
+    photoUrl: null,
 };
