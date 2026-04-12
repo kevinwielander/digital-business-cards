@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { TABLES, STORAGE } from "@/lib/supabase/constants";
+import ImageUpload from "./ImageUpload";
 
 interface Template {
     id: string;
@@ -21,6 +22,7 @@ interface PersonModalProps {
         email: string;
         phone: string;
         photo_url: string | null;
+        photoSignedUrl: string | null;
         template_id: string | null;
     };
 }
@@ -184,15 +186,12 @@ export default function PersonModal({ onClose, companyId, templates, person }: P
                         )}
                     </div>
 
-                    <div>
-                        <label className="mb-1 block text-sm font-medium text-zinc-700">Photo</label>
-                        <input
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => setPhoto(e.target.files ? e.target.files[0] : null)}
-                            className="w-full text-sm text-zinc-500 file:mr-4 file:rounded-lg file:border-0 file:bg-zinc-100 file:px-4 file:py-2 file:text-sm file:font-medium file:text-zinc-700 hover:file:bg-zinc-200"
-                        />
-                    </div>
+                    <ImageUpload
+                        label="Photo"
+                        onImageReady={(file) => setPhoto(file)}
+                        aspectRatio={1}
+                        shape="round"
+                    />
 
                     {error && <p className="text-sm text-red-500">{error}</p>}
 

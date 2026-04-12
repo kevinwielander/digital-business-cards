@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { STORAGE, TABLES } from "@/lib/supabase/constants";
+import ImageUpload from "./ImageUpload";
 
 interface CompanyProps {
     onClose: () => void;
@@ -109,17 +110,11 @@ export function CompanyModal(props: CompanyProps) {
                         />
                     </div>
 
-                    <div>
-                        <label className="mb-1 block text-sm font-medium text-zinc-700">
-                            Logo
-                        </label>
-                        <input
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => setLogo(e.target.files ? e.target.files[0] : null)}
-                            className="w-full text-sm text-zinc-500 file:mr-4 file:rounded-lg file:border-0 file:bg-zinc-100 file:px-4 file:py-2 file:text-sm file:font-medium file:text-zinc-700 hover:file:bg-zinc-200"
-                        />
-                    </div>
+                    <ImageUpload
+                        label="Logo"
+                        onImageReady={(file) => setLogo(file)}
+                        aspectRatio={16 / 9}
+                    />
 
                     {error && <p className="text-sm text-red-500">{error}</p>}
 

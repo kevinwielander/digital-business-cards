@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { TABLES } from "@/lib/supabase/constants";
+import { TABLES, STORAGE } from "@/lib/supabase/constants";
 import { notFound } from "next/navigation";
 import PeopleList from "@/app/components/PeopleList";
 import GenerateButton from "@/app/components/GenerateButton";
@@ -26,6 +26,20 @@ export default async function CompanyDetailPage(props: PageProps<"/companies/[id
         .from(TABLES.TEMPLATES)
         .select("id, name");
 
+    // Generate signed URLs for person photos
+    const peopleWithPhotos = await Promise.all(
+        (people ?? []).map(async (person) => {
+            let photoSignedUrl: string | null = null;
+            if (person.photo_url) {
+                const { data } = await supabase.storage
+                    .from(STORAGE.PHOTOS)
+                    .createSignedUrl(person.photo_url, 3600);
+                photoSignedUrl = data?.signedUrl ?? null;
+            }
+            return { ...person, photoSignedUrl };
+        })
+    );
+
     return (
         <div className="mx-auto w-full max-w-3xl px-6 py-10">
             <div className="mb-8 flex items-center justify-between">
@@ -39,7 +53,7 @@ export default async function CompanyDetailPage(props: PageProps<"/companies/[id
             </div>
 
             <PeopleList
-                people={people ?? []}
+                people={peopleWithPhotos}
                 companyId={id}
                 templates={templates ?? []}
             />

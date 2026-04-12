@@ -11,6 +11,7 @@ interface Person {
     email: string;
     phone: string;
     photo_url: string | null;
+    photoSignedUrl: string | null;
     template_id: string | null;
 }
 
@@ -65,9 +66,20 @@ export default function PeopleList({ people, companyId, templates }: PeopleListP
                         <button
                             key={person.id}
                             onClick={() => handleEdit(person)}
-                            className="flex items-center justify-between rounded-xl border border-zinc-200 bg-white p-4 text-left shadow-sm transition hover:shadow-md"
+                            className="flex items-center gap-4 rounded-xl border border-zinc-200 bg-white p-4 text-left shadow-sm transition hover:shadow-md"
                         >
-                            <div>
+                            {person.photoSignedUrl ? (
+                                <img
+                                    src={person.photoSignedUrl}
+                                    alt={`${person.first_name} ${person.last_name}`}
+                                    className="h-10 w-10 shrink-0 rounded-full object-cover"
+                                />
+                            ) : (
+                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-zinc-200 text-sm font-medium text-zinc-500">
+                                    {person.first_name[0]}{person.last_name[0]}
+                                </div>
+                            )}
+                            <div className="flex-1">
                                 <p className="font-medium text-zinc-900">
                                     {person.first_name} {person.last_name}
                                 </p>
