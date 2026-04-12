@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { createClient } from "@/lib/supabase/client";
+import { STORAGE, TABLES } from "@/lib/supabase/constants";
 
 interface CompanyProps {
     onClose: () => void;
@@ -10,10 +12,53 @@ interface CompanyProps {
 }
 
 export function CompanyModal(props: CompanyProps) {
-
     const [name, setName] = useState(props.name);
     const [domain, setDomain] = useState(props.domain);
     const [logo, setLogo] = useState<File | null>(null);
+    const [error, setError] = useState<string | null>(null);
+
+    async function handleSubmit(e: React.SyntheticEvent) {
+        e.preventDefault();
+        setError(null);
+
+        const supabase = createClient();
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+
+        let logoPath: string | null = null;
+
+        if (logo) {
+            const fileExt = logo.name.split(".").pop();
+            const filePath = `${user.id}/${crypto.randomUUID()}.${fileExt}`;
+
+            const { error: uploadError } = await supabase.storage
+                .from(STORAGE.LOGOS)
+                .upload(filePath, logo);
+
+            if (uploadError) {
+                setError(uploadError.message);
+                return;
+            }
+
+            logoPath = filePath;
+        }
+
+        const { error: insertError } = await supabase
+            .from(TABLES.COMPANIES)
+            .insert({
+                user_id: user.id,
+                name,
+                domain,
+                logo_url: logoPath,
+            });
+
+        if (insertError) {
+            setError(insertError.message);
+            return;
+        }
+
+        props.onClose();
+    }
 
     return (
         <div
@@ -36,7 +81,7 @@ export function CompanyModal(props: CompanyProps) {
                     </button>
                 </div>
 
-                <form className="space-y-5">
+                <form onSubmit={handleSubmit} className="space-y-5">
                     <div>
                         <label className="mb-1 block text-sm font-medium text-zinc-700">
                             Company Name
@@ -46,6 +91,7 @@ export function CompanyModal(props: CompanyProps) {
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             placeholder="Acme Inc."
+                            required
                             className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none transition focus:border-zinc-500 focus:ring-2 focus:ring-zinc-200"
                         />
                     </div>
@@ -74,6 +120,8 @@ export function CompanyModal(props: CompanyProps) {
                             className="w-full text-sm text-zinc-500 file:mr-4 file:rounded-lg file:border-0 file:bg-zinc-100 file:px-4 file:py-2 file:text-sm file:font-medium file:text-zinc-700 hover:file:bg-zinc-200"
                         />
                     </div>
+
+                    {error && <p className="text-sm text-red-500">{error}</p>}
 
                     <div className="flex justify-end gap-3 pt-2">
                         <button
