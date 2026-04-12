@@ -1,12 +1,19 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { TABLES, STORAGE } from "@/lib/supabase/constants";
-import { DEFAULT_TEMPLATE_CONFIG, SAMPLE_CARD_DATA } from "@/lib/types";
-import type { TemplateConfig, SampleCardData } from "@/lib/types";
-import CardPreview from "./CardPreview";
+import {
+    DEFAULT_TEMPLATE_CONFIG,
+    SAMPLE_CARD_DATA,
+    CARD_WIDTH,
+    CARD_HEIGHT,
+} from "@/lib/types";
+import type { TemplateConfig, CardElement, SampleCardData } from "@/lib/types";
+import DesignerCanvas from "./designer/DesignerCanvas";
+import PropertiesPanel from "./designer/PropertiesPanel";
+import ElementsToolbar from "./designer/ElementsToolbar";
 
 interface Company {
     id: string;
@@ -27,12 +34,15 @@ export default function TemplateDesigner({
 }: TemplateDesignerProps) {
     const router = useRouter();
     const [name, setName] = useState(initialName);
-    const [config, setConfig] = useState<TemplateConfig>(
-        initialConfig ?? DEFAULT_TEMPLATE_CONFIG
-    );
+    const [config, setConfig] = useState<TemplateConfig>(() => {
+        if (initialConfig) return initialConfig;
+        return DEFAULT_TEMPLATE_CONFIG;
+    });
+    const [selectedId, setSelectedId] = useState<string | null>(null);
+    const [showGrid, setShowGrid] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [companies, setCompanies] = useState<Company[]>([]);
-    const [selectedCompanyId, setSelectedCompanyId] = useState<string>("");
+    const [selectedCompanyId, setSelectedCompanyId] = useState("");
     const [previewData, setPreviewData] = useState<SampleCardData>(SAMPLE_CARD_DATA);
 
     useEffect(() => {
@@ -72,9 +82,69 @@ export default function TemplateDesigner({
         loadLogo();
     }, [selectedCompanyId, companies]);
 
-    function updateConfig<K extends keyof TemplateConfig>(key: K, value: TemplateConfig[K]) {
-        setConfig((prev) => ({ ...prev, [key]: value }));
+    const selectedElement = config.elements.find((el) => el.id === selectedId) ?? null;
+
+    function addElement(element: CardElement) {
+        setConfig((prev) => ({
+            ...prev,
+            elements: [...prev.elements, element],
+        }));
+        setSelectedId(element.id);
     }
+
+    function updateElement(id: string, updates: Partial<CardElement>) {
+        setConfig((prev) => ({
+            ...prev,
+            elements: prev.elements.map((el) =>
+                el.id === id ? { ...el, ...updates } : el
+            ),
+        }));
+    }
+
+    function deleteElement(id: string) {
+        setConfig((prev) => ({
+            ...prev,
+            elements: prev.elements.filter((el) => el.id !== id),
+        }));
+        setSelectedId(null);
+    }
+
+    function moveLayer(id: string, direction: "up" | "down") {
+        setConfig((prev) => ({
+            ...prev,
+            elements: prev.elements.map((el) => {
+                if (el.id !== id) return el;
+                return { ...el, zIndex: el.zIndex + (direction === "up" ? 1 : -1) };
+            }),
+        }));
+    }
+
+    function duplicateElement(id: string) {
+        const el = config.elements.find((e) => e.id === id);
+        if (!el) return;
+        const newEl = { ...el, id: crypto.randomUUID(), x: el.x + 10, y: el.y + 10 };
+        setConfig((prev) => ({ ...prev, elements: [...prev.elements, newEl] }));
+        setSelectedId(newEl.id);
+    }
+
+    const handleKeyDown = useCallback(
+        (e: KeyboardEvent) => {
+            if (e.key === "Delete" || e.key === "Backspace") {
+                if (selectedId && document.activeElement === document.body) {
+                    deleteElement(selectedId);
+                }
+            }
+            if (e.key === "Escape") {
+                setSelectedId(null);
+            }
+        },
+        [selectedId]
+    );
+
+    useEffect(() => {
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+    }, [handleKeyDown]);
 
     async function handleSave() {
         if (!name.trim()) {
@@ -84,7 +154,9 @@ export default function TemplateDesigner({
         setError(null);
 
         const supabase = createClient();
-        const { data: { user } } = await supabase.auth.getUser();
+        const {
+            data: { user },
+        } = await supabase.auth.getUser();
         if (!user) return;
 
         if (templateId) {
@@ -92,137 +164,164 @@ export default function TemplateDesigner({
                 .from(TABLES.TEMPLATES)
                 .update({ name, config })
                 .eq("id", templateId);
-            if (error) { setError(error.message); return; }
+            if (error) {
+                setError(error.message);
+                return;
+            }
         } else {
             const { error } = await supabase
                 .from(TABLES.TEMPLATES)
                 .insert({ user_id: user.id, name, config });
-            if (error) { setError(error.message); return; }
+            if (error) {
+                setError(error.message);
+                return;
+            }
         }
 
         router.push("/templates");
     }
 
     return (
-        <div className="flex gap-8">
-            {/* Controls */}
-            <div className="flex w-80 shrink-0 flex-col gap-5">
-                <div>
-                    <label className="mb-1 block text-sm font-medium">Template Name</label>
-                    <input
-                        type="text"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        placeholder="My Template"
-                        className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500"
-                    />
-                </div>
-
-                <div>
-                    <label className="mb-1 block text-sm font-medium">Preview with Company</label>
-                    <select
-                        value={selectedCompanyId}
-                        onChange={(e) => setSelectedCompanyId(e.target.value)}
-                        className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500"
-                    >
-                        <option value="">Sample data</option>
-                        {companies.map((c) => (
-                            <option key={c.id} value={c.id}>{c.name}</option>
-                        ))}
-                    </select>
-                </div>
-
-                <div>
-                    <label className="mb-1 block text-sm font-medium">Layout</label>
-                    <select
-                        value={config.layout}
-                        onChange={(e) => updateConfig("layout", e.target.value as "horizontal" | "vertical")}
-                        className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500"
-                    >
-                        <option value="horizontal">Horizontal</option>
-                        <option value="vertical">Vertical</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label className="mb-1 block text-sm font-medium">Font</label>
-                    <select
-                        value={config.fontFamily}
-                        onChange={(e) => updateConfig("fontFamily", e.target.value)}
-                        className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500"
-                    >
-                        <option value="sans-serif">Sans Serif</option>
-                        <option value="serif">Serif</option>
-                        <option value="monospace">Monospace</option>
-                    </select>
-                </div>
-
-                <div className="grid grid-cols-3 gap-3">
-                    <div>
-                        <label className="mb-1 block text-xs font-medium">Background</label>
-                        <input
-                            type="color"
-                            value={config.backgroundColor}
-                            onChange={(e) => updateConfig("backgroundColor", e.target.value)}
-                            className="h-10 w-full cursor-pointer rounded-lg border border-zinc-300"
-                        />
-                    </div>
-                    <div>
-                        <label className="mb-1 block text-xs font-medium">Text</label>
-                        <input
-                            type="color"
-                            value={config.textColor}
-                            onChange={(e) => updateConfig("textColor", e.target.value)}
-                            className="h-10 w-full cursor-pointer rounded-lg border border-zinc-300"
-                        />
-                    </div>
-                    <div>
-                        <label className="mb-1 block text-xs font-medium">Accent</label>
-                        <input
-                            type="color"
-                            value={config.accentColor}
-                            onChange={(e) => updateConfig("accentColor", e.target.value)}
-                            className="h-10 w-full cursor-pointer rounded-lg border border-zinc-300"
-                        />
-                    </div>
-                </div>
-
-                <div className="flex flex-col gap-2">
-                    <label className="mb-1 block text-sm font-medium">Visible Fields</label>
-                    {(["showLogo", "showEmail", "showPhone", "showAddress"] as const).map((field) => (
-                        <label key={field} className="flex items-center gap-2 text-sm">
-                            <input
-                                type="checkbox"
-                                checked={config[field]}
-                                onChange={(e) => updateConfig(field, e.target.checked)}
-                                className="rounded border-zinc-300"
-                            />
-                            {field.replace("show", "")}
-                        </label>
+        <div className="flex flex-col gap-6">
+            {/* Top bar */}
+            <div className="flex items-center gap-4">
+                <input
+                    type="text"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Template name"
+                    className="rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium outline-none focus:border-zinc-500"
+                />
+                <select
+                    value={selectedCompanyId}
+                    onChange={(e) => setSelectedCompanyId(e.target.value)}
+                    className="rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500"
+                >
+                    <option value="">Preview: Sample data</option>
+                    {companies.map((c) => (
+                        <option key={c.id} value={c.id}>
+                            Preview: {c.name}
+                        </option>
                     ))}
+                </select>
+                <div className="flex-1" />
+                <button
+                    onClick={() => router.back()}
+                    className="rounded-lg px-4 py-2 text-sm text-zinc-500 hover:text-zinc-800"
+                >
+                    Cancel
+                </button>
+                <button
+                    onClick={handleSave}
+                    className="rounded-lg bg-zinc-900 px-5 py-2 text-sm font-medium text-white hover:bg-zinc-700"
+                >
+                    {templateId ? "Update" : "Save"}
+                </button>
+            </div>
+
+            {error && <p className="text-sm text-red-500">{error}</p>}
+
+            {/* Card size controls */}
+            <div className="flex items-center gap-4">
+                <div className="flex gap-1">
+                    <button
+                        onClick={() => setConfig((prev) => ({ ...prev, width: 450, height: 260 }))}
+                        className={`rounded px-3 py-1.5 text-xs font-medium ${config.width > config.height ? "bg-zinc-900 text-white" : "bg-zinc-100 hover:bg-zinc-200"}`}
+                    >
+                        Landscape
+                    </button>
+                    <button
+                        onClick={() => setConfig((prev) => ({ ...prev, width: 260, height: 450 }))}
+                        className={`rounded px-3 py-1.5 text-xs font-medium ${config.width < config.height ? "bg-zinc-900 text-white" : "bg-zinc-100 hover:bg-zinc-200"}`}
+                    >
+                        Portrait
+                    </button>
+                    <button
+                        onClick={() => setConfig((prev) => ({ ...prev, width: 350, height: 350 }))}
+                        className={`rounded px-3 py-1.5 text-xs font-medium ${config.width === config.height ? "bg-zinc-900 text-white" : "bg-zinc-100 hover:bg-zinc-200"}`}
+                    >
+                        Square
+                    </button>
                 </div>
-
-                {error && <p className="text-sm text-red-500">{error}</p>}
-
-                <div className="flex gap-3">
-                    <button
-                        onClick={handleSave}
-                        className="rounded-lg bg-zinc-900 px-5 py-2 text-sm font-medium text-white hover:bg-zinc-700"
-                    >
-                        {templateId ? "Update" : "Save"} Template
-                    </button>
-                    <button
-                        onClick={() => router.back()}
-                        className="rounded-lg px-4 py-2 text-sm text-zinc-500 hover:text-zinc-800"
-                    >
-                        Cancel
-                    </button>
+                <div className="flex items-center gap-2">
+                    <label className="text-xs text-zinc-500">W</label>
+                    <input
+                        type="number"
+                        value={config.width}
+                        onChange={(e) => setConfig((prev) => ({ ...prev, width: Number(e.target.value) }))}
+                        className="w-16 rounded border border-zinc-300 px-2 py-1 text-sm"
+                    />
+                    <label className="text-xs text-zinc-500">H</label>
+                    <input
+                        type="number"
+                        value={config.height}
+                        onChange={(e) => setConfig((prev) => ({ ...prev, height: Number(e.target.value) }))}
+                        className="w-16 rounded border border-zinc-300 px-2 py-1 text-sm"
+                    />
+                    <span className="text-xs text-zinc-400">px</span>
                 </div>
             </div>
 
-            {/* Live Preview */}
-            <div className="flex flex-1 items-start justify-center rounded-xl bg-zinc-100 p-10">
-                <CardPreview config={config} data={previewData} />
+            {/* Elements toolbar */}
+            <ElementsToolbar onAddElement={addElement} />
+
+            {/* Main area: canvas + properties */}
+            <div className="flex gap-6">
+                {/* Canvas */}
+                <div className="flex flex-col gap-3">
+                    <div className="flex items-center gap-4">
+                        <div>
+                            <label className="mb-1 block text-xs font-medium text-zinc-500">Background</label>
+                            <input
+                                type="color"
+                                value={config.backgroundColor}
+                                onChange={(e) => setConfig((prev) => ({ ...prev, backgroundColor: e.target.value }))}
+                                className="h-8 w-20 cursor-pointer rounded border border-zinc-300"
+                            />
+                        </div>
+                        <label className="flex items-center gap-2 text-sm">
+                            <input
+                                type="checkbox"
+                                checked={showGrid}
+                                onChange={(e) => setShowGrid(e.target.checked)}
+                            />
+                            Grid
+                        </label>
+                    </div>
+                    <div className="rounded-xl bg-zinc-100 p-8">
+                        <DesignerCanvas
+                            width={config.width ?? CARD_WIDTH}
+                            height={config.height ?? CARD_HEIGHT}
+                            backgroundColor={config.backgroundColor}
+                            elements={config.elements}
+                            selectedId={selectedId}
+                            sampleData={previewData}
+                            showGrid={showGrid}
+                            onSelect={setSelectedId}
+                            onUpdateElement={updateElement}
+                        />
+                    </div>
+                </div>
+
+                {/* Properties panel */}
+                <div className="w-64 shrink-0">
+                    {selectedElement ? (
+                        <PropertiesPanel
+                            element={selectedElement}
+                            cardWidth={config.width}
+                            cardHeight={config.height}
+                            onUpdate={(updates) => updateElement(selectedElement.id, updates)}
+                            onDelete={() => deleteElement(selectedElement.id)}
+                            onDuplicate={() => duplicateElement(selectedElement.id)}
+                            onMoveUp={() => moveLayer(selectedElement.id, "up")}
+                            onMoveDown={() => moveLayer(selectedElement.id, "down")}
+                        />
+                    ) : (
+                        <p className="text-sm text-zinc-400">
+                            Select an element to edit its properties, or add one from the toolbar above.
+                        </p>
+                    )}
+                </div>
             </div>
         </div>
     );
