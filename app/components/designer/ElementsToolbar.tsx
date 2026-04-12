@@ -73,11 +73,42 @@ export default function ElementsToolbar({ onAddElement }: ElementsToolbarProps) 
         });
     }
 
+    function addQrCode() {
+        onAddElement({
+            id: createId(),
+            type: "qrcode",
+            x: 350,
+            y: 170,
+            width: 80,
+            height: 80,
+            zIndex: 10,
+        });
+    }
+
+    function addSaveContact() {
+        onAddElement({
+            id: createId(),
+            type: "save-contact",
+            x: 20,
+            y: 220,
+            width: 120,
+            height: 28,
+            zIndex: 10,
+            fontSize: 12,
+            color: "#3b82f6",
+            fontFamily: "sans-serif",
+            fontWeight: "500",
+            customText: "Save Contact",
+        });
+    }
+
     const buttons = [
         { label: "Text", onClick: addText, icon: "T" },
         { label: "Image", onClick: addImage, icon: "🖼" },
         { label: "Photo", onClick: addPhotoCircle, icon: "👤" },
         { label: "Shape", onClick: addShape, icon: "■" },
+        { label: "QR Code", onClick: addQrCode, icon: "⊞" },
+        { label: "Save Contact", onClick: addSaveContact, icon: "↓" },
     ];
 
     return (

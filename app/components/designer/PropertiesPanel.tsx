@@ -260,6 +260,32 @@ export default function PropertiesPanel({
                     <Field label="Border" value={element.border ?? ""} onChange={(v) => onUpdate({ border: v || undefined })} placeholder="e.g. 1px solid #ccc" />
                 </Section>
             )}
+
+            {/* QR Code — no extra props, it auto-generates from contact data */}
+            {element.type === "qrcode" && (
+                <Section title="QR Code">
+                    <p className="text-xs text-zinc-500">
+                        Generates a QR code containing the person's vCard data. Recipients can scan to save the contact.
+                    </p>
+                </Section>
+            )}
+
+            {/* Save Contact button */}
+            {element.type === "save-contact" && (
+                <Section title="Save Contact Button">
+                    <Field label="Button Text" value={element.customText ?? "Save Contact"} onChange={(v) => onUpdate({ customText: v })} />
+                    <Field label="Font Size" type="number" value={element.fontSize ?? 12} onChange={(v) => onUpdate({ fontSize: Number(v) })} />
+                    <div>
+                        <label className="mb-1 block text-xs font-medium text-zinc-500">Color</label>
+                        <input
+                            type="color"
+                            value={element.color ?? "#3b82f6"}
+                            onChange={(e) => onUpdate({ color: e.target.value })}
+                            className="h-8 w-full cursor-pointer rounded border border-zinc-300"
+                        />
+                    </div>
+                </Section>
+            )}
         </div>
     );
 }

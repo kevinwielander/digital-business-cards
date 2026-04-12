@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { TABLES, STORAGE } from "@/lib/supabase/constants";
 import JSZip from "jszip";
+import QRCode from "qrcode";
 import type { TemplateConfig, CardElement, SampleCardData } from "@/lib/types";
 
 async function imageToBase64(
@@ -22,6 +23,29 @@ async function imageToBase64(
     return `data:${mime};base64,${buffer.toString("base64")}`;
 }
 
+function generateVCard(data: SampleCardData): string {
+    return [
+        "BEGIN:VCARD",
+        "VERSION:3.0",
+        `FN:${data.full_name}`,
+        `N:${data.last_name};${data.first_name};;;`,
+        data.title ? `TITLE:${data.title}` : "",
+        data.company ? `ORG:${data.company}` : "",
+        data.email ? `EMAIL:${data.email}` : "",
+        data.phone ? `TEL:${data.phone}` : "",
+        data.address ? `ADR:;;${data.address};;;;` : "",
+        "END:VCARD",
+    ].filter(Boolean).join("\r\n");
+}
+
+async function generateQrDataUrl(vcard: string): Promise<string> {
+    return QRCode.toDataURL(vcard, {
+        width: 200,
+        margin: 1,
+        color: { dark: "#000000", light: "#ffffff" },
+    });
+}
+
 function getDisplayText(el: CardElement, data: SampleCardData): string {
     if (el.boundField === "custom") return el.customText ?? "";
     if (el.boundField) return data[el.boundField]?.toString() ?? "";
@@ -32,7 +56,9 @@ function renderElementHtml(
     el: CardElement,
     data: SampleCardData,
     logoBase64: string | null,
-    photoBase64: string | null
+    photoBase64: string | null,
+    qrDataUrl: string | null,
+    vcfFileName: string,
 ): string {
     const opacity = el.opacity !== undefined ? `opacity:${el.opacity};` : "";
     const rotation = el.rotation ? `transform:rotate(${el.rotation}deg);` : "";
@@ -69,6 +95,17 @@ function renderElementHtml(
         return `<div style="${style}"></div>`;
     }
 
+    if (el.type === "qrcode" && qrDataUrl) {
+        return `<div style="${baseStyle}"><img src="${qrDataUrl}" style="width:100%;height:100%;object-fit:contain;" /></div>`;
+    }
+
+    if (el.type === "save-contact") {
+        const style = `${baseStyle}display:flex;align-items:center;gap:4px;cursor:pointer;font-size:${el.fontSize ?? 12}px;font-family:${el.fontFamily ?? "sans-serif"};font-weight:${el.fontWeight ?? "500"};color:${el.color ?? "#3b82f6"};text-decoration:none;`;
+        return `<a href="${vcfFileName}" download style="${style}">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      ${el.customText ?? "Save Contact"}</a>`;
+    }
+
     return "";
 }
 
@@ -76,11 +113,13 @@ function renderCardHtml(
     person: SampleCardData,
     config: TemplateConfig,
     logoBase64: string | null,
-    photoBase64: string | null
+    photoBase64: string | null,
+    qrDataUrl: string | null,
+    vcfFileName: string,
 ): string {
     const sorted = [...config.elements].sort((a, b) => a.zIndex - b.zIndex);
     const elementsHtml = sorted
-        .map((el) => renderElementHtml(el, person, logoBase64, photoBase64))
+        .map((el) => renderElementHtml(el, person, logoBase64, photoBase64, qrDataUrl, vcfFileName))
         .join("\n  ");
 
     return `<!DOCTYPE html>
@@ -170,9 +209,19 @@ export async function GET(
             photoUrl: null,
         };
 
-        const html = renderCardHtml(personData, config, logoBase64, photoBase64);
-        const fileName = `${person.first_name.toLowerCase()}-${person.last_name.toLowerCase()}.html`;
-        zip.file(fileName, html);
+        const baseName = `${person.first_name.toLowerCase()}-${person.last_name.toLowerCase()}`;
+        const vcfFileName = `${baseName}.vcf`;
+
+        // Generate vCard
+        const vcard = generateVCard(personData);
+        zip.file(vcfFileName, vcard);
+
+        // Generate QR code if template uses it
+        const hasQr = config.elements.some((el) => el.type === "qrcode");
+        const qrDataUrl = hasQr ? await generateQrDataUrl(vcard) : null;
+
+        const html = renderCardHtml(personData, config, logoBase64, photoBase64, qrDataUrl, vcfFileName);
+        zip.file(`${baseName}.html`, html);
     }
 
     const zipBuffer = await zip.generateAsync({ type: "nodebuffer" });

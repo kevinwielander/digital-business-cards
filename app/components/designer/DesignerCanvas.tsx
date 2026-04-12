@@ -267,6 +267,45 @@ export default function DesignerCanvas({
                                 }}
                             />
                         )}
+
+                        {el.type === "qrcode" && (
+                            <div className="flex h-full w-full items-center justify-center rounded bg-white p-1">
+                                <svg viewBox="0 0 100 100" className="h-full w-full">
+                                    {/* Placeholder QR pattern */}
+                                    <rect width="100" height="100" fill="white" />
+                                    <rect x="5" y="5" width="25" height="25" fill="black" />
+                                    <rect x="70" y="5" width="25" height="25" fill="black" />
+                                    <rect x="5" y="70" width="25" height="25" fill="black" />
+                                    <rect x="10" y="10" width="15" height="15" fill="white" />
+                                    <rect x="75" y="10" width="15" height="15" fill="white" />
+                                    <rect x="10" y="75" width="15" height="15" fill="white" />
+                                    <rect x="13" y="13" width="9" height="9" fill="black" />
+                                    <rect x="78" y="13" width="9" height="9" fill="black" />
+                                    <rect x="13" y="78" width="9" height="9" fill="black" />
+                                    <rect x="35" y="35" width="30" height="30" rx="2" fill="black" opacity="0.2" />
+                                    <text x="50" y="53" textAnchor="middle" fontSize="8" fill="black" opacity="0.5">QR</text>
+                                </svg>
+                            </div>
+                        )}
+
+                        {el.type === "save-contact" && (
+                            <div
+                                className="flex h-full w-full cursor-pointer items-center gap-1 overflow-hidden"
+                                style={{
+                                    fontSize: el.fontSize ?? 12,
+                                    fontFamily: el.fontFamily ?? "sans-serif",
+                                    fontWeight: el.fontWeight ?? "500",
+                                    color: el.color ?? "#3b82f6",
+                                }}
+                            >
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                                    <polyline points="7 10 12 15 17 10" />
+                                    <line x1="12" y1="15" x2="12" y2="3" />
+                                </svg>
+                                {el.customText ?? "Save Contact"}
+                            </div>
+                        )}
                     </div>
                 </Rnd>
             ))}

@@ -1,6 +1,6 @@
 // --- Element-based designer types ---
 
-export type ElementType = "text" | "image" | "shape";
+export type ElementType = "text" | "image" | "shape" | "qrcode" | "save-contact";
 
 export type BoundField =
     | "first_name"
