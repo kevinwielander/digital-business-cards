@@ -27,7 +27,7 @@ export default function SeedGuestData() {
             templates.push({
                 id,
                 name: sample.name,
-                config: sample.config as Record<string, unknown>,
+                config: sample.config,
                 created_at: new Date().toISOString(),
             });
             templateIds.push(id);

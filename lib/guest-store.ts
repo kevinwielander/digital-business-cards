@@ -23,7 +23,7 @@ export interface GuestPerson {
 export interface GuestTemplate {
     id: string;
     name: string;
-    config: Record<string, unknown>;
+    config: unknown;
     created_at: string;
 }
 

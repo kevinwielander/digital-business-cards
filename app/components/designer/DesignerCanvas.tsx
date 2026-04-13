@@ -31,7 +31,7 @@ function getDisplayText(element: CardElement, data: SampleCardData): string {
         const key = element.boundField.slice(7);
         return data.custom_fields?.[key] ?? key;
     }
-    if (element.boundField) return data[element.boundField]?.toString() ?? "";
+    if (element.boundField && element.boundField in data) return (data as unknown as Record<string, string>)[element.boundField] ?? "";
     return "Text";
 }
 
