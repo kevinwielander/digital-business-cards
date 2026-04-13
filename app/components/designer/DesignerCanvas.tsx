@@ -222,6 +222,7 @@ export default function DesignerCanvas({
                                     letterSpacing: el.letterSpacing ? `${el.letterSpacing}px` : undefined,
                                     lineHeight: el.lineHeight ?? undefined,
                                     textTransform: el.textTransform ?? "none",
+                                    textShadow: el.textShadow ?? undefined,
                                     justifyContent:
                                         el.textAlign === "center"
                                             ? "center"
@@ -245,9 +246,9 @@ export default function DesignerCanvas({
                                 }}
                             >
                                 {el.imageSource === "logo" && sampleData.logoUrl ? (
-                                    <img src={sampleData.logoUrl} alt="Logo" className="h-full w-full" style={{ objectFit: el.objectFit ?? "contain" }} />
+                                    <img src={sampleData.logoUrl} alt="Logo" className="h-full w-full" style={{ objectFit: el.objectFit ?? "contain", opacity: el.imageOpacity ?? 1 }} />
                                 ) : el.imageSource === "photo" && sampleData.photoUrl ? (
-                                    <img src={sampleData.photoUrl} alt="Photo" className="h-full w-full" style={{ objectFit: el.objectFit ?? "cover", borderRadius: el.borderRadius ?? 0 }} />
+                                    <img src={sampleData.photoUrl} alt="Photo" className="h-full w-full" style={{ objectFit: el.objectFit ?? "cover", borderRadius: el.borderRadius ?? 0, opacity: el.imageOpacity ?? 1 }} />
                                 ) : (
                                     <span className="text-xs text-zinc-400">
                                         {el.imageSource === "logo" ? "Logo" : el.imageSource === "photo" ? "Photo" : "Image"}
@@ -260,7 +261,7 @@ export default function DesignerCanvas({
                             <div
                                 className="h-full w-full"
                                 style={{
-                                    backgroundColor: el.backgroundColor ?? "#3b82f6",
+                                    background: el.gradient || el.backgroundColor || "#3b82f6",
                                     borderRadius: el.shapeRadius ?? 0,
                                     border: el.border ?? "none",
                                     boxShadow: el.boxShadow ?? undefined,

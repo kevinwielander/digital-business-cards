@@ -209,6 +209,12 @@ export default function PropertiesPanel({
                             className="h-8 w-full cursor-pointer rounded border border-zinc-300"
                         />
                     </div>
+                    <Field
+                        label="Text Shadow"
+                        value={element.textShadow ?? ""}
+                        onChange={(v) => onUpdate({ textShadow: v || undefined })}
+                        placeholder="e.g. 0 1px 3px rgba(0,0,0,0.3)"
+                    />
                 </Section>
             )}
 
@@ -240,6 +246,24 @@ export default function PropertiesPanel({
                     </div>
 
                     <Field label="Border Radius" type="number" value={element.borderRadius ?? 0} onChange={(v) => onUpdate({ borderRadius: Number(v) })} />
+
+                    <div>
+                        <label className="mb-1 block text-xs font-medium text-zinc-500">Image Opacity</label>
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="range"
+                                min={0}
+                                max={1}
+                                step={0.05}
+                                value={element.imageOpacity ?? 1}
+                                onChange={(e) => onUpdate({ imageOpacity: Number(e.target.value) })}
+                                className="flex-1"
+                            />
+                            <span className="w-10 text-right text-xs text-zinc-500">
+                                {Math.round((element.imageOpacity ?? 1) * 100)}%
+                            </span>
+                        </div>
+                    </div>
                 </Section>
             )}
 
@@ -251,9 +275,39 @@ export default function PropertiesPanel({
                         <input
                             type="color"
                             value={element.backgroundColor ?? "#3b82f6"}
-                            onChange={(e) => onUpdate({ backgroundColor: e.target.value })}
+                            onChange={(e) => onUpdate({ backgroundColor: e.target.value, gradient: undefined })}
                             className="h-8 w-full cursor-pointer rounded border border-zinc-300"
                         />
+                    </div>
+
+                    <Field
+                        label="Gradient"
+                        value={element.gradient ?? ""}
+                        onChange={(v) => onUpdate({ gradient: v || undefined })}
+                        placeholder="e.g. linear-gradient(135deg, #667eea, #764ba2)"
+                    />
+
+                    <div>
+                        <label className="mb-1 block text-xs font-medium text-zinc-500">Presets</label>
+                        <div className="grid grid-cols-4 gap-1">
+                            {[
+                                "linear-gradient(135deg, #667eea, #764ba2)",
+                                "linear-gradient(135deg, #f093fb, #f5576c)",
+                                "linear-gradient(135deg, #4facfe, #00f2fe)",
+                                "linear-gradient(135deg, #43e97b, #38f9d7)",
+                                "linear-gradient(135deg, #fa709a, #fee140)",
+                                "linear-gradient(135deg, #a18cd1, #fbc2eb)",
+                                "linear-gradient(135deg, #fccb90, #d57eeb)",
+                                "linear-gradient(135deg, #0c3483, #a2b6df)",
+                            ].map((g) => (
+                                <button
+                                    key={g}
+                                    onClick={() => onUpdate({ gradient: g })}
+                                    className="h-6 rounded border border-zinc-200"
+                                    style={{ background: g }}
+                                />
+                            ))}
+                        </div>
                     </div>
 
                     <Field label="Border Radius" type="number" value={element.shapeRadius ?? 0} onChange={(v) => onUpdate({ shapeRadius: Number(v) })} />

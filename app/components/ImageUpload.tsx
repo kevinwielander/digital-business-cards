@@ -43,7 +43,7 @@ async function getCroppedImage(imageSrc: string, crop: Area): Promise<File> {
 export default function ImageUpload({
     onImageReady,
     currentImageUrl,
-    aspectRatio = 1,
+    aspectRatio,
     shape = "rect",
     label = "Upload Image",
 }: ImageUploadProps) {

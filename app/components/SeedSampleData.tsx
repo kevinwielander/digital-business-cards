@@ -18,15 +18,15 @@ async function fetchImageBlob(url: string): Promise<Blob | null> {
     }
 }
 
-async function svgToPngBlob(svgDataUrl: string, size = 200): Promise<Blob | null> {
+async function svgToPngBlob(svgDataUrl: string): Promise<Blob | null> {
     return new Promise((resolve) => {
         const img = new Image();
         img.onload = () => {
             const canvas = document.createElement("canvas");
-            canvas.width = size;
-            canvas.height = size;
+            canvas.width = img.naturalWidth;
+            canvas.height = img.naturalHeight;
             const ctx = canvas.getContext("2d")!;
-            ctx.drawImage(img, 0, 0, size, size);
+            ctx.drawImage(img, 0, 0);
             canvas.toBlob((blob) => resolve(blob), "image/png");
         };
         img.onerror = () => resolve(null);

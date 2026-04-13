@@ -76,7 +76,7 @@ function renderElementHtml(
     logoBase64: string | null,
     photoBase64: string | null,
     qrDataUrl: string | null,
-    vcfFileName: string,
+    vcfDataUrl: string,
 ): string {
     const opacity = el.opacity !== undefined ? `opacity:${el.opacity};` : "";
     const rotation = el.rotation ? `transform:rotate(${el.rotation}deg);` : "";
@@ -89,7 +89,8 @@ function renderElementHtml(
         const letterSpacing = el.letterSpacing ? `letter-spacing:${el.letterSpacing}px;` : "";
         const lineHeight = el.lineHeight ? `line-height:${el.lineHeight};` : "";
         const textTransform = el.textTransform && el.textTransform !== "none" ? `text-transform:${el.textTransform};` : "";
-        const style = `${baseStyle}display:flex;align-items:center;justify-content:${justify};font-size:${el.fontSize ?? 14}px;font-family:${el.fontFamily ?? "sans-serif"};font-weight:${el.fontWeight ?? "normal"};color:${el.color ?? "#000"};overflow:hidden;${letterSpacing}${lineHeight}${textTransform}`;
+        const textShadow = el.textShadow ? `text-shadow:${el.textShadow};` : "";
+        const style = `${baseStyle}display:flex;align-items:center;justify-content:${justify};font-size:${el.fontSize ?? 14}px;font-family:${el.fontFamily ?? "sans-serif"};font-weight:${el.fontWeight ?? "normal"};color:${el.color ?? "#000"};overflow:hidden;${letterSpacing}${lineHeight}${textTransform}${textShadow}`;
         return `<div style="${style}">${getLinkedText(el, data)}</div>`;
     }
 
@@ -102,14 +103,16 @@ function renderElementHtml(
                   : null;
         const radius = el.borderRadius ?? 0;
         const fit = el.objectFit ?? "contain";
+        const imgOpacity = el.imageOpacity !== undefined ? `opacity:${el.imageOpacity};` : "";
         if (src) {
-            return `<div style="${baseStyle}overflow:hidden;border-radius:${radius}px;"><img src="${src}" style="width:100%;height:100%;object-fit:${fit};border-radius:${radius}px;" /></div>`;
+            return `<div style="${baseStyle}overflow:hidden;border-radius:${radius}px;"><img src="${src}" style="width:100%;height:100%;object-fit:${fit};border-radius:${radius}px;${imgOpacity}" /></div>`;
         }
         return `<div style="${baseStyle}background:#e4e4e7;border-radius:${radius}px;"></div>`;
     }
 
     if (el.type === "shape") {
-        const style = `${baseStyle}background:${el.backgroundColor ?? "#3b82f6"};border-radius:${el.shapeRadius ?? 0}px;border:${el.border ?? "none"};`;
+        const bg = el.gradient || el.backgroundColor || "#3b82f6";
+        const style = `${baseStyle}background:${bg};border-radius:${el.shapeRadius ?? 0}px;border:${el.border ?? "none"};`;
         return `<div style="${style}"></div>`;
     }
 
@@ -119,7 +122,7 @@ function renderElementHtml(
 
     if (el.type === "save-contact") {
         const style = `${baseStyle}display:flex;align-items:center;gap:4px;cursor:pointer;font-size:${el.fontSize ?? 12}px;font-family:${el.fontFamily ?? "sans-serif"};font-weight:${el.fontWeight ?? "500"};color:${el.color ?? "#3b82f6"};text-decoration:none;`;
-        return `<a href="${vcfFileName}" download style="${style}">
+        return `<a href="${vcfDataUrl}" download="contact.vcf" style="${style}">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
       ${el.customText ?? "Save Contact"}</a>`;
     }
@@ -133,11 +136,11 @@ function renderCardHtml(
     logoBase64: string | null,
     photoBase64: string | null,
     qrDataUrl: string | null,
-    vcfFileName: string,
+    vcfDataUrl: string,
 ): string {
     const sorted = [...config.elements].sort((a, b) => a.zIndex - b.zIndex);
     const elementsHtml = sorted
-        .map((el) => renderElementHtml(el, person, logoBase64, photoBase64, qrDataUrl, vcfFileName))
+        .map((el) => renderElementHtml(el, person, logoBase64, photoBase64, qrDataUrl, vcfDataUrl))
         .join("\n  ");
 
     return `<!DOCTYPE html>
@@ -236,17 +239,19 @@ export async function GET(
         };
 
         const baseName = `${person.first_name.toLowerCase()}-${person.last_name.toLowerCase()}`;
-        const vcfFileName = `${baseName}.vcf`;
 
         // Generate vCard
         const vcard = generateVCard(personData);
-        zip.file(vcfFileName, vcard);
+        zip.file(`${baseName}.vcf`, vcard);
+
+        // Embed vCard as data URL for the save-contact button
+        const vcfDataUrl = `data:text/vcard;base64,${Buffer.from(vcard).toString("base64")}`;
 
         // Generate QR code if template uses it
         const hasQr = config.elements.some((el) => el.type === "qrcode");
         const qrDataUrl = hasQr ? await generateQrDataUrl(vcard) : null;
 
-        const html = renderCardHtml(personData, config, logoBase64, photoBase64, qrDataUrl, vcfFileName);
+        const html = renderCardHtml(personData, config, logoBase64, photoBase64, qrDataUrl, vcfDataUrl);
         zip.file(`${baseName}.html`, html);
     }
 

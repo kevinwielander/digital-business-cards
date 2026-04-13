@@ -129,7 +129,6 @@ export function CompanyModal(props: CompanyProps) {
                     <ImageUpload
                         label="Logo"
                         onImageReady={(file) => setLogo(file)}
-                        aspectRatio={16 / 9}
                     />
 
                     {error && <p className="text-sm text-red-500">{error}</p>}

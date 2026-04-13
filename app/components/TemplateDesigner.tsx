@@ -42,45 +42,70 @@ export default function TemplateDesigner({
     const [showGrid, setShowGrid] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [companies, setCompanies] = useState<Company[]>([]);
+    const [people, setPeople] = useState<{ id: string; first_name: string; last_name: string; title: string; email: string; phone: string; photo_url: string | null; company_id: string }[]>([]);
     const [selectedCompanyId, setSelectedCompanyId] = useState("");
+    const [selectedPersonId, setSelectedPersonId] = useState("");
     const [previewData, setPreviewData] = useState<SampleCardData>(SAMPLE_CARD_DATA);
 
     useEffect(() => {
-        async function loadCompanies() {
+        async function loadData() {
             const supabase = createClient();
-            const { data } = await supabase
+            const { data: companiesData } = await supabase
                 .from(TABLES.COMPANIES)
-                .select("id, name, logo_url");
-            if (data) setCompanies(data);
+                .select("id, name, logo_url, website");
+            if (companiesData) setCompanies(companiesData);
+
+            const { data: peopleData } = await supabase
+                .from(TABLES.PEOPLE)
+                .select("id, first_name, last_name, title, email, phone, photo_url, company_id");
+            if (peopleData) setPeople(peopleData);
         }
-        loadCompanies();
+        loadData();
     }, []);
 
+    const filteredPeople = selectedCompanyId
+        ? people.filter((p) => p.company_id === selectedCompanyId)
+        : people;
+
     useEffect(() => {
-        async function loadLogo() {
+        async function loadPreview() {
+            const supabase = createClient();
             const company = companies.find((c) => c.id === selectedCompanyId);
-            if (!company) {
-                setPreviewData(SAMPLE_CARD_DATA);
-                return;
-            }
+            const person = people.find((p) => p.id === selectedPersonId);
 
             let logoUrl: string | null = null;
-            if (company.logo_url) {
-                const supabase = createClient();
+            if (company?.logo_url) {
                 const { data } = await supabase.storage
                     .from(STORAGE.LOGOS)
                     .createSignedUrl(company.logo_url, 3600);
                 logoUrl = data?.signedUrl ?? null;
             }
 
+            let photoUrl: string | null = null;
+            if (person?.photo_url) {
+                const { data } = await supabase.storage
+                    .from(STORAGE.PHOTOS)
+                    .createSignedUrl(person.photo_url, 3600);
+                photoUrl = data?.signedUrl ?? null;
+            }
+
             setPreviewData({
                 ...SAMPLE_CARD_DATA,
-                company: company.name,
+                ...(company ? { company: company.name, website: (company as { website?: string }).website ?? "" } : {}),
+                ...(person ? {
+                    first_name: person.first_name,
+                    last_name: person.last_name,
+                    full_name: `${person.first_name} ${person.last_name}`,
+                    title: person.title ?? "",
+                    email: person.email ?? "",
+                    phone: person.phone ?? "",
+                } : {}),
                 logoUrl,
+                photoUrl,
             });
         }
-        loadLogo();
-    }, [selectedCompanyId, companies]);
+        loadPreview();
+    }, [selectedCompanyId, selectedPersonId, companies, people]);
 
     const selectedElement = config.elements.find((el) => el.id === selectedId) ?? null;
 
@@ -194,13 +219,26 @@ export default function TemplateDesigner({
                 />
                 <select
                     value={selectedCompanyId}
-                    onChange={(e) => setSelectedCompanyId(e.target.value)}
+                    onChange={(e) => {
+                        setSelectedCompanyId(e.target.value);
+                        setSelectedPersonId("");
+                    }}
                     className="rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500"
                 >
-                    <option value="">Preview: Sample data</option>
+                    <option value="">Company: Sample</option>
                     {companies.map((c) => (
-                        <option key={c.id} value={c.id}>
-                            Preview: {c.name}
+                        <option key={c.id} value={c.id}>{c.name}</option>
+                    ))}
+                </select>
+                <select
+                    value={selectedPersonId}
+                    onChange={(e) => setSelectedPersonId(e.target.value)}
+                    className="rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500"
+                >
+                    <option value="">Person: Sample</option>
+                    {filteredPeople.map((p) => (
+                        <option key={p.id} value={p.id}>
+                            {p.first_name} {p.last_name}
                         </option>
                     ))}
                 </select>

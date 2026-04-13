@@ -40,12 +40,17 @@ export interface CardElement {
     imageSource?: "logo" | "photo";
     borderRadius?: number;
     objectFit?: "cover" | "contain";
+    // Image advanced
+    imageOpacity?: number;
     // Shape properties
     backgroundColor?: string;
+    gradient?: string;
     border?: string;
     shapeRadius?: number;
     // Shadow
     boxShadow?: string;
+    // Text shadow
+    textShadow?: string;
 }
 
 export interface TemplateConfig {
