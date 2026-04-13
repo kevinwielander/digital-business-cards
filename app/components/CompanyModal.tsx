@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { STORAGE, TABLES } from "@/lib/supabase/constants";
+import { isGuestMode } from "@/lib/guest-store";
+import { useGuest } from "./GuestProvider";
 import ImageUpload from "./ImageUpload";
 
 interface CompanyProps {
@@ -14,6 +16,7 @@ interface CompanyProps {
 }
 
 export function CompanyModal(props: CompanyProps) {
+    const guest = useGuest();
     const [name, setName] = useState(props.name);
     const [domain, setDomain] = useState(props.domain);
     const [website, setWebsite] = useState(props.website);
@@ -23,6 +26,16 @@ export function CompanyModal(props: CompanyProps) {
     async function handleSubmit(e: React.SyntheticEvent) {
         e.preventDefault();
         setError(null);
+
+        if (isGuestMode()) {
+            let logoUrl: string | null = null;
+            if (logo) {
+                logoUrl = URL.createObjectURL(logo);
+            }
+            guest.addCompany({ name, domain, website, logo_url: logoUrl });
+            props.onClose();
+            return;
+        }
 
         const supabase = createClient();
         const { data: { user } } = await supabase.auth.getUser();

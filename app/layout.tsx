@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "./components/Navbar";
+import GuestProvider from "./components/GuestProvider";
+import GuestBanner from "./components/GuestBanner";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -29,8 +31,11 @@ export default function RootLayout({
             className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
         >
             <body className="flex min-h-full flex-col">
-                <Navbar />
-                <main className="flex flex-1 flex-col">{children}</main>
+                <GuestProvider>
+                    <Navbar />
+                    <GuestBanner />
+                    <main className="flex flex-1 flex-col">{children}</main>
+                </GuestProvider>
             </body>
         </html>
     );

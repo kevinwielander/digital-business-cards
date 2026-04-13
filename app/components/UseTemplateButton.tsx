@@ -3,6 +3,8 @@
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { TABLES } from "@/lib/supabase/constants";
+import { isGuestMode } from "@/lib/guest-store";
+import { useGuest } from "./GuestProvider";
 import type { TemplateConfig } from "@/lib/types";
 
 interface UseTemplateButtonProps {
@@ -12,8 +14,15 @@ interface UseTemplateButtonProps {
 
 export default function UseTemplateButton({ name, config }: UseTemplateButtonProps) {
     const router = useRouter();
+    const guest = useGuest();
 
     async function handleUse() {
+        if (isGuestMode()) {
+            const id = guest.addTemplate(name, config);
+            router.push(`/templates/${id}/edit`);
+            return;
+        }
+
         const supabase = createClient();
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;

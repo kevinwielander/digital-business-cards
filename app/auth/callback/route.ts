@@ -10,7 +10,8 @@ export async function GET(request: NextRequest) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (!error) {
-      return NextResponse.redirect(new URL("/", origin));
+      // Redirect through migrate page to pick up any guest data
+      return NextResponse.redirect(new URL("/auth/migrate", origin));
     }
   }
 

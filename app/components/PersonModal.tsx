@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { TABLES, STORAGE } from "@/lib/supabase/constants";
+import { isGuestMode } from "@/lib/guest-store";
+import { useGuest } from "./GuestProvider";
 import ImageUpload from "./ImageUpload";
 import ConfirmModal from "./ConfirmModal";
 
@@ -29,6 +31,7 @@ interface PersonModalProps {
 }
 
 export default function PersonModal({ onClose, companyId, templates, person }: PersonModalProps) {
+    const guest = useGuest();
     const [firstName, setFirstName] = useState(person?.first_name ?? "");
     const [lastName, setLastName] = useState(person?.last_name ?? "");
     const [title, setTitle] = useState(person?.title ?? "");
@@ -45,6 +48,26 @@ export default function PersonModal({ onClose, companyId, templates, person }: P
 
         if (!templateId) {
             setError("Please select a template");
+            return;
+        }
+
+        if (isGuestMode()) {
+            const row = {
+                company_id: companyId,
+                template_id: templateId,
+                first_name: firstName,
+                last_name: lastName,
+                title,
+                email,
+                phone,
+                photo_url: null as string | null,
+            };
+            if (person) {
+                guest.updatePerson(person.id, row);
+            } else {
+                guest.addPerson(row);
+            }
+            onClose();
             return;
         }
 
@@ -98,6 +121,12 @@ export default function PersonModal({ onClose, companyId, templates, person }: P
 
     async function handleDelete() {
         if (!person) return;
+
+        if (isGuestMode()) {
+            guest.deletePerson(person.id);
+            onClose();
+            return;
+        }
 
         const supabase = createClient();
         const { error } = await supabase

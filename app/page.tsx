@@ -2,6 +2,9 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { TABLES, STORAGE } from "@/lib/supabase/constants";
 import SeedSampleData from "./components/SeedSampleData";
+import TryGuestButton from "./components/TryGuestButton";
+import GuestDashboard from "./components/GuestDashboard";
+import GuestGate from "./components/GuestGate";
 
 export default async function Home() {
     const supabase = await createClient();
@@ -9,6 +12,7 @@ export default async function Home() {
 
     if (!user) {
         return (
+            <GuestGate>
             <div className="flex flex-1 flex-col">
                 {/* Hero */}
                 <div className="relative flex flex-col items-center justify-center overflow-hidden px-6 py-24">
@@ -39,6 +43,7 @@ export default async function Home() {
                             >
                                 Get Started Free
                             </Link>
+                            <TryGuestButton />
                         </div>
                     </div>
                 </div>
@@ -95,6 +100,7 @@ export default async function Home() {
                     </div>
                 </div>
             </div>
+            </GuestGate>
         );
     }
 

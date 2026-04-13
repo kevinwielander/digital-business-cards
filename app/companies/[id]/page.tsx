@@ -4,11 +4,16 @@ import { TABLES, STORAGE } from "@/lib/supabase/constants";
 import { notFound } from "next/navigation";
 import PeopleList from "@/app/components/PeopleList";
 import DeleteCompanyButton from "@/app/components/DeleteCompanyButton";
+import GuestCompanyDetail from "@/app/components/GuestCompanyDetail";
 
 export default async function CompanyDetailPage(props: PageProps<"/companies/[id]">) {
     const { id } = await props.params;
 
     const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) return <GuestCompanyDetail companyId={id} />;
+
     const { data: company } = await supabase
         .from(TABLES.COMPANIES)
         .select("*")

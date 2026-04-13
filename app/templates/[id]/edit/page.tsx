@@ -1,12 +1,17 @@
 import { createClient } from "@/lib/supabase/server";
 import { TABLES } from "@/lib/supabase/constants";
 import TemplateDesigner from "@/app/components/TemplateDesigner";
+import GuestTemplateEdit from "@/app/components/GuestTemplateEdit";
 import { notFound } from "next/navigation";
 
 export default async function EditTemplatePage(props: PageProps<"/templates/[id]/edit">) {
     const { id } = await props.params;
 
     const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) return <GuestTemplateEdit templateId={id} />;
+
     const { data: template } = await supabase
         .from(TABLES.TEMPLATES)
         .select("*")

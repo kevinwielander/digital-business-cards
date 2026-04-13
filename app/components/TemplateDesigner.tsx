@@ -11,6 +11,8 @@ import {
     CARD_HEIGHT,
 } from "@/lib/types";
 import type { TemplateConfig, CardElement, SampleCardData } from "@/lib/types";
+import { isGuestMode } from "@/lib/guest-store";
+import { useGuest } from "./GuestProvider";
 import DesignerCanvas from "./designer/DesignerCanvas";
 import PropertiesPanel from "./designer/PropertiesPanel";
 import ElementsToolbar from "./designer/ElementsToolbar";
@@ -33,6 +35,7 @@ export default function TemplateDesigner({
     templateId,
 }: TemplateDesignerProps) {
     const router = useRouter();
+    const guest = useGuest();
     const [name, setName] = useState(initialName);
     const [config, setConfig] = useState<TemplateConfig>(() => {
         if (initialConfig) return initialConfig;
@@ -177,6 +180,16 @@ export default function TemplateDesigner({
             return;
         }
         setError(null);
+
+        if (isGuestMode()) {
+            if (templateId) {
+                guest.updateTemplate(templateId, { name, config });
+            } else {
+                guest.addTemplate(name, config);
+            }
+            router.push("/templates");
+            return;
+        }
 
         const supabase = createClient();
         const {

@@ -3,11 +3,12 @@ import { createClient } from "@/lib/supabase/server";
 import { TABLES, STORAGE } from "@/lib/supabase/constants";
 import AddCompanyButton from "../components/AddCompanyButton";
 import SeedSampleData from "../components/SeedSampleData";
+import GuestCompaniesPage from "../components/GuestCompaniesPage";
 
 export default async function CompaniesPage() {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return null;
+    if (!user) return <GuestCompaniesPage />;
 
     const { data: companies } = await supabase
         .from(TABLES.COMPANIES)

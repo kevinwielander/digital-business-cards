@@ -4,11 +4,12 @@ import { TABLES } from "@/lib/supabase/constants";
 import { SAMPLE_TEMPLATES } from "@/lib/sample-templates";
 import UseTemplateButton from "@/app/components/UseTemplateButton";
 import DeleteTemplateButton from "@/app/components/DeleteTemplateButton";
+import GuestTemplatesPage from "@/app/components/GuestTemplatesPage";
 
 export default async function TemplatesPage() {
     const supabase = await createClient();
     const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return null;
+    if (!user) return <GuestTemplatesPage />;
 
     const { data: templates } = await supabase
         .from(TABLES.TEMPLATES)

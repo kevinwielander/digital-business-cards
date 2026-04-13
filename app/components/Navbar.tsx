@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import LogoutButton from "./LogoutButton";
+import GuestNavLinks from "./GuestNavLinks";
 
 export async function Navbar() {
     const supabase = await createClient();
@@ -13,12 +14,14 @@ export async function Navbar() {
                     <Link href="/" className="text-base font-bold tracking-tight text-zinc-900">
                         CardGen
                     </Link>
-                    {user && (
+                    {user ? (
                         <div className="flex items-center gap-1">
                             <NavLink href="/">Dashboard</NavLink>
                             <NavLink href="/companies">Companies</NavLink>
                             <NavLink href="/templates">Templates</NavLink>
                         </div>
+                    ) : (
+                        <GuestNavLinks />
                     )}
                 </div>
                 <div className="flex items-center gap-4">
