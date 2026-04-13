@@ -49,6 +49,10 @@ async function generateQrDataUrl(vcard: string): Promise<string> {
 
 function getDisplayText(el: CardElement, data: SampleCardData): string {
     if (el.boundField === "custom") return el.customText ?? "";
+    if (el.boundField?.startsWith("custom:")) {
+        const key = el.boundField.slice(7);
+        return data.custom_fields?.[key] ?? "";
+    }
     if (el.boundField) return data[el.boundField]?.toString() ?? "";
     return "";
 }
@@ -236,6 +240,7 @@ export async function GET(
             website: company.website ?? "",
             logoUrl: null,
             photoUrl: null,
+            custom_fields: person.custom_fields ?? {},
         };
 
         const baseName = `${person.first_name.toLowerCase()}-${person.last_name.toLowerCase()}`;

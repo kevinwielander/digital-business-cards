@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import type { CustomFieldDefinition } from "@/lib/types";
 import PersonModal from "./PersonModal";
 import GenerateModal from "./GenerateModal";
 import BulkImportModal from "./BulkImportModal";
@@ -29,9 +30,10 @@ interface PeopleListProps {
     isSample?: boolean;
     companyName?: string;
     companyLogoUrl?: string | null;
+    customFieldDefs?: CustomFieldDefinition[];
 }
 
-export default function PeopleList({ people, companyId, templates, isSample, companyName, companyLogoUrl }: PeopleListProps) {
+export default function PeopleList({ people, companyId, templates, isSample, companyName, companyLogoUrl, customFieldDefs }: PeopleListProps) {
     const [showPersonModal, setShowPersonModal] = useState(false);
     const [showGenerateModal, setShowGenerateModal] = useState(false);
     const [showImportModal, setShowImportModal] = useState(false);
@@ -123,6 +125,7 @@ export default function PeopleList({ people, companyId, templates, isSample, com
                     templates={templates}
                     companyName={companyName}
                     companyLogoUrl={companyLogoUrl}
+                    customFieldDefs={customFieldDefs}
                     person={editPerson}
                 />
             )}
@@ -140,6 +143,7 @@ export default function PeopleList({ people, companyId, templates, isSample, com
                     onClose={() => setShowImportModal(false)}
                     companyId={companyId}
                     templates={templates}
+                    customFieldDefs={customFieldDefs}
                 />
             )}
         </div>

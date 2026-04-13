@@ -9,7 +9,7 @@ import { useGuest } from "./GuestProvider";
 import ImageUpload from "./ImageUpload";
 import ConfirmModal from "./ConfirmModal";
 import CardPreviewRenderer from "./designer/CardPreviewRenderer";
-import type { TemplateConfig, SampleCardData } from "@/lib/types";
+import type { TemplateConfig, SampleCardData, CustomFieldDefinition } from "@/lib/types";
 import { SAMPLE_CARD_DATA } from "@/lib/types";
 
 interface Template {
@@ -23,6 +23,7 @@ interface PersonModalProps {
     templates: Template[];
     companyName?: string;
     companyLogoUrl?: string | null;
+    customFieldDefs?: CustomFieldDefinition[];
     person?: {
         id: string;
         first_name: string;
@@ -33,10 +34,11 @@ interface PersonModalProps {
         photo_url: string | null;
         photoSignedUrl: string | null;
         template_id: string | null;
+        custom_fields?: Record<string, string>;
     };
 }
 
-export default function PersonModal({ onClose, companyId, templates, companyName, companyLogoUrl, person }: PersonModalProps) {
+export default function PersonModal({ onClose, companyId, templates, companyName, companyLogoUrl, customFieldDefs, person }: PersonModalProps) {
     const guest = useGuest();
     const [firstName, setFirstName] = useState(person?.first_name ?? "");
     const [lastName, setLastName] = useState(person?.last_name ?? "");
@@ -46,6 +48,7 @@ export default function PersonModal({ onClose, companyId, templates, companyName
     const [templateId, setTemplateId] = useState(person?.template_id ?? templates[0]?.id ?? "");
     const [photo, setPhoto] = useState<File | null>(null);
     const [photoPreview, setPhotoPreview] = useState<string | null>(person?.photoSignedUrl ?? null);
+    const [customFields, setCustomFields] = useState<Record<string, string>>(person?.custom_fields ?? {});
     const [error, setError] = useState<string | null>(null);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [templateConfig, setTemplateConfig] = useState<TemplateConfig | null>(null);
@@ -96,6 +99,7 @@ export default function PersonModal({ onClose, companyId, templates, companyName
         website: "",
         logoUrl: companyLogoUrl ?? null,
         photoUrl: photoPreview,
+        custom_fields: customFields,
     };
 
     async function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
@@ -157,6 +161,7 @@ export default function PersonModal({ onClose, companyId, templates, companyName
             email,
             phone,
             photo_url: photoPath,
+            custom_fields: customFields,
         };
 
         if (person) {
@@ -292,6 +297,24 @@ export default function PersonModal({ onClose, companyId, templates, companyName
                                 </select>
                             )}
                         </div>
+
+                        {/* Custom fields */}
+                        {customFieldDefs && customFieldDefs.length > 0 && (
+                            <div className="space-y-3">
+                                <label className="block text-sm font-medium text-zinc-700">Custom Fields</label>
+                                {customFieldDefs.map((def) => (
+                                    <div key={def.key}>
+                                        <label className="mb-1 block text-xs text-zinc-500">{def.label}</label>
+                                        <input
+                                            type="text"
+                                            value={customFields[def.key] ?? ""}
+                                            onChange={(e) => setCustomFields({ ...customFields, [def.key]: e.target.value })}
+                                            className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500"
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+                        )}
 
                         <ImageUpload
                             label="Photo"

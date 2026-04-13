@@ -9,10 +9,12 @@ import ImageUpload from "./ImageUpload";
 
 interface CompanyProps {
     onClose: () => void;
+    id?: string;
     name: string;
     domain: string;
     website: string;
     logo: File | null;
+    currentLogoUrl?: string | null;
 }
 
 export function CompanyModal(props: CompanyProps) {
@@ -23,6 +25,8 @@ export function CompanyModal(props: CompanyProps) {
     const [logo, setLogo] = useState<File | null>(null);
     const [error, setError] = useState<string | null>(null);
 
+    const isEdit = !!props.id;
+
     async function handleSubmit(e: React.SyntheticEvent) {
         e.preventDefault();
         setError(null);
@@ -32,7 +36,11 @@ export function CompanyModal(props: CompanyProps) {
             if (logo) {
                 logoUrl = URL.createObjectURL(logo);
             }
-            guest.addCompany({ name, domain, website, logo_url: logoUrl });
+            if (isEdit && props.id) {
+                guest.updateCompany(props.id, { name, domain, website, logo_url: logoUrl ?? undefined });
+            } else {
+                guest.addCompany({ name, domain, website, logo_url: logoUrl });
+            }
             props.onClose();
             return;
         }
@@ -41,7 +49,7 @@ export function CompanyModal(props: CompanyProps) {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
-        let logoPath: string | null = null;
+        let logoPath: string | null | undefined = undefined;
 
         if (logo) {
             const fileExt = logo.name.split(".").pop();
@@ -59,19 +67,34 @@ export function CompanyModal(props: CompanyProps) {
             logoPath = filePath;
         }
 
-        const { error: insertError } = await supabase
-            .from(TABLES.COMPANIES)
-            .insert({
-                user_id: user.id,
-                name,
-                domain,
-                website,
-                logo_url: logoPath,
-            });
+        if (isEdit && props.id) {
+            const updates: Record<string, unknown> = { name, domain, website };
+            if (logoPath !== undefined) updates.logo_url = logoPath;
 
-        if (insertError) {
-            setError(insertError.message);
-            return;
+            const { error: updateError } = await supabase
+                .from(TABLES.COMPANIES)
+                .update(updates)
+                .eq("id", props.id);
+
+            if (updateError) {
+                setError(updateError.message);
+                return;
+            }
+        } else {
+            const { error: insertError } = await supabase
+                .from(TABLES.COMPANIES)
+                .insert({
+                    user_id: user.id,
+                    name,
+                    domain,
+                    website,
+                    logo_url: logoPath ?? null,
+                });
+
+            if (insertError) {
+                setError(insertError.message);
+                return;
+            }
         }
 
         props.onClose();
@@ -88,7 +111,7 @@ export function CompanyModal(props: CompanyProps) {
             >
                 <div className="mb-6 flex items-center justify-between">
                     <h2 className="text-xl font-semibold">
-                        {props.name ? "Edit Company" : "Add Company"}
+                        {isEdit ? "Edit Company" : "Add Company"}
                     </h2>
                     <button
                         onClick={props.onClose}
@@ -142,6 +165,7 @@ export function CompanyModal(props: CompanyProps) {
                     <ImageUpload
                         label="Logo"
                         onImageReady={(file) => setLogo(file)}
+                        currentImageUrl={props.currentLogoUrl}
                     />
 
                     {error && <p className="text-sm text-red-500">{error}</p>}
@@ -158,7 +182,7 @@ export function CompanyModal(props: CompanyProps) {
                             type="submit"
                             className="rounded-lg bg-zinc-900 px-5 py-2 text-sm font-medium text-white hover:bg-zinc-700"
                         >
-                            Save
+                            {isEdit ? "Save Changes" : "Create Company"}
                         </button>
                     </div>
                 </form>

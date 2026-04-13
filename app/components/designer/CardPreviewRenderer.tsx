@@ -10,6 +10,10 @@ function getDisplayText(el: CardElement, data: SampleCardData): string {
     if (el.type !== "text" && el.type !== "save-contact") return "";
     if (el.type === "save-contact") return el.customText ?? "Save Contact";
     if (el.boundField === "custom") return el.customText ?? "Custom text";
+    if (el.boundField?.startsWith("custom:")) {
+        const key = el.boundField.slice(7);
+        return data.custom_fields?.[key] ?? key;
+    }
     if (el.boundField) return data[el.boundField]?.toString() ?? "";
     return "Text";
 }

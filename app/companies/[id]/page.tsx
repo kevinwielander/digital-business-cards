@@ -5,7 +5,9 @@ import { resolveImageUrl } from "@/lib/sample-utils";
 import { notFound } from "next/navigation";
 import PeopleList from "@/app/components/PeopleList";
 import DeleteCompanyButton from "@/app/components/DeleteCompanyButton";
+import EditCompanyButton from "@/app/components/EditCompanyButton";
 import GuestCompanyDetail from "@/app/components/GuestCompanyDetail";
+import CustomFieldsManager from "@/app/components/CustomFieldsManager";
 
 export default async function CompanyDetailPage(props: PageProps<"/companies/[id]">) {
     const { id } = await props.params;
@@ -88,7 +90,16 @@ export default async function CompanyDetailPage(props: PageProps<"/companies/[id
                     </div>
                 </div>
                 {!company.is_sample && (
-                    <DeleteCompanyButton companyId={id} companyName={company.name} />
+                    <div className="flex items-center gap-2">
+                        <EditCompanyButton
+                            id={id}
+                            name={company.name}
+                            domain={company.domain ?? ""}
+                            website={company.website ?? ""}
+                            logoUrl={logoUrl}
+                        />
+                        <DeleteCompanyButton companyId={id} companyName={company.name} />
+                    </div>
                 )}
             </div>
 
@@ -98,6 +109,13 @@ export default async function CompanyDetailPage(props: PageProps<"/companies/[id
                 </div>
             )}
 
+            {!company.is_sample && (
+                <CustomFieldsManager
+                    companyId={id}
+                    initialDefs={company.custom_field_definitions ?? []}
+                />
+            )}
+
             <PeopleList
                 people={peopleWithPhotos}
                 companyId={id}
@@ -105,6 +123,7 @@ export default async function CompanyDetailPage(props: PageProps<"/companies/[id
                 isSample={company.is_sample}
                 companyName={company.name}
                 companyLogoUrl={logoUrl}
+                customFieldDefs={company.custom_field_definitions ?? []}
             />
         </div>
     );

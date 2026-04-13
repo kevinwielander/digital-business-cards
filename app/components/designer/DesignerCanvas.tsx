@@ -27,6 +27,10 @@ interface DesignerCanvasProps {
 function getDisplayText(element: CardElement, data: SampleCardData): string {
     if (element.type !== "text") return "";
     if (element.boundField === "custom") return element.customText ?? "Custom text";
+    if (element.boundField?.startsWith("custom:")) {
+        const key = element.boundField.slice(7);
+        return data.custom_fields?.[key] ?? key;
+    }
     if (element.boundField) return data[element.boundField]?.toString() ?? "";
     return "Text";
 }

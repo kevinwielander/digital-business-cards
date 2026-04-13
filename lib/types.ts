@@ -12,7 +12,8 @@ export type BoundField =
     | "address"
     | "company"
     | "website"
-    | "custom";
+    | "custom"
+    | `custom:${string}`;
 
 export interface CardElement {
     id: string;
@@ -70,6 +71,11 @@ export const DEFAULT_TEMPLATE_CONFIG: TemplateConfig = {
     elements: [],
 };
 
+export interface CustomFieldDefinition {
+    key: string;
+    label: string;
+}
+
 export interface SampleCardData {
     first_name: string;
     last_name: string;
@@ -82,6 +88,7 @@ export interface SampleCardData {
     website: string;
     logoUrl: string | null;
     photoUrl: string | null;
+    custom_fields?: Record<string, string>;
 }
 
 export const SAMPLE_CARD_DATA: SampleCardData = {
@@ -98,7 +105,7 @@ export const SAMPLE_CARD_DATA: SampleCardData = {
     photoUrl: null,
 };
 
-export const BOUND_FIELD_LABELS: Record<BoundField, string> = {
+export const BUILT_IN_FIELD_LABELS: Record<string, string> = {
     first_name: "First Name",
     last_name: "Last Name",
     full_name: "Full Name",
@@ -110,3 +117,12 @@ export const BOUND_FIELD_LABELS: Record<BoundField, string> = {
     website: "Website",
     custom: "Custom Text",
 };
+
+export function getBoundFieldLabel(field: BoundField, customDefs?: CustomFieldDefinition[]): string {
+    if (field.startsWith("custom:")) {
+        const key = field.slice(7);
+        const def = customDefs?.find((d) => d.key === key);
+        return def?.label ?? key;
+    }
+    return BUILT_IN_FIELD_LABELS[field] ?? field;
+}

@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { TABLES } from "@/lib/supabase/constants";
 import { isGuestMode } from "@/lib/guest-store";
 import { useGuest } from "./GuestProvider";
+import type { CustomFieldDefinition } from "@/lib/types";
 
 const KNOWN_FIELDS = ["first_name", "last_name", "title", "email", "phone"] as const;
 type KnownField = typeof KNOWN_FIELDS[number];
@@ -61,19 +62,20 @@ interface BulkImportModalProps {
     onClose: () => void;
     companyId: string;
     templates: Template[];
+    customFieldDefs?: CustomFieldDefinition[];
 }
 
 interface ParsedRow {
     [key: string]: string;
 }
 
-export default function BulkImportModal({ onClose, companyId, templates }: BulkImportModalProps) {
+export default function BulkImportModal({ onClose, companyId, templates, customFieldDefs }: BulkImportModalProps) {
     const guest = useGuest();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [step, setStep] = useState<"upload" | "map" | "preview" | "done">("upload");
     const [rawHeaders, setRawHeaders] = useState<string[]>([]);
     const [rows, setRows] = useState<ParsedRow[]>([]);
-    const [columnMap, setColumnMap] = useState<Record<string, KnownField | "skip">>({});
+    const [columnMap, setColumnMap] = useState<Record<string, KnownField | "skip" | `custom:${string}`>>({});
     const [templateId, setTemplateId] = useState(templates[0]?.id ?? "");
     const [importing, setImporting] = useState(false);
     const [importedCount, setImportedCount] = useState(0);
@@ -137,7 +139,16 @@ export default function BulkImportModal({ onClose, companyId, templates }: BulkI
         });
     }
 
-    function getMappedRows(): Record<KnownField, string>[] {
+    interface MappedRow {
+        first_name: string;
+        last_name: string;
+        title: string;
+        email: string;
+        phone: string;
+        custom_fields: Record<string, string>;
+    }
+
+    function getMappedRows(): MappedRow[] {
         return rows.map((row) => {
             const mapped: Record<string, string> = {
                 first_name: "",
@@ -146,13 +157,19 @@ export default function BulkImportModal({ onClose, companyId, templates }: BulkI
                 email: "",
                 phone: "",
             };
+            const customFields: Record<string, string> = {};
+
             for (const [csvCol, field] of Object.entries(columnMap)) {
-                if (field !== "skip") {
+                if (field === "skip") continue;
+                if (field.startsWith("custom:")) {
+                    const key = field.slice(7);
+                    customFields[key] = row[csvCol] ?? "";
+                } else {
                     mapped[field] = row[csvCol] ?? "";
                 }
             }
-            return mapped as Record<KnownField, string>;
-        }).filter((r) => r.first_name || r.last_name); // Skip rows with no name
+            return { ...mapped, custom_fields: customFields } as MappedRow;
+        }).filter((r) => r.first_name || r.last_name);
     }
 
     async function handleImport() {
@@ -195,6 +212,7 @@ export default function BulkImportModal({ onClose, companyId, templates }: BulkI
             email: row.email,
             phone: row.phone,
             photo_url: null,
+            custom_fields: row.custom_fields,
         }));
 
         const { error: insertError } = await supabase.from(TABLES.PEOPLE).insert(people);
@@ -294,7 +312,7 @@ export default function BulkImportModal({ onClose, companyId, templates }: BulkI
                                     </svg>
                                     <select
                                         value={columnMap[header]}
-                                        onChange={(e) => setColumnMap({ ...columnMap, [header]: e.target.value as KnownField | "skip" })}
+                                        onChange={(e) => setColumnMap({ ...columnMap, [header]: e.target.value as KnownField | "skip" | `custom:${string}` })}
                                         className={`flex-1 rounded-lg border px-3 py-2 text-sm outline-none ${
                                             columnMap[header] === "skip" ? "border-zinc-200 text-zinc-400" : "border-zinc-300 text-zinc-900"
                                         }`}
@@ -303,6 +321,13 @@ export default function BulkImportModal({ onClose, companyId, templates }: BulkI
                                         {KNOWN_FIELDS.map((f) => (
                                             <option key={f} value={f}>{FIELD_LABELS[f]}</option>
                                         ))}
+                                        {customFieldDefs && customFieldDefs.length > 0 && (
+                                            <optgroup label="Custom Fields">
+                                                {customFieldDefs.map((def) => (
+                                                    <option key={def.key} value={`custom:${def.key}`}>{def.label}</option>
+                                                ))}
+                                            </optgroup>
+                                        )}
                                     </select>
                                 </div>
                             ))}

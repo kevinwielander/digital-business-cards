@@ -22,6 +22,7 @@ interface Company {
     id: string;
     name: string;
     logo_url: string | null;
+    custom_field_definitions?: { key: string; label: string }[];
 }
 
 interface TemplateDesignerProps {
@@ -46,7 +47,7 @@ export default function TemplateDesigner({
     const [showGrid, setShowGrid] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [companies, setCompanies] = useState<(Company & { is_sample?: boolean })[]>([]);
-    const [people, setPeople] = useState<{ id: string; first_name: string; last_name: string; title: string; email: string; phone: string; photo_url: string | null; company_id: string; is_sample?: boolean }[]>([]);
+    const [people, setPeople] = useState<{ id: string; first_name: string; last_name: string; title: string; email: string; phone: string; photo_url: string | null; company_id: string; is_sample?: boolean; custom_fields?: Record<string, string> }[]>([]);
     const [selectedCompanyId, setSelectedCompanyId] = useState("");
     const [selectedPersonId, setSelectedPersonId] = useState("");
     const [previewData, setPreviewData] = useState<SampleCardData>(SAMPLE_CARD_DATA);
@@ -56,12 +57,12 @@ export default function TemplateDesigner({
             const supabase = createClient();
             const { data: companiesData } = await supabase
                 .from(TABLES.COMPANIES)
-                .select("id, name, logo_url, website, is_sample");
+                .select("id, name, logo_url, website, is_sample, custom_field_definitions");
             if (companiesData) setCompanies(companiesData);
 
             const { data: peopleData } = await supabase
                 .from(TABLES.PEOPLE)
-                .select("id, first_name, last_name, title, email, phone, photo_url, company_id, is_sample");
+                .select("id, first_name, last_name, title, email, phone, photo_url, company_id, is_sample, custom_fields");
             if (peopleData) setPeople(peopleData);
         }
         loadData();
@@ -114,6 +115,7 @@ export default function TemplateDesigner({
                 } : {}),
                 logoUrl,
                 photoUrl,
+                custom_fields: person?.custom_fields ?? {},
             });
         }
         loadPreview();
@@ -370,6 +372,7 @@ export default function TemplateDesigner({
                             element={selectedElement}
                             cardWidth={config.width}
                             cardHeight={config.height}
+                            customFieldDefs={companies.find((c) => c.id === selectedCompanyId)?.custom_field_definitions}
                             onUpdate={(updates) => updateElement(selectedElement.id, updates)}
                             onDelete={() => deleteElement(selectedElement.id)}
                             onDuplicate={() => duplicateElement(selectedElement.id)}

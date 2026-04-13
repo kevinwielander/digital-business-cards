@@ -1,11 +1,12 @@
 "use client";
 
-import type { CardElement, BoundField } from "@/lib/types";
-import { BOUND_FIELD_LABELS } from "@/lib/types";
+import type { CardElement, BoundField, CustomFieldDefinition } from "@/lib/types";
+import { BUILT_IN_FIELD_LABELS } from "@/lib/types";
 
 interface PropertiesPanelProps {
     element: CardElement;
     cardWidth: number;
+    customFieldDefs?: CustomFieldDefinition[];
     cardHeight: number;
     onUpdate: (updates: Partial<CardElement>) => void;
     onDelete: () => void;
@@ -18,6 +19,7 @@ export default function PropertiesPanel({
     element,
     cardWidth,
     cardHeight,
+    customFieldDefs,
     onUpdate,
     onDelete,
     onDuplicate,
@@ -125,9 +127,16 @@ export default function PropertiesPanel({
                             onChange={(e) => onUpdate({ boundField: e.target.value as BoundField })}
                             className="w-full rounded border border-zinc-300 px-2 py-1.5 text-sm"
                         >
-                            {Object.entries(BOUND_FIELD_LABELS).map(([key, label]) => (
+                            {Object.entries(BUILT_IN_FIELD_LABELS).map(([key, label]) => (
                                 <option key={key} value={key}>{label}</option>
                             ))}
+                            {customFieldDefs && customFieldDefs.length > 0 && (
+                                <optgroup label="Custom Fields">
+                                    {customFieldDefs.map((def) => (
+                                        <option key={def.key} value={`custom:${def.key}`}>{def.label}</option>
+                                    ))}
+                                </optgroup>
+                            )}
                         </select>
                     </div>
 
