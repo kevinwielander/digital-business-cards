@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useState } from "react";
 import { CompanyModal } from "./CompanyModal";
@@ -9,11 +9,21 @@ export default function AddCompanyButton() {
         <>
             <button
                 onClick={() => setIsOpen(true)}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700"
             >
                 + Add Company
-                </button>
-            {isOpen &&  <CompanyModal  onClose={() => setIsOpen(false)} name={""} domain={""} logo={null} />}
+            </button>
+            {isOpen && (
+                <CompanyModal
+                    onClose={() => {
+                        setIsOpen(false);
+                        window.location.reload();
+                    }}
+                    name=""
+                    domain=""
+                    logo={null}
+                />
+            )}
         </>
     );
 }
