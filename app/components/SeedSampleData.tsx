@@ -3,9 +3,29 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { TABLES } from "@/lib/supabase/constants";
+import { TABLES, STORAGE } from "@/lib/supabase/constants";
 import { SAMPLE_COMPANIES } from "@/lib/sample-data";
 import { SAMPLE_TEMPLATES } from "@/lib/sample-templates";
+
+async function urlToBlob(url: string): Promise<Blob> {
+    const res = await fetch(`/api/proxy-image?url=${encodeURIComponent(url)}`);
+    return res.blob();
+}
+
+async function svgToPngBlob(svgDataUrl: string, size = 200): Promise<Blob> {
+    return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+            const canvas = document.createElement("canvas");
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext("2d")!;
+            ctx.drawImage(img, 0, 0, size, size);
+            canvas.toBlob((blob) => resolve(blob!), "image/png");
+        };
+        img.src = svgDataUrl;
+    });
+}
 
 export default function SeedSampleData() {
     const router = useRouter();
@@ -31,32 +51,60 @@ export default function SeedSampleData() {
 
         const defaultTemplateId = templateIds[0] ?? null;
 
-        // Create sample companies with people
+        // Create sample companies with logos and people with avatars
         for (const company of SAMPLE_COMPANIES) {
+            // Upload company logo
+            let logoPath: string | null = null;
+            try {
+                const logoBlob = await svgToPngBlob(company.logoDataUrl);
+                const logoFilePath = `${user.id}/sample-${company.name.toLowerCase().replace(/\s+/g, "-")}.png`;
+                await supabase.storage.from(STORAGE.LOGOS).upload(logoFilePath, logoBlob, {
+                    contentType: "image/png",
+                    upsert: true,
+                });
+                logoPath = logoFilePath;
+            } catch {
+                // Continue without logo
+            }
+
             const { data: companyData } = await supabase
                 .from(TABLES.COMPANIES)
                 .insert({
                     user_id: user.id,
                     name: company.name,
                     domain: company.domain,
-                    logo_url: null,
+                    logo_url: logoPath,
                 })
                 .select("id")
                 .single();
 
             if (companyData && defaultTemplateId) {
-                const people = company.people.map((person) => ({
-                    company_id: companyData.id,
-                    template_id: defaultTemplateId,
-                    first_name: person.first_name,
-                    last_name: person.last_name,
-                    title: person.title,
-                    email: person.email,
-                    phone: person.phone,
-                    photo_url: null,
-                }));
+                for (const person of company.people) {
+                    // Upload person avatar
+                    let photoPath: string | null = null;
+                    try {
+                        const avatarBlob = await urlToBlob(person.avatarUrl);
+                        const photoFilePath = `${user.id}/sample-${person.first_name.toLowerCase()}-${person.last_name.toLowerCase()}.png`;
+                        await supabase.storage.from(STORAGE.PHOTOS).upload(photoFilePath, avatarBlob, {
+                            contentType: "image/png",
+                            upsert: true,
+                        });
+                        photoPath = photoFilePath;
+                    } catch {
+                        // Continue without photo
+                    }
 
-                await supabase.from(TABLES.PEOPLE).insert(people);
+                    await supabase.from(TABLES.PEOPLE).insert({
+                        company_id: companyData.id,
+                        template_id: defaultTemplateId,
+                        first_name: person.first_name,
+                        last_name: person.last_name,
+                        title: person.title,
+                        email: person.email,
+                        phone: person.phone,
+                        photo_url: photoPath,
+                    });
+                }
             }
         }
 
