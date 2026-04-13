@@ -21,7 +21,7 @@ export default function LandingContent() {
                     <div className="mb-4 inline-block rounded-full bg-sky-50 px-4 py-1.5 text-xs font-medium text-sky-700">
                         {t.landing_free_badge}
                     </div>
-                    <h1 className="mx-auto max-w-2xl text-5xl font-extrabold tracking-tight text-zinc-900">
+                    <h1 className="mx-auto max-w-2xl text-3xl font-extrabold tracking-tight text-zinc-900 sm:text-5xl">
                         {t.landing_headline_1}{" "}
                         <span className="bg-gradient-to-r from-sky-500 to-violet-500 bg-clip-text text-transparent">
                             {t.landing_headline_2}
@@ -44,7 +44,7 @@ export default function LandingContent() {
 
             {/* Features */}
             <div className="mx-auto w-full max-w-5xl px-6 pb-24">
-                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
                     <FeatureCard
                         icon={<svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><rect x="3" y="3" width="18" height="18" rx="2" /><path d="M3 9h18M9 3v18" /></svg>}
                         title={t.feature_designer_title}

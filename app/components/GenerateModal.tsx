@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslation } from "./I18nProvider";
 
 interface Person {
     id: string;
@@ -17,6 +18,7 @@ interface GenerateModalProps {
 }
 
 export default function GenerateModal({ companyId, people, onClose }: GenerateModalProps) {
+    const { t } = useTranslation();
     const [selected, setSelected] = useState<Set<string>>(
         new Set(people.map((p) => p.id))
     );
@@ -68,11 +70,11 @@ export default function GenerateModal({ companyId, people, onClose }: GenerateMo
             onClick={onClose}
         >
             <div
-                className="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl"
+                className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-xl bg-white p-4 shadow-2xl sm:p-6"
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="mb-4 flex items-center justify-between">
-                    <h2 className="text-lg font-semibold">Generate Cards</h2>
+                    <h2 className="text-lg font-semibold">{t.generate_title}</h2>
                     <button
                         onClick={onClose}
                         className="flex h-8 w-8 items-center justify-center rounded-full text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700"
@@ -82,7 +84,7 @@ export default function GenerateModal({ companyId, people, onClose }: GenerateMo
                 </div>
 
                 <p className="mb-4 text-sm text-zinc-500">
-                    Select the people you want to generate business cards for.
+                    {t.generate_subtitle}
                 </p>
 
                 <div className="mb-3 flex items-center gap-2 border-b border-zinc-100 pb-3">
@@ -93,7 +95,7 @@ export default function GenerateModal({ companyId, people, onClose }: GenerateMo
                         className="rounded border-zinc-300"
                     />
                     <span className="text-sm font-medium text-zinc-700">
-                        Select all ({people.length})
+                        {t.generate_select_all} ({people.length})
                     </span>
                 </div>
 
@@ -137,7 +139,7 @@ export default function GenerateModal({ companyId, people, onClose }: GenerateMo
                         onClick={onClose}
                         className="rounded-lg px-4 py-2 text-sm text-zinc-500 hover:text-zinc-800"
                     >
-                        Cancel
+                        {t.modal_cancel}
                     </button>
                     <button
                         onClick={handleGenerate}
@@ -145,8 +147,8 @@ export default function GenerateModal({ companyId, people, onClose }: GenerateMo
                         className="rounded-lg bg-sky-600 px-5 py-2 text-sm font-medium text-white hover:bg-sky-700 disabled:opacity-50"
                     >
                         {generating
-                            ? "Generating..."
-                            : `Generate ${selected.size} Card${selected.size !== 1 ? "s" : ""}`}
+                            ? t.generate_generating
+                            : `${t.generate_button} (${selected.size})`}
                     </button>
                 </div>
             </div>

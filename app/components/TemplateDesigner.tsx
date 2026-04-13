@@ -14,6 +14,7 @@ import type { TemplateConfig, CardElement, SampleCardData } from "@/lib/types";
 import { isGuestMode } from "@/lib/guest-store";
 import { getSampleAssetUrl } from "@/lib/sample-utils";
 import { useGuest } from "./GuestProvider";
+import { useTranslation } from "./I18nProvider";
 import DesignerCanvas from "./designer/DesignerCanvas";
 import PropertiesPanel from "./designer/PropertiesPanel";
 import ElementsToolbar from "./designer/ElementsToolbar";
@@ -38,6 +39,7 @@ export default function TemplateDesigner({
 }: TemplateDesignerProps) {
     const router = useRouter();
     const guest = useGuest();
+    const { t } = useTranslation();
     const [name, setName] = useState(initialName);
     const [config, setConfig] = useState<TemplateConfig>(() => {
         if (initialConfig) return initialConfig;
@@ -233,13 +235,13 @@ export default function TemplateDesigner({
     return (
         <div className="flex flex-col gap-6">
             {/* Top bar */}
-            <div className="flex items-center gap-4">
+            <div className="flex flex-wrap items-center gap-3 sm:gap-4">
                 <input
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    placeholder="Template name"
-                    className="rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium outline-none focus:border-zinc-500"
+                    placeholder={t.designer_name}
+                    className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium outline-none focus:border-zinc-500 sm:w-auto"
                 />
                 <select
                     value={selectedCompanyId}
@@ -266,19 +268,21 @@ export default function TemplateDesigner({
                         </option>
                     ))}
                 </select>
-                <div className="flex-1" />
-                <button
-                    onClick={() => router.back()}
-                    className="rounded-lg px-4 py-2 text-sm text-zinc-500 hover:text-zinc-800"
-                >
-                    Cancel
-                </button>
-                <button
-                    onClick={handleSave}
-                    className="rounded-lg bg-zinc-900 px-5 py-2 text-sm font-medium text-white hover:bg-zinc-700"
-                >
-                    {templateId ? "Update" : "Save"}
-                </button>
+                <div className="hidden flex-1 sm:block" />
+                <div className="flex w-full gap-2 sm:w-auto">
+                    <button
+                        onClick={() => router.back()}
+                        className="rounded-lg px-4 py-2 text-sm text-zinc-500 hover:text-zinc-800"
+                    >
+                        {t.designer_cancel}
+                    </button>
+                    <button
+                        onClick={handleSave}
+                        className="rounded-lg bg-zinc-900 px-5 py-2 text-sm font-medium text-white hover:bg-zinc-700"
+                    >
+                        {templateId ? t.designer_update : t.designer_save}
+                    </button>
+                </div>
             </div>
 
             {error && <p className="text-sm text-red-500">{error}</p>}
@@ -290,19 +294,19 @@ export default function TemplateDesigner({
                         onClick={() => setConfig((prev) => ({ ...prev, width: 450, height: 260 }))}
                         className={`rounded px-3 py-1.5 text-xs font-medium ${config.width > config.height ? "bg-zinc-900 text-white" : "bg-zinc-100 hover:bg-zinc-200"}`}
                     >
-                        Landscape
+                        {t.designer_landscape}
                     </button>
                     <button
                         onClick={() => setConfig((prev) => ({ ...prev, width: 260, height: 450 }))}
                         className={`rounded px-3 py-1.5 text-xs font-medium ${config.width < config.height ? "bg-zinc-900 text-white" : "bg-zinc-100 hover:bg-zinc-200"}`}
                     >
-                        Portrait
+                        {t.designer_portrait}
                     </button>
                     <button
                         onClick={() => setConfig((prev) => ({ ...prev, width: 350, height: 350 }))}
                         className={`rounded px-3 py-1.5 text-xs font-medium ${config.width === config.height ? "bg-zinc-900 text-white" : "bg-zinc-100 hover:bg-zinc-200"}`}
                     >
-                        Square
+                        {t.designer_square}
                     </button>
                 </div>
                 <div className="flex items-center gap-2">
@@ -328,12 +332,12 @@ export default function TemplateDesigner({
             <ElementsToolbar onAddElement={addElement} />
 
             {/* Main area: canvas + properties */}
-            <div className="flex gap-6">
+            <div className="flex flex-col gap-6 lg:flex-row">
                 {/* Canvas */}
-                <div className="flex flex-col gap-3">
+                <div className="flex min-w-0 flex-col gap-3 overflow-x-auto">
                     <div className="flex items-center gap-4">
                         <div>
-                            <label className="mb-1 block text-xs font-medium text-zinc-500">Background</label>
+                            <label className="mb-1 block text-xs font-medium text-zinc-500">{t.designer_background}</label>
                             <input
                                 type="color"
                                 value={config.backgroundColor}
@@ -347,7 +351,7 @@ export default function TemplateDesigner({
                                 checked={showGrid}
                                 onChange={(e) => setShowGrid(e.target.checked)}
                             />
-                            Grid
+                            {t.designer_grid}
                         </label>
                     </div>
                     <div className="rounded-xl bg-zinc-100 p-8">
@@ -366,7 +370,7 @@ export default function TemplateDesigner({
                 </div>
 
                 {/* Properties panel */}
-                <div className="w-64 shrink-0">
+                <div className="w-full shrink-0 lg:w-64">
                     {selectedElement ? (
                         <PropertiesPanel
                             element={selectedElement}

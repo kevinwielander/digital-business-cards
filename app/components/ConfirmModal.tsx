@@ -1,5 +1,7 @@
 "use client";
 
+import { useTranslation } from "./I18nProvider";
+
 interface ConfirmModalProps {
     title: string;
     message: string;
@@ -17,6 +19,7 @@ export default function ConfirmModal({
     onCancel,
     destructive = false,
 }: ConfirmModalProps) {
+    const { t } = useTranslation();
     return (
         <div
             className="fixed inset-0 z-[70] flex items-center justify-center bg-zinc-950/60 backdrop-blur-sm"
@@ -33,7 +36,7 @@ export default function ConfirmModal({
                         onClick={onCancel}
                         className="rounded-lg px-4 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-100"
                     >
-                        Cancel
+                        {t.modal_cancel}
                     </button>
                     <button
                         onClick={onConfirm}

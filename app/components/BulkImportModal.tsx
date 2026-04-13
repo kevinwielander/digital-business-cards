@@ -237,7 +237,7 @@ export default function BulkImportModal({ onClose, companyId, templates, customF
             onClick={onClose}
         >
             <div
-                className="w-full max-w-3xl rounded-xl bg-white p-8 shadow-2xl"
+                className="max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-xl bg-white p-4 shadow-2xl sm:p-8"
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="mb-6 flex items-center justify-between">
@@ -300,9 +300,7 @@ export default function BulkImportModal({ onClose, companyId, templates, customF
                 {step === "map" && (
                     <div className="space-y-6">
                         <p className="text-sm text-zinc-500">
-                            Found <span className="font-medium text-zinc-900">{rows.length} rows</span> with{" "}
-                            <span className="font-medium text-zinc-900">{rawHeaders.length} columns</span>.
-                            Map each CSV column to a field:
+                            {t.import_map}: <span className="font-medium text-zinc-900">{rows.length}</span> / <span className="font-medium text-zinc-900">{rawHeaders.length}</span>
                         </p>
 
                         <div className="space-y-3">
@@ -324,7 +322,7 @@ export default function BulkImportModal({ onClose, companyId, templates, customF
                                             <option key={f} value={f}>{FIELD_LABELS[f]}</option>
                                         ))}
                                         {customFieldDefs && customFieldDefs.length > 0 && (
-                                            <optgroup label="Custom Fields">
+                                            <optgroup label={t.custom_fields_title}>
                                                 {customFieldDefs.map((def) => (
                                                     <option key={def.key} value={`custom:${def.key}`}>{def.label}</option>
                                                 ))}
@@ -336,7 +334,7 @@ export default function BulkImportModal({ onClose, companyId, templates, customF
                         </div>
 
                         <div>
-                            <label className="mb-1 block text-sm font-medium text-zinc-700">Template for imported people</label>
+                            <label className="mb-1 block text-sm font-medium text-zinc-700">{t.form_template}</label>
                             <select
                                 value={templateId}
                                 onChange={(e) => setTemplateId(e.target.value)}
@@ -350,14 +348,14 @@ export default function BulkImportModal({ onClose, companyId, templates, customF
 
                         <div className="flex justify-end gap-3">
                             <button onClick={() => setStep("upload")} className="rounded-lg px-4 py-2 text-sm text-zinc-500 hover:text-zinc-800">
-                                Back
+                                {t.import_back}
                             </button>
                             <button
                                 onClick={() => setStep("preview")}
                                 disabled={!Object.values(columnMap).some((v) => v !== "skip")}
                                 className="rounded-lg bg-zinc-900 px-5 py-2 text-sm font-medium text-white hover:bg-zinc-700 disabled:opacity-50"
                             >
-                                Preview
+                                {t.import_preview}
                             </button>
                         </div>
                     </div>
@@ -367,19 +365,18 @@ export default function BulkImportModal({ onClose, companyId, templates, customF
                 {step === "preview" && (
                     <div className="space-y-6">
                         <p className="text-sm text-zinc-500">
-                            Ready to import <span className="font-medium text-zinc-900">{mappedRows.length} people</span>.
-                            Review the data below:
+                            {t.import_ready}: <span className="font-medium text-zinc-900">{mappedRows.length}</span>
                         </p>
 
                         <div className="max-h-72 overflow-auto rounded-lg border border-zinc-200">
                             <table className="w-full text-left text-sm">
                                 <thead className="sticky top-0 bg-zinc-50 text-xs uppercase text-zinc-500">
                                     <tr>
-                                        <th className="px-3 py-2">First Name</th>
-                                        <th className="px-3 py-2">Last Name</th>
-                                        <th className="px-3 py-2">Title</th>
-                                        <th className="px-3 py-2">Email</th>
-                                        <th className="px-3 py-2">Phone</th>
+                                        <th className="px-3 py-2">{t.form_first_name}</th>
+                                        <th className="px-3 py-2">{t.form_last_name}</th>
+                                        <th className="px-3 py-2">{t.form_job_title}</th>
+                                        <th className="px-3 py-2">{t.form_email}</th>
+                                        <th className="px-3 py-2">{t.form_phone}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -400,14 +397,14 @@ export default function BulkImportModal({ onClose, companyId, templates, customF
 
                         <div className="flex justify-end gap-3">
                             <button onClick={() => setStep("map")} className="rounded-lg px-4 py-2 text-sm text-zinc-500 hover:text-zinc-800">
-                                Back
+                                {t.import_back}
                             </button>
                             <button
                                 onClick={handleImport}
                                 disabled={importing || mappedRows.length === 0}
                                 className="rounded-lg bg-zinc-900 px-5 py-2 text-sm font-medium text-white hover:bg-zinc-700 disabled:opacity-50"
                             >
-                                {importing ? "Importing..." : `Import ${mappedRows.length} People`}
+                                {importing ? `${t.import_button}...` : `${t.import_button} ${mappedRows.length}`}
                             </button>
                         </div>
                     </div>
@@ -422,7 +419,7 @@ export default function BulkImportModal({ onClose, companyId, templates, customF
                             </svg>
                         </div>
                         <div>
-                            <p className="text-lg font-semibold text-zinc-900">Import Complete</p>
+                            <p className="text-lg font-semibold text-zinc-900">{t.import_success}</p>
                             <p className="mt-1 text-sm text-zinc-500">
                                 Successfully imported {importedCount} {importedCount === 1 ? "person" : "people"}.
                             </p>
@@ -434,7 +431,7 @@ export default function BulkImportModal({ onClose, companyId, templates, customF
                             }}
                             className="rounded-lg bg-zinc-900 px-5 py-2 text-sm font-medium text-white hover:bg-zinc-700"
                         >
-                            Done
+                            {t.import_done}
                         </button>
                     </div>
                 )}

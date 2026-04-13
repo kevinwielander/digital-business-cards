@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { TABLES } from "@/lib/supabase/constants";
 import { isGuestMode } from "@/lib/guest-store";
 import { useGuest } from "./GuestProvider";
+import { useTranslation } from "./I18nProvider";
 import type { TemplateConfig } from "@/lib/types";
 
 interface UseTemplateButtonProps {
@@ -15,6 +16,7 @@ interface UseTemplateButtonProps {
 export default function UseTemplateButton({ name, config }: UseTemplateButtonProps) {
     const router = useRouter();
     const guest = useGuest();
+    const { t } = useTranslation();
 
     async function handleUse() {
         if (isGuestMode()) {
@@ -46,7 +48,7 @@ export default function UseTemplateButton({ name, config }: UseTemplateButtonPro
             onClick={handleUse}
             className="w-full rounded-lg border border-zinc-200 px-4 py-2 text-sm font-medium text-zinc-700 transition hover:bg-zinc-50"
         >
-            Use this template
+            {t.templates_use}
         </button>
     );
 }

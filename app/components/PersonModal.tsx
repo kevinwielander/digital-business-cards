@@ -212,11 +212,11 @@ export default function PersonModal({ onClose, companyId, templates, companyName
             onClick={onClose}
         >
             <div
-                className="flex w-full max-w-4xl gap-6 rounded-xl bg-white p-8 shadow-2xl"
+                className="flex max-h-[90vh] w-full max-w-4xl flex-col overflow-y-auto rounded-xl bg-white p-4 shadow-2xl sm:p-8 md:flex-row md:gap-6 md:overflow-visible"
                 onClick={(e) => e.stopPropagation()}
             >
                 {/* Form */}
-                <div className="w-1/2">
+                <div className="w-full md:w-1/2">
                     <div className="mb-6 flex items-center justify-between">
                         <h2 className="text-xl font-semibold">
                             {person ? t.people_edit : t.people_add}
@@ -359,7 +359,7 @@ export default function PersonModal({ onClose, companyId, templates, companyName
                 </div>
 
                 {/* Live Preview */}
-                <div className="flex w-1/2 flex-col">
+                <div className="mt-6 flex w-full flex-col md:mt-0 md:w-1/2">
                     <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-zinc-400">Live Preview</h3>
                     <div className="flex flex-1 items-center justify-center rounded-xl bg-zinc-50 p-6">
                         {templateConfig ? (

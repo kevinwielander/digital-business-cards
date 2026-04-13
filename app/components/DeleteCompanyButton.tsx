@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { TABLES } from "@/lib/supabase/constants";
+import { useTranslation } from "./I18nProvider";
 import ConfirmModal from "./ConfirmModal";
 
 interface DeleteCompanyButtonProps {
@@ -13,6 +14,7 @@ interface DeleteCompanyButtonProps {
 
 export default function DeleteCompanyButton({ companyId, companyName }: DeleteCompanyButtonProps) {
     const router = useRouter();
+    const { t } = useTranslation();
     const [showConfirm, setShowConfirm] = useState(false);
 
     async function handleDelete() {
@@ -34,13 +36,13 @@ export default function DeleteCompanyButton({ companyId, companyName }: DeleteCo
                 onClick={() => setShowConfirm(true)}
                 className="rounded-lg px-3 py-2 text-sm text-red-500 hover:bg-red-50"
             >
-                Delete Company
+                {t.companies_delete}
             </button>
             {showConfirm && (
                 <ConfirmModal
-                    title="Delete Company"
-                    message={`Are you sure you want to delete "${companyName}" and all its people? This cannot be undone.`}
-                    confirmLabel="Delete"
+                    title={t.companies_delete}
+                    message={t.companies_delete_confirm.replace("{name}", companyName)}
+                    confirmLabel={t.modal_delete}
                     destructive
                     onConfirm={handleDelete}
                     onCancel={() => setShowConfirm(false)}

@@ -108,7 +108,7 @@ export function CompanyModal(props: CompanyProps) {
             onClick={props.onClose}
         >
             <div
-                className="w-full max-w-lg rounded-xl bg-white p-8 shadow-2xl"
+                className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-xl bg-white p-4 shadow-2xl sm:p-8"
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="mb-6 flex items-center justify-between">

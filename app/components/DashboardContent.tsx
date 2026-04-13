@@ -34,7 +34,7 @@ export default function DashboardContent({ companies, templates, totalPeople }: 
                 <p className="mt-1 text-zinc-500">{t.dash_welcome}</p>
             </div>
 
-            <div className="mb-10 grid grid-cols-3 gap-4">
+            <div className="mb-10 grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <Link href="/companies" className="transition hover:shadow-sm">
                     <div className="rounded-xl border border-zinc-200 bg-white p-5">
                         <p className="text-sm text-zinc-500">{t.dash_companies}</p>

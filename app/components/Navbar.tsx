@@ -4,6 +4,7 @@ import LogoutButton from "./LogoutButton";
 import GuestNavLinks from "./GuestNavLinks";
 import NavLinks from "./NavLinks";
 import LanguageSwitcher from "./LanguageSwitcher";
+import MobileMenu from "./MobileMenu";
 
 export async function Navbar() {
     const supabase = await createClient();
@@ -11,16 +12,19 @@ export async function Navbar() {
 
     return (
         <nav className="sticky top-0 z-40 w-full border-b border-zinc-200 bg-white/80 backdrop-blur-md">
-            <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-6">
-                <div className="flex items-center gap-8">
+            <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6">
+                <div className="flex items-center gap-4 sm:gap-8">
+                    <MobileMenu isLoggedIn={!!user} />
                     <Link href="/" className="text-base font-bold tracking-tight text-zinc-900">
                         CardGen
                     </Link>
-                    {user ? (
-                        <NavLinks />
-                    ) : (
-                        <GuestNavLinks />
-                    )}
+                    <div className="hidden md:flex">
+                        {user ? (
+                            <NavLinks />
+                        ) : (
+                            <GuestNavLinks />
+                        )}
+                    </div>
                 </div>
                 <div className="flex items-center gap-2">
                     <LanguageSwitcher />

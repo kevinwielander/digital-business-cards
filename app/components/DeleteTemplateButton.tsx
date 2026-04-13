@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { TABLES } from "@/lib/supabase/constants";
+import { useTranslation } from "./I18nProvider";
 import ConfirmModal from "./ConfirmModal";
 
 interface DeleteTemplateButtonProps {
@@ -13,6 +14,7 @@ interface DeleteTemplateButtonProps {
 
 export default function DeleteTemplateButton({ templateId, templateName }: DeleteTemplateButtonProps) {
     const router = useRouter();
+    const { t } = useTranslation();
     const [showConfirm, setShowConfirm] = useState(false);
 
     async function handleDelete() {
@@ -38,13 +40,13 @@ export default function DeleteTemplateButton({ templateId, templateName }: Delet
                 }}
                 className="rounded px-2 py-1 text-xs text-red-400 hover:bg-red-50 hover:text-red-600"
             >
-                Delete
+                {t.modal_delete}
             </button>
             {showConfirm && (
                 <ConfirmModal
-                    title="Delete Template"
+                    title={t.modal_delete}
                     message={`Are you sure you want to delete "${templateName}"? This cannot be undone.`}
-                    confirmLabel="Delete"
+                    confirmLabel={t.modal_delete}
                     destructive
                     onConfirm={handleDelete}
                     onCancel={() => setShowConfirm(false)}

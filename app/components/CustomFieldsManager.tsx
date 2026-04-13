@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { TABLES } from "@/lib/supabase/constants";
+import { useTranslation } from "./I18nProvider";
 import type { CustomFieldDefinition } from "@/lib/types";
 
 interface CustomFieldsManagerProps {
@@ -11,6 +12,7 @@ interface CustomFieldsManagerProps {
 }
 
 export default function CustomFieldsManager({ companyId, initialDefs }: CustomFieldsManagerProps) {
+    const { t } = useTranslation();
     const [defs, setDefs] = useState<CustomFieldDefinition[]>(initialDefs);
     const [newLabel, setNewLabel] = useState("");
     const [saving, setSaving] = useState(false);
@@ -46,11 +48,11 @@ export default function CustomFieldsManager({ companyId, initialDefs }: CustomFi
     return (
         <div className="mb-8">
             <div className="mb-3 flex items-center justify-between">
-                <h2 className="text-sm font-semibold uppercase tracking-wider text-zinc-400">Custom Fields</h2>
+                <h2 className="text-sm font-semibold uppercase tracking-wider text-zinc-400">{t.custom_fields_title}</h2>
                 {saving && <span className="text-xs text-zinc-400">Saving...</span>}
             </div>
             <p className="mb-3 text-sm text-zinc-500">
-                Define extra fields for people in this company (e.g. Department, LinkedIn, Office).
+                {t.custom_fields_desc}
             </p>
 
             {defs.length > 0 && (
@@ -78,7 +80,7 @@ export default function CustomFieldsManager({ companyId, initialDefs }: CustomFi
                     value={newLabel}
                     onChange={(e) => setNewLabel(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addField())}
-                    placeholder="Field name (e.g. Department)"
+                    placeholder={t.custom_fields_placeholder}
                     className="flex-1 rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500"
                 />
                 <button
@@ -86,7 +88,7 @@ export default function CustomFieldsManager({ companyId, initialDefs }: CustomFi
                     disabled={!newLabel.trim()}
                     className="rounded-lg bg-zinc-100 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-200 disabled:opacity-50"
                 >
-                    Add
+                    {t.custom_fields_add}
                 </button>
             </div>
         </div>

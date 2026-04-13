@@ -56,7 +56,7 @@ export default function CompanyDetailContent({ company, logoUrl, people, templat
             </div>
 
             {/* Company header */}
-            <div className="mb-8 flex items-center justify-between">
+            <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-5">
                     {logoUrl ? (
                         <img src={logoUrl} alt={company.name} className="h-14 w-14 rounded-xl object-contain" />
