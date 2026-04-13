@@ -40,10 +40,15 @@ export default async function Home() {
         .order("created_at", { ascending: false })
         .limit(5);
 
-    const { count: peopleCount } = await supabase
-        .from(TABLES.PEOPLE)
-        .select("*", { count: "exact", head: true })
-        .in("company_id", (companies ?? []).map((c) => c.id));
+    const companyIds = (companies ?? []).map((c) => c.id);
+    let peopleCount = 0;
+    if (companyIds.length > 0) {
+        const { count } = await supabase
+            .from(TABLES.PEOPLE)
+            .select("*", { count: "exact", head: true })
+            .in("company_id", companyIds);
+        peopleCount = count ?? 0;
+    }
 
     const companiesWithLogos = await Promise.all(
         (companies ?? []).map(async (company) => {

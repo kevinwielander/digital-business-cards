@@ -11,6 +11,7 @@ export type BoundField =
     | "phone"
     | "address"
     | "company"
+    | "website"
     | "custom";
 
 export interface CardElement {
@@ -73,6 +74,7 @@ export interface SampleCardData {
     phone: string;
     address: string;
     company: string;
+    website: string;
     logoUrl: string | null;
     photoUrl: string | null;
 }
@@ -86,6 +88,7 @@ export const SAMPLE_CARD_DATA: SampleCardData = {
     phone: "+1 555 123 4567",
     address: "123 Main St, San Francisco",
     company: "Acme Inc.",
+    website: "https://acme.com",
     logoUrl: null,
     photoUrl: null,
 };
@@ -99,5 +102,6 @@ export const BOUND_FIELD_LABELS: Record<BoundField, string> = {
     phone: "Phone",
     address: "Address",
     company: "Company",
+    website: "Website",
     custom: "Custom Text",
 };

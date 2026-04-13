@@ -69,7 +69,17 @@ export default async function CompanyDetailPage(props: PageProps<"/companies/[id
                     )}
                     <div>
                         <h1 className="text-2xl font-bold tracking-tight">{company.name}</h1>
-                        {company.domain && <p className="text-sm text-zinc-500">{company.domain}</p>}
+                        <div className="flex items-center gap-3 text-sm text-zinc-500">
+                            {company.domain && <span>{company.domain}</span>}
+                            {company.website && (
+                                <>
+                                    {company.domain && <span>·</span>}
+                                    <a href={company.website} target="_blank" rel="noopener noreferrer" className="text-sky-600 hover:underline">
+                                        {company.website.replace(/^https?:\/\//, "")}
+                                    </a>
+                                </>
+                            )}
+                        </div>
                     </div>
                 </div>
                 <DeleteCompanyButton companyId={id} companyName={company.name} />

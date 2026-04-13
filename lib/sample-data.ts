@@ -10,6 +10,7 @@ export const SAMPLE_COMPANIES = [
     {
         name: "Acme Corp",
         domain: "acme.com",
+        website: "https://acme.com",
         logoDataUrl: logoSvgDataUrl("A", "#1e3a5f"),
         people: [
             { first_name: "Sarah", last_name: "Chen", title: "CEO", email: "sarah@acme.com", phone: "+1 555 100 2000", avatarUrl: "https://randomuser.me/api/portraits/women/44.jpg" },
@@ -21,6 +22,7 @@ export const SAMPLE_COMPANIES = [
     {
         name: "Nova Digital",
         domain: "novadigital.io",
+        website: "https://novadigital.io",
         logoDataUrl: logoSvgDataUrl("N", "#7c3aed"),
         people: [
             { first_name: "Lisa", last_name: "Andersen", title: "Managing Director", email: "lisa@novadigital.io", phone: "+49 170 123 4567", avatarUrl: "https://randomuser.me/api/portraits/women/17.jpg" },
@@ -31,6 +33,7 @@ export const SAMPLE_COMPANIES = [
     {
         name: "Greenleaf Studios",
         domain: "greenleaf.studio",
+        website: "https://greenleaf.studio",
         logoDataUrl: logoSvgDataUrl("G", "#16a34a"),
         people: [
             { first_name: "Alex", last_name: "Morgan", title: "Founder", email: "alex@greenleaf.studio", phone: "+44 7700 900100", avatarUrl: "https://randomuser.me/api/portraits/men/22.jpg" },

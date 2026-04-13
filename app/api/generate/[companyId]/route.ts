@@ -34,6 +34,7 @@ function generateVCard(data: SampleCardData): string {
         data.email ? `EMAIL:${data.email}` : "",
         data.phone ? `TEL:${data.phone}` : "",
         data.address ? `ADR:;;${data.address};;;;` : "",
+        data.website ? `URL:${data.website}` : "",
         "END:VCARD",
     ].filter(Boolean).join("\r\n");
 }
@@ -212,6 +213,7 @@ export async function GET(
             phone: person.phone ?? "",
             address: "",
             company: company.name,
+            website: company.website ?? "",
             logoUrl: null,
             photoUrl: null,
         };

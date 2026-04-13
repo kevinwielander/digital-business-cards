@@ -9,12 +9,14 @@ interface CompanyProps {
     onClose: () => void;
     name: string;
     domain: string;
+    website: string;
     logo: File | null;
 }
 
 export function CompanyModal(props: CompanyProps) {
     const [name, setName] = useState(props.name);
     const [domain, setDomain] = useState(props.domain);
+    const [website, setWebsite] = useState(props.website);
     const [logo, setLogo] = useState<File | null>(null);
     const [error, setError] = useState<string | null>(null);
 
@@ -50,6 +52,7 @@ export function CompanyModal(props: CompanyProps) {
                 user_id: user.id,
                 name,
                 domain,
+                website,
                 logo_url: logoPath,
             });
 
@@ -106,6 +109,19 @@ export function CompanyModal(props: CompanyProps) {
                             value={domain}
                             onChange={(e) => setDomain(e.target.value)}
                             placeholder="acme.com"
+                            className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none transition focus:border-zinc-500 focus:ring-2 focus:ring-zinc-200"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="mb-1 block text-sm font-medium text-zinc-700">
+                            Website
+                        </label>
+                        <input
+                            type="url"
+                            value={website}
+                            onChange={(e) => setWebsite(e.target.value)}
+                            placeholder="https://acme.com"
                             className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none transition focus:border-zinc-500 focus:ring-2 focus:ring-zinc-200"
                         />
                     </div>
