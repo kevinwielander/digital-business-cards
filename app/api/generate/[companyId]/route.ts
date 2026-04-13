@@ -164,10 +164,17 @@ export async function GET(
     if (!company)
         return NextResponse.json({ error: "Company not found" }, { status: 404 });
 
-    const { data: people } = await supabase
+    const peopleIds = new URL(request.url).searchParams.get("people");
+    let query = supabase
         .from(TABLES.PEOPLE)
         .select("*")
         .eq("company_id", companyId);
+
+    if (peopleIds) {
+        query = query.in("id", peopleIds.split(","));
+    }
+
+    const { data: people } = await query;
 
     if (!people || people.length === 0) {
         return NextResponse.json({ error: "No people found" }, { status: 404 });

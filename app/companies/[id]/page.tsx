@@ -2,7 +2,6 @@ import { createClient } from "@/lib/supabase/server";
 import { TABLES, STORAGE } from "@/lib/supabase/constants";
 import { notFound } from "next/navigation";
 import PeopleList from "@/app/components/PeopleList";
-import GenerateButton from "@/app/components/GenerateButton";
 
 export default async function CompanyDetailPage(props: PageProps<"/companies/[id]">) {
     const { id } = await props.params;
@@ -49,7 +48,6 @@ export default async function CompanyDetailPage(props: PageProps<"/companies/[id
                         <p className="text-sm text-zinc-500">{company.domain}</p>
                     )}
                 </div>
-                <GenerateButton companyId={id} />
             </div>
 
             <PeopleList

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import PersonModal from "./PersonModal";
+import GenerateModal from "./GenerateModal";
 
 interface Person {
     id: string;
@@ -27,21 +28,22 @@ interface PeopleListProps {
 }
 
 export default function PeopleList({ people, companyId, templates }: PeopleListProps) {
-    const [showModal, setShowModal] = useState(false);
+    const [showPersonModal, setShowPersonModal] = useState(false);
+    const [showGenerateModal, setShowGenerateModal] = useState(false);
     const [editPerson, setEditPerson] = useState<Person | undefined>(undefined);
 
     function handleAdd() {
         setEditPerson(undefined);
-        setShowModal(true);
+        setShowPersonModal(true);
     }
 
     function handleEdit(person: Person) {
         setEditPerson(person);
-        setShowModal(true);
+        setShowPersonModal(true);
     }
 
-    function handleClose() {
-        setShowModal(false);
+    function handleClosePersonModal() {
+        setShowPersonModal(false);
         setEditPerson(undefined);
         window.location.reload();
     }
@@ -50,12 +52,22 @@ export default function PeopleList({ people, companyId, templates }: PeopleListP
         <div>
             <div className="mb-4 flex items-center justify-between">
                 <h2 className="text-lg font-semibold">People</h2>
-                <button
-                    onClick={handleAdd}
-                    className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700"
-                >
-                    + Add Person
-                </button>
+                <div className="flex items-center gap-3">
+                    {people.length > 0 && (
+                        <button
+                            onClick={() => setShowGenerateModal(true)}
+                            className="rounded-lg bg-sky-600 px-4 py-2 text-sm font-medium text-white hover:bg-sky-700"
+                        >
+                            Generate Cards
+                        </button>
+                    )}
+                    <button
+                        onClick={handleAdd}
+                        className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700"
+                    >
+                        + Add Person
+                    </button>
+                </div>
             </div>
 
             {people.length === 0 ? (
@@ -91,12 +103,20 @@ export default function PeopleList({ people, companyId, templates }: PeopleListP
                 </div>
             )}
 
-            {showModal && (
+            {showPersonModal && (
                 <PersonModal
-                    onClose={handleClose}
+                    onClose={handleClosePersonModal}
                     companyId={companyId}
                     templates={templates}
                     person={editPerson}
+                />
+            )}
+
+            {showGenerateModal && (
+                <GenerateModal
+                    companyId={companyId}
+                    people={people}
+                    onClose={() => setShowGenerateModal(false)}
                 />
             )}
         </div>
