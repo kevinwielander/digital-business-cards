@@ -53,6 +53,23 @@ function getDisplayText(el: CardElement, data: SampleCardData): string {
     return "";
 }
 
+function getLinkedText(el: CardElement, data: SampleCardData): string {
+    const text = getDisplayText(el, data);
+    if (!text) return "";
+
+    if (el.boundField === "email") {
+        return `<a href="mailto:${text}" style="color:inherit;text-decoration:none;">${text}</a>`;
+    }
+    if (el.boundField === "phone") {
+        return `<a href="tel:${text}" style="color:inherit;text-decoration:none;">${text}</a>`;
+    }
+    if (el.boundField === "website") {
+        const href = text.startsWith("http") ? text : `https://${text}`;
+        return `<a href="${href}" target="_blank" rel="noopener noreferrer" style="color:inherit;text-decoration:none;">${text}</a>`;
+    }
+    return text;
+}
+
 function renderElementHtml(
     el: CardElement,
     data: SampleCardData,
@@ -73,7 +90,7 @@ function renderElementHtml(
         const lineHeight = el.lineHeight ? `line-height:${el.lineHeight};` : "";
         const textTransform = el.textTransform && el.textTransform !== "none" ? `text-transform:${el.textTransform};` : "";
         const style = `${baseStyle}display:flex;align-items:center;justify-content:${justify};font-size:${el.fontSize ?? 14}px;font-family:${el.fontFamily ?? "sans-serif"};font-weight:${el.fontWeight ?? "normal"};color:${el.color ?? "#000"};overflow:hidden;${letterSpacing}${lineHeight}${textTransform}`;
-        return `<div style="${style}">${getDisplayText(el, data)}</div>`;
+        return `<div style="${style}">${getLinkedText(el, data)}</div>`;
     }
 
     if (el.type === "image") {
