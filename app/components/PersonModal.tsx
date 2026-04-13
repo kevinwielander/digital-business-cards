@@ -4,6 +4,7 @@ import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { TABLES, STORAGE } from "@/lib/supabase/constants";
 import ImageUpload from "./ImageUpload";
+import ConfirmModal from "./ConfirmModal";
 
 interface Template {
     id: string;
@@ -36,6 +37,7 @@ export default function PersonModal({ onClose, companyId, templates, person }: P
     const [templateId, setTemplateId] = useState(person?.template_id ?? templates[0]?.id ?? "");
     const [photo, setPhoto] = useState<File | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
     async function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -89,6 +91,24 @@ export default function PersonModal({ onClose, companyId, templates, person }: P
                 .from(TABLES.PEOPLE)
                 .insert(row);
             if (error) { setError(error.message); return; }
+        }
+
+        onClose();
+    }
+
+    async function handleDelete() {
+        if (!person) return;
+
+        const supabase = createClient();
+        const { error } = await supabase
+            .from(TABLES.PEOPLE)
+            .delete()
+            .eq("id", person.id);
+
+        if (error) {
+            setError(error.message);
+            setShowDeleteConfirm(false);
+            return;
         }
 
         onClose();
@@ -196,24 +216,45 @@ export default function PersonModal({ onClose, companyId, templates, person }: P
 
                     {error && <p className="text-sm text-red-500">{error}</p>}
 
-                    <div className="flex justify-end gap-3 pt-2">
-                        <button
-                            type="button"
-                            onClick={onClose}
-                            className="rounded-lg px-4 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-100"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            type="submit"
-                            disabled={templates.length === 0}
-                            className="rounded-lg bg-zinc-900 px-5 py-2 text-sm font-medium text-white hover:bg-zinc-700 disabled:opacity-50"
-                        >
-                            {person ? "Update" : "Add"}
-                        </button>
+                    <div className="flex items-center justify-between pt-2">
+                        {person ? (
+                            <button
+                                type="button"
+                                onClick={() => setShowDeleteConfirm(true)}
+                                className="rounded-lg px-3 py-2 text-sm text-red-500 hover:bg-red-50"
+                            >
+                                Delete
+                            </button>
+                        ) : <div />}
+                        <div className="flex gap-3">
+                            <button
+                                type="button"
+                                onClick={onClose}
+                                className="rounded-lg px-4 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-100"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="submit"
+                                disabled={templates.length === 0}
+                                className="rounded-lg bg-zinc-900 px-5 py-2 text-sm font-medium text-white hover:bg-zinc-700 disabled:opacity-50"
+                            >
+                                {person ? "Update" : "Add"}
+                            </button>
+                        </div>
                     </div>
                 </form>
             </div>
+            {showDeleteConfirm && person && (
+                <ConfirmModal
+                    title="Delete Person"
+                    message={`Are you sure you want to delete ${person.first_name} ${person.last_name}? This cannot be undone.`}
+                    confirmLabel="Delete"
+                    destructive
+                    onConfirm={handleDelete}
+                    onCancel={() => setShowDeleteConfirm(false)}
+                />
+            )}
         </div>
     );
 }

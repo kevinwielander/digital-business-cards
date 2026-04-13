@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { TABLES, STORAGE } from "@/lib/supabase/constants";
 import { notFound } from "next/navigation";
 import PeopleList from "@/app/components/PeopleList";
+import DeleteCompanyButton from "@/app/components/DeleteCompanyButton";
 
 export default async function CompanyDetailPage(props: PageProps<"/companies/[id]">) {
     const { id } = await props.params;
@@ -57,18 +58,21 @@ export default async function CompanyDetailPage(props: PageProps<"/companies/[id
             </div>
 
             {/* Company header */}
-            <div className="mb-8 flex items-center gap-5">
-                {logoUrl ? (
-                    <img src={logoUrl} alt={company.name} className="h-14 w-14 rounded-xl object-contain" />
-                ) : (
-                    <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-zinc-100 text-xl font-bold text-zinc-400">
-                        {company.name[0]}
+            <div className="mb-8 flex items-center justify-between">
+                <div className="flex items-center gap-5">
+                    {logoUrl ? (
+                        <img src={logoUrl} alt={company.name} className="h-14 w-14 rounded-xl object-contain" />
+                    ) : (
+                        <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-zinc-100 text-xl font-bold text-zinc-400">
+                            {company.name[0]}
+                        </div>
+                    )}
+                    <div>
+                        <h1 className="text-2xl font-bold tracking-tight">{company.name}</h1>
+                        {company.domain && <p className="text-sm text-zinc-500">{company.domain}</p>}
                     </div>
-                )}
-                <div>
-                    <h1 className="text-2xl font-bold tracking-tight">{company.name}</h1>
-                    {company.domain && <p className="text-sm text-zinc-500">{company.domain}</p>}
                 </div>
+                <DeleteCompanyButton companyId={id} companyName={company.name} />
             </div>
 
             <PeopleList

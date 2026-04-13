@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { TABLES } from "@/lib/supabase/constants";
 import { SAMPLE_TEMPLATES } from "@/lib/sample-templates";
 import UseTemplateButton from "@/app/components/UseTemplateButton";
+import DeleteTemplateButton from "@/app/components/DeleteTemplateButton";
 
 export default async function TemplatesPage() {
     const supabase = await createClient();
@@ -36,22 +37,26 @@ export default async function TemplatesPage() {
                     <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-zinc-400">Your Templates</h2>
                     <div className="grid gap-3 sm:grid-cols-2">
                         {templates.map((template) => (
-                            <Link
+                            <div
                                 key={template.id}
-                                href={`/templates/${template.id}/edit`}
                                 className="flex items-center justify-between rounded-xl border border-zinc-200 bg-white p-5 transition hover:border-zinc-300 hover:shadow-sm"
                             >
-                                <div>
+                                <Link href={`/templates/${template.id}/edit`} className="flex-1">
                                     <p className="font-semibold text-zinc-900">{template.name}</p>
                                     <p className="mt-1 text-sm text-zinc-500">
                                         {template.config?.width ?? 450} x {template.config?.height ?? 260}
                                         {template.config?.elements && ` · ${template.config.elements.length} elements`}
                                     </p>
+                                </Link>
+                                <div className="flex items-center gap-2">
+                                    <DeleteTemplateButton templateId={template.id} templateName={template.name} />
+                                    <Link href={`/templates/${template.id}/edit`}>
+                                        <svg className="h-5 w-5 text-zinc-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                                        </svg>
+                                    </Link>
                                 </div>
-                                <svg className="h-5 w-5 text-zinc-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                                </svg>
-                            </Link>
+                            </div>
                         ))}
                     </div>
                 </div>
