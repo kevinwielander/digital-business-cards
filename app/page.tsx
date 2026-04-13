@@ -43,28 +43,33 @@ export default async function Home() {
                             >
                                 Get Started Free
                             </Link>
-                            <TryGuestButton />
+                            <TryGuestButton className="rounded-xl border border-zinc-300 px-7 py-3 text-sm font-semibold text-zinc-700 transition hover:bg-white hover:shadow-sm" hideIcon />
                         </div>
                     </div>
                 </div>
 
                 {/* Features */}
                 <div className="mx-auto w-full max-w-5xl px-6 pb-24">
-                    <div className="grid gap-6 sm:grid-cols-3">
+                    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
                         <FeatureCard
                             icon={<svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><rect x="3" y="3" width="18" height="18" rx="2" /><path d="M3 9h18M9 3v18" /></svg>}
                             title="Drag & Drop Designer"
-                            description="Position text, images, shapes, and QR codes freely on a visual canvas with snap-to-grid alignment."
+                            description="Position text, images, shapes, and QR codes on a visual canvas with snapping and gradients."
                         />
                         <FeatureCard
                             icon={<svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>}
-                            title="Team Management"
-                            description="Add companies and people, upload photos, and generate cards for your entire organization at once."
+                            title="Bulk Import"
+                            description="Import entire teams via CSV upload or paste from a spreadsheet. Auto-maps columns to fields."
+                        />
+                        <FeatureCard
+                            icon={<svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" /></svg>}
+                            title="Custom Fields"
+                            description="Add department, LinkedIn, office, or any custom field per company. Use them in templates and CSV imports."
                         />
                         <FeatureCard
                             icon={<svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>}
                             title="Instant Export"
-                            description="Generate self-contained HTML cards with embedded images, vCard downloads, and QR codes — ready to deploy."
+                            description="Generate self-contained HTML cards with embedded images, vCard downloads, and QR codes."
                         />
                     </div>
 
