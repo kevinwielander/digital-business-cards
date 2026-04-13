@@ -12,6 +12,7 @@ import {
 } from "@/lib/types";
 import type { TemplateConfig, CardElement, SampleCardData } from "@/lib/types";
 import { isGuestMode } from "@/lib/guest-store";
+import { getSampleAssetUrl } from "@/lib/sample-utils";
 import { useGuest } from "./GuestProvider";
 import DesignerCanvas from "./designer/DesignerCanvas";
 import PropertiesPanel from "./designer/PropertiesPanel";
@@ -44,8 +45,8 @@ export default function TemplateDesigner({
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [showGrid, setShowGrid] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [companies, setCompanies] = useState<Company[]>([]);
-    const [people, setPeople] = useState<{ id: string; first_name: string; last_name: string; title: string; email: string; phone: string; photo_url: string | null; company_id: string }[]>([]);
+    const [companies, setCompanies] = useState<(Company & { is_sample?: boolean })[]>([]);
+    const [people, setPeople] = useState<{ id: string; first_name: string; last_name: string; title: string; email: string; phone: string; photo_url: string | null; company_id: string; is_sample?: boolean }[]>([]);
     const [selectedCompanyId, setSelectedCompanyId] = useState("");
     const [selectedPersonId, setSelectedPersonId] = useState("");
     const [previewData, setPreviewData] = useState<SampleCardData>(SAMPLE_CARD_DATA);
@@ -55,12 +56,12 @@ export default function TemplateDesigner({
             const supabase = createClient();
             const { data: companiesData } = await supabase
                 .from(TABLES.COMPANIES)
-                .select("id, name, logo_url, website");
+                .select("id, name, logo_url, website, is_sample");
             if (companiesData) setCompanies(companiesData);
 
             const { data: peopleData } = await supabase
                 .from(TABLES.PEOPLE)
-                .select("id, first_name, last_name, title, email, phone, photo_url, company_id");
+                .select("id, first_name, last_name, title, email, phone, photo_url, company_id, is_sample");
             if (peopleData) setPeople(peopleData);
         }
         loadData();
@@ -78,18 +79,26 @@ export default function TemplateDesigner({
 
             let logoUrl: string | null = null;
             if (company?.logo_url) {
-                const { data } = await supabase.storage
-                    .from(STORAGE.LOGOS)
-                    .createSignedUrl(company.logo_url, 3600);
-                logoUrl = data?.signedUrl ?? null;
+                if (company.is_sample) {
+                    logoUrl = getSampleAssetUrl(company.logo_url);
+                } else {
+                    const { data } = await supabase.storage
+                        .from(STORAGE.LOGOS)
+                        .createSignedUrl(company.logo_url, 3600);
+                    logoUrl = data?.signedUrl ?? null;
+                }
             }
 
             let photoUrl: string | null = null;
             if (person?.photo_url) {
-                const { data } = await supabase.storage
-                    .from(STORAGE.PHOTOS)
-                    .createSignedUrl(person.photo_url, 3600);
-                photoUrl = data?.signedUrl ?? null;
+                if (person.is_sample) {
+                    photoUrl = getSampleAssetUrl(person.photo_url);
+                } else {
+                    const { data } = await supabase.storage
+                        .from(STORAGE.PHOTOS)
+                        .createSignedUrl(person.photo_url, 3600);
+                    photoUrl = data?.signedUrl ?? null;
+                }
             }
 
             setPreviewData({

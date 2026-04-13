@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { TABLES, STORAGE } from "@/lib/supabase/constants";
+import { resolveImageUrl } from "@/lib/sample-utils";
 import { notFound } from "next/navigation";
 import PeopleList from "@/app/components/PeopleList";
 import DeleteCompanyButton from "@/app/components/DeleteCompanyButton";
@@ -22,13 +23,7 @@ export default async function CompanyDetailPage(props: PageProps<"/companies/[id
 
     if (!company) notFound();
 
-    let logoUrl: string | null = null;
-    if (company.logo_url) {
-        const { data } = await supabase.storage
-            .from(STORAGE.LOGOS)
-            .createSignedUrl(company.logo_url, 3600);
-        logoUrl = data?.signedUrl ?? null;
-    }
+    const logoUrl = await resolveImageUrl(supabase, STORAGE.LOGOS, company.logo_url, company.is_sample);
 
     const { data: people } = await supabase
         .from(TABLES.PEOPLE)
@@ -38,17 +33,17 @@ export default async function CompanyDetailPage(props: PageProps<"/companies/[id
 
     const { data: templates } = await supabase
         .from(TABLES.TEMPLATES)
-        .select("id, name");
+        .select("id, name")
+        .or(`user_id.eq.${user.id},is_sample.eq.true`);
 
     const peopleWithPhotos = await Promise.all(
         (people ?? []).map(async (person) => {
-            let photoSignedUrl: string | null = null;
-            if (person.photo_url) {
-                const { data } = await supabase.storage
-                    .from(STORAGE.PHOTOS)
-                    .createSignedUrl(person.photo_url, 3600);
-                photoSignedUrl = data?.signedUrl ?? null;
-            }
+            const photoSignedUrl = await resolveImageUrl(
+                supabase,
+                STORAGE.PHOTOS,
+                person.photo_url,
+                person.is_sample
+            );
             return { ...person, photoSignedUrl };
         })
     );
@@ -60,6 +55,11 @@ export default async function CompanyDetailPage(props: PageProps<"/companies/[id
                 <Link href="/companies" className="hover:text-zinc-800">Companies</Link>
                 <span>/</span>
                 <span className="text-zinc-900">{company.name}</span>
+                {company.is_sample && (
+                    <span className="ml-1 rounded bg-sky-50 px-1.5 py-0.5 text-[10px] font-medium text-sky-600">
+                        Sample
+                    </span>
+                )}
             </div>
 
             {/* Company header */}
@@ -87,13 +87,22 @@ export default async function CompanyDetailPage(props: PageProps<"/companies/[id
                         </div>
                     </div>
                 </div>
-                <DeleteCompanyButton companyId={id} companyName={company.name} />
+                {!company.is_sample && (
+                    <DeleteCompanyButton companyId={id} companyName={company.name} />
+                )}
             </div>
+
+            {company.is_sample && (
+                <div className="mb-6 rounded-lg bg-sky-50 px-4 py-3 text-sm text-sky-700">
+                    This is a sample company with demo data. You can browse it to see how things work.
+                </div>
+            )}
 
             <PeopleList
                 people={peopleWithPhotos}
                 companyId={id}
                 templates={templates ?? []}
+                isSample={company.is_sample}
             />
         </div>
     );

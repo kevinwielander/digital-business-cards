@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { TABLES, STORAGE } from "@/lib/supabase/constants";
-import SeedSampleData from "./components/SeedSampleData";
 import TryGuestButton from "./components/TryGuestButton";
+import { resolveImageUrl } from "@/lib/sample-utils";
 import GuestDashboard from "./components/GuestDashboard";
 import GuestGate from "./components/GuestGate";
 
@@ -104,44 +104,60 @@ export default async function Home() {
         );
     }
 
-    const { data: companies } = await supabase
+    // User's own data
+    const { data: userCompanies } = await supabase
         .from(TABLES.COMPANIES)
         .select("*")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false })
         .limit(5);
 
-    const { data: templates } = await supabase
+    const { data: userTemplates } = await supabase
         .from(TABLES.TEMPLATES)
         .select("*")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false })
         .limit(5);
 
-    const companyIds = (companies ?? []).map((c) => c.id);
+    // Sample data
+    const { data: sampleCompanies } = await supabase
+        .from(TABLES.COMPANIES)
+        .select("*")
+        .eq("is_sample", true)
+        .limit(5);
+
+    const { data: sampleTemplates } = await supabase
+        .from(TABLES.TEMPLATES)
+        .select("*")
+        .eq("is_sample", true)
+        .limit(5);
+
+    const companies = [...(userCompanies ?? []), ...(sampleCompanies ?? [])];
+    const templates = [...(userTemplates ?? []), ...(sampleTemplates ?? [])];
+
+    const userCompanyIds = (userCompanies ?? []).map((c) => c.id);
     let peopleCount = 0;
-    if (companyIds.length > 0) {
+    if (userCompanyIds.length > 0) {
         const { count } = await supabase
             .from(TABLES.PEOPLE)
             .select("*", { count: "exact", head: true })
-            .in("company_id", companyIds);
+            .in("company_id", userCompanyIds);
         peopleCount = count ?? 0;
     }
 
+    const { count: samplePeopleCount } = await supabase
+        .from(TABLES.PEOPLE)
+        .select("*", { count: "exact", head: true })
+        .eq("is_sample", true);
+
+    const totalPeople = peopleCount + (samplePeopleCount ?? 0);
+
     const companiesWithLogos = await Promise.all(
-        (companies ?? []).map(async (company) => {
-            let logoUrl: string | null = null;
-            if (company.logo_url) {
-                const { data } = await supabase.storage
-                    .from(STORAGE.LOGOS)
-                    .createSignedUrl(company.logo_url, 3600);
-                logoUrl = data?.signedUrl ?? null;
-            }
+        companies.map(async (company) => {
+            const logoUrl = await resolveImageUrl(supabase, STORAGE.LOGOS, company.logo_url, company.is_sample);
             return { ...company, logoUrl };
         })
     );
-
-    const hasData = (companies?.length ?? 0) > 0;
 
     return (
         <div className="mx-auto w-full max-w-5xl px-6 py-10">
@@ -152,13 +168,11 @@ export default async function Home() {
             </div>
 
             {/* Stats */}
-            {hasData && (
-                <div className="mb-10 grid grid-cols-3 gap-4">
-                    <StatCard label="Companies" value={companies?.length ?? 0} href="/companies" />
-                    <StatCard label="Templates" value={templates?.length ?? 0} href="/templates" />
-                    <StatCard label="People" value={peopleCount ?? 0} />
-                </div>
-            )}
+            <div className="mb-10 grid grid-cols-3 gap-4">
+                <StatCard label="Companies" value={companies.length} href="/companies" />
+                <StatCard label="Templates" value={templates.length} href="/templates" />
+                <StatCard label="People" value={totalPeople} />
+            </div>
 
             {/* Quick actions */}
             <div className="mb-10">
@@ -176,66 +190,60 @@ export default async function Home() {
                     <h2 className="text-sm font-semibold uppercase tracking-wider text-zinc-400">Recent Companies</h2>
                     <Link href="/companies" className="text-sm text-zinc-500 hover:text-zinc-800">View all</Link>
                 </div>
-                {!hasData ? (
-                    <div className="rounded-xl border border-dashed border-zinc-300 px-6 py-12 text-center">
-                        <p className="font-medium text-zinc-700">No companies yet</p>
-                        <p className="mt-1 text-sm text-zinc-500">Add your own or try with sample data.</p>
-                        <div className="mt-4 flex items-center justify-center gap-3">
-                            <Link
-                                href="/companies"
-                                className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700"
-                            >
-                                Add Company
-                            </Link>
-                            <SeedSampleData />
-                        </div>
-                    </div>
-                ) : (
-                    <div className="grid gap-3 sm:grid-cols-2">
-                        {companiesWithLogos.map((company) => (
-                            <Link
-                                key={company.id}
-                                href={`/companies/${company.id}`}
-                                className="flex items-center gap-4 rounded-xl border border-zinc-200 bg-white p-4 transition hover:border-zinc-300 hover:shadow-sm"
-                            >
-                                {company.logoUrl ? (
-                                    <img src={company.logoUrl} alt={company.name} className="h-10 w-10 rounded-lg object-contain" />
-                                ) : (
-                                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-zinc-100 text-sm font-semibold text-zinc-500">
-                                        {company.name[0]}
-                                    </div>
-                                )}
-                                <div>
-                                    <p className="font-medium text-zinc-900">{company.name}</p>
-                                    {company.domain && <p className="text-sm text-zinc-500">{company.domain}</p>}
+                <div className="grid gap-3 sm:grid-cols-2">
+                    {companiesWithLogos.map((company) => (
+                        <Link
+                            key={company.id}
+                            href={`/companies/${company.id}`}
+                            className="flex items-center gap-4 rounded-xl border border-zinc-200 bg-white p-4 transition hover:border-zinc-300 hover:shadow-sm"
+                        >
+                            {company.logoUrl ? (
+                                <img src={company.logoUrl} alt={company.name} className="h-10 w-10 rounded-lg object-contain" />
+                            ) : (
+                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-zinc-100 text-sm font-semibold text-zinc-500">
+                                    {company.name[0]}
                                 </div>
-                            </Link>
-                        ))}
-                    </div>
-                )}
+                            )}
+                            <div>
+                                <div className="flex items-center gap-2">
+                                    <p className="font-medium text-zinc-900">{company.name}</p>
+                                    {company.is_sample && (
+                                        <span className="rounded bg-sky-50 px-1.5 py-0.5 text-[10px] font-medium text-sky-600">Sample</span>
+                                    )}
+                                </div>
+                                {company.domain && <p className="text-sm text-zinc-500">{company.domain}</p>}
+                            </div>
+                        </Link>
+                    ))}
+                </div>
             </div>
 
             {/* Recent templates */}
-            {(templates?.length ?? 0) > 0 && (
+            {templates.length > 0 && (
                 <div>
                     <div className="mb-4 flex items-center justify-between">
-                        <h2 className="text-sm font-semibold uppercase tracking-wider text-zinc-400">Recent Templates</h2>
+                        <h2 className="text-sm font-semibold uppercase tracking-wider text-zinc-400">Templates</h2>
                         <Link href="/templates" className="text-sm text-zinc-500 hover:text-zinc-800">View all</Link>
                     </div>
                     <div className="grid gap-3 sm:grid-cols-2">
-                        {templates!.map((template) => (
+                        {templates.map((template) => (
                             <Link
                                 key={template.id}
-                                href={`/templates/${template.id}/edit`}
+                                href={template.is_sample ? "/templates" : `/templates/${template.id}/edit`}
                                 className="flex items-center justify-between rounded-xl border border-zinc-200 bg-white p-4 transition hover:border-zinc-300 hover:shadow-sm"
                             >
                                 <div>
-                                    <p className="font-medium text-zinc-900">{template.name}</p>
+                                    <div className="flex items-center gap-2">
+                                        <p className="font-medium text-zinc-900">{template.name}</p>
+                                        {template.is_sample && (
+                                            <span className="rounded bg-sky-50 px-1.5 py-0.5 text-[10px] font-medium text-sky-600">Sample</span>
+                                        )}
+                                    </div>
                                     <p className="text-sm text-zinc-500">
                                         {template.config?.width ?? 450}x{template.config?.height ?? 260}
                                     </p>
                                 </div>
-                                <span className="text-sm text-zinc-400">Edit</span>
+                                <span className="text-sm text-zinc-400">{template.is_sample ? "Use" : "Edit"}</span>
                             </Link>
                         ))}
                     </div>

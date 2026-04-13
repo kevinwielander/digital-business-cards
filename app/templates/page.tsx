@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { TABLES } from "@/lib/supabase/constants";
-import { SAMPLE_TEMPLATES } from "@/lib/sample-templates";
 import UseTemplateButton from "@/app/components/UseTemplateButton";
 import DeleteTemplateButton from "@/app/components/DeleteTemplateButton";
 import GuestTemplatesPage from "@/app/components/GuestTemplatesPage";
@@ -11,11 +10,17 @@ export default async function TemplatesPage() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return <GuestTemplatesPage />;
 
-    const { data: templates } = await supabase
+    const { data: userTemplates } = await supabase
         .from(TABLES.TEMPLATES)
         .select("*")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false });
+
+    const { data: sampleTemplates } = await supabase
+        .from(TABLES.TEMPLATES)
+        .select("*")
+        .eq("is_sample", true)
+        .order("created_at", { ascending: true });
 
     return (
         <div className="mx-auto w-full max-w-4xl px-6 py-10">
@@ -33,11 +38,11 @@ export default async function TemplatesPage() {
             </div>
 
             {/* User templates */}
-            {templates && templates.length > 0 && (
+            {userTemplates && userTemplates.length > 0 && (
                 <div className="mb-12">
                     <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-zinc-400">Your Templates</h2>
                     <div className="grid gap-3 sm:grid-cols-2">
-                        {templates.map((template) => (
+                        {userTemplates.map((template) => (
                             <div
                                 key={template.id}
                                 className="flex items-center justify-between rounded-xl border border-zinc-200 bg-white p-5 transition hover:border-zinc-300 hover:shadow-sm"
@@ -63,74 +68,63 @@ export default async function TemplatesPage() {
                 </div>
             )}
 
-            {/* Starter templates */}
-            <div>
-                <h2 className="mb-2 text-sm font-semibold uppercase tracking-wider text-zinc-400">Starter Templates</h2>
-                <p className="mb-4 text-sm text-zinc-500">Use these as a starting point — they'll be copied to your templates so you can customize them.</p>
-                <div className="grid gap-4 sm:grid-cols-2">
-                    {SAMPLE_TEMPLATES.map((sample, i) => (
-                        <div
-                            key={i}
-                            className="rounded-xl border border-zinc-200 bg-white p-5"
-                        >
-                            <div className="mb-3 flex items-center justify-between">
-                                <div>
-                                    <p className="font-semibold text-zinc-900">{sample.name}</p>
+            {/* Sample templates from DB */}
+            {sampleTemplates && sampleTemplates.length > 0 && (
+                <div>
+                    <h2 className="mb-2 text-sm font-semibold uppercase tracking-wider text-zinc-400">Starter Templates</h2>
+                    <p className="mb-4 text-sm text-zinc-500">Use these as a starting point — they'll be copied to your templates so you can customize them.</p>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                        {sampleTemplates.map((template) => (
+                            <div
+                                key={template.id}
+                                className="rounded-xl border border-zinc-200 bg-white p-5"
+                            >
+                                <div className="mb-3">
+                                    <div className="flex items-center gap-2">
+                                        <p className="font-semibold text-zinc-900">{template.name}</p>
+                                        <span className="rounded bg-sky-50 px-1.5 py-0.5 text-[10px] font-medium text-sky-600">
+                                            Sample
+                                        </span>
+                                    </div>
                                     <p className="text-sm text-zinc-500">
-                                        {sample.config.width} x {sample.config.height} · {sample.config.elements.length} elements
+                                        {template.config?.width ?? 450} x {template.config?.height ?? 260}
+                                        {template.config?.elements && ` · ${template.config.elements.length} elements`}
                                     </p>
                                 </div>
-                            </div>
-                            {/* Mini preview */}
-                            <div className="mb-4 flex justify-center rounded-lg bg-zinc-50 p-4">
-                                <div
-                                    className="relative overflow-hidden rounded shadow-sm"
-                                    style={{
-                                        width: sample.config.width * 0.4,
-                                        height: sample.config.height * 0.4,
-                                        backgroundColor: sample.config.backgroundColor,
-                                    }}
-                                >
-                                    {sample.config.elements
-                                        .filter((el) => el.type === "shape")
-                                        .map((el) => (
-                                            <div
-                                                key={el.id}
-                                                style={{
-                                                    position: "absolute",
-                                                    left: el.x * 0.4,
-                                                    top: el.y * 0.4,
-                                                    width: el.width * 0.4,
-                                                    height: el.height * 0.4,
-                                                    backgroundColor: el.backgroundColor,
-                                                    borderRadius: el.shapeRadius ? el.shapeRadius * 0.4 : 0,
-                                                }}
-                                            />
-                                        ))}
-                                    {sample.config.elements
-                                        .filter((el) => el.type === "text")
-                                        .map((el) => (
-                                            <div
-                                                key={el.id}
-                                                style={{
-                                                    position: "absolute",
-                                                    left: el.x * 0.4,
-                                                    top: el.y * 0.4,
-                                                    width: el.width * 0.4,
-                                                    height: el.height * 0.4,
-                                                    backgroundColor: el.color ?? "#ccc",
-                                                    borderRadius: 1,
-                                                    opacity: 0.2,
-                                                }}
-                                            />
-                                        ))}
+                                {/* Mini preview */}
+                                <div className="mb-4 flex justify-center rounded-lg bg-zinc-50 p-4">
+                                    <div
+                                        className="relative overflow-hidden rounded shadow-sm"
+                                        style={{
+                                            width: (template.config?.width ?? 450) * 0.4,
+                                            height: (template.config?.height ?? 260) * 0.4,
+                                            backgroundColor: template.config?.backgroundColor ?? "#fff",
+                                        }}
+                                    >
+                                        {(template.config?.elements ?? [])
+                                            .filter((el: { type: string }) => el.type === "shape")
+                                            .map((el: { id: string; x: number; y: number; width: number; height: number; backgroundColor?: string; gradient?: string; shapeRadius?: number }) => (
+                                                <div
+                                                    key={el.id}
+                                                    style={{
+                                                        position: "absolute",
+                                                        left: el.x * 0.4,
+                                                        top: el.y * 0.4,
+                                                        width: el.width * 0.4,
+                                                        height: el.height * 0.4,
+                                                        background: el.gradient || el.backgroundColor,
+                                                        borderRadius: el.shapeRadius ? el.shapeRadius * 0.4 : 0,
+                                                    }}
+                                                />
+                                            ))}
+                                    </div>
                                 </div>
+                                <UseTemplateButton name={template.name} config={template.config} />
                             </div>
-                            <UseTemplateButton name={sample.name} config={sample.config} />
-                        </div>
-                    ))}
+                        ))}
+                    </div>
                 </div>
-            </div>
+            )}
         </div>
     );
 }

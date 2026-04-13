@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { TABLES, STORAGE } from "@/lib/supabase/constants";
+import { resolveImageUrl } from "@/lib/sample-utils";
 import AddCompanyButton from "../components/AddCompanyButton";
-import SeedSampleData from "../components/SeedSampleData";
 import GuestCompaniesPage from "../components/GuestCompaniesPage";
 
 export default async function CompaniesPage() {
@@ -10,21 +10,32 @@ export default async function CompaniesPage() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return <GuestCompaniesPage />;
 
-    const { data: companies } = await supabase
+    // Fetch user's companies + sample companies
+    const { data: userCompanies } = await supabase
         .from(TABLES.COMPANIES)
         .select("*")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false });
 
+    const { data: sampleCompanies } = await supabase
+        .from(TABLES.COMPANIES)
+        .select("*")
+        .eq("is_sample", true)
+        .order("created_at", { ascending: true });
+
+    const allCompanies = [
+        ...(userCompanies ?? []),
+        ...(sampleCompanies ?? []),
+    ];
+
     const companiesWithLogos = await Promise.all(
-        (companies ?? []).map(async (company) => {
-            let logoUrl: string | null = null;
-            if (company.logo_url) {
-                const { data } = await supabase.storage
-                    .from(STORAGE.LOGOS)
-                    .createSignedUrl(company.logo_url, 3600);
-                logoUrl = data?.signedUrl ?? null;
-            }
+        allCompanies.map(async (company) => {
+            const logoUrl = await resolveImageUrl(
+                supabase,
+                STORAGE.LOGOS,
+                company.logo_url,
+                company.is_sample
+            );
             return { ...company, logoUrl };
         })
     );
@@ -45,10 +56,7 @@ export default async function CompaniesPage() {
                         <span className="text-xl">+</span>
                     </div>
                     <p className="font-medium text-zinc-700">No companies yet</p>
-                    <p className="mt-1 text-sm text-zinc-500">Add a company to start creating business cards, or try with sample data.</p>
-                    <div className="mt-4">
-                        <SeedSampleData />
-                    </div>
+                    <p className="mt-1 text-sm text-zinc-500">Add a company to start creating business cards.</p>
                 </div>
             ) : (
                 <div className="grid gap-3">
@@ -70,7 +78,14 @@ export default async function CompaniesPage() {
                                 </div>
                             )}
                             <div className="flex-1">
-                                <p className="font-semibold text-zinc-900">{company.name}</p>
+                                <div className="flex items-center gap-2">
+                                    <p className="font-semibold text-zinc-900">{company.name}</p>
+                                    {company.is_sample && (
+                                        <span className="rounded bg-sky-50 px-1.5 py-0.5 text-[10px] font-medium text-sky-600">
+                                            Sample
+                                        </span>
+                                    )}
+                                </div>
                                 {company.domain && <p className="text-sm text-zinc-500">{company.domain}</p>}
                             </div>
                             <svg className="h-5 w-5 text-zinc-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>

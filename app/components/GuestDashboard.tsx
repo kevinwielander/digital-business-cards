@@ -1,86 +1,131 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { useGuest } from "./GuestProvider";
-import SeedGuestData from "./SeedGuestData";
+import { createClient } from "@/lib/supabase/client";
+import { TABLES } from "@/lib/supabase/constants";
+import { getSampleAssetUrl } from "@/lib/sample-utils";
+
+interface SampleCompany {
+    id: string;
+    name: string;
+    domain: string;
+    logo_url: string | null;
+}
 
 export default function GuestDashboard() {
     const { isGuest, data } = useGuest();
+    const [sampleCompanies, setSampleCompanies] = useState<SampleCompany[]>([]);
+    const [sampleTemplateCount, setSampleTemplateCount] = useState(0);
+    const [samplePeopleCount, setSamplePeopleCount] = useState(0);
+
+    useEffect(() => {
+        async function loadSamples() {
+            const supabase = createClient();
+            const { data: companies } = await supabase
+                .from(TABLES.COMPANIES)
+                .select("*")
+                .eq("is_sample", true);
+            if (companies) setSampleCompanies(companies);
+
+            const { count: tCount } = await supabase
+                .from(TABLES.TEMPLATES)
+                .select("*", { count: "exact", head: true })
+                .eq("is_sample", true);
+            setSampleTemplateCount(tCount ?? 0);
+
+            const { count: pCount } = await supabase
+                .from(TABLES.PEOPLE)
+                .select("*", { count: "exact", head: true })
+                .eq("is_sample", true);
+            setSamplePeopleCount(pCount ?? 0);
+        }
+        loadSamples();
+    }, []);
 
     if (!isGuest) return null;
+
+    const totalCompanies = data.companies.length + sampleCompanies.length;
+    const totalTemplates = data.templates.length + sampleTemplateCount;
+    const totalPeople = data.people.length + samplePeopleCount;
+
+    const allCompanies = [
+        ...data.companies.map((c) => ({ ...c, is_sample: false, logoUrl: c.logo_url })),
+        ...sampleCompanies.map((c) => ({
+            ...c,
+            is_sample: true,
+            logoUrl: c.logo_url ? getSampleAssetUrl(c.logo_url) : null,
+        })),
+    ];
 
     return (
         <div className="mx-auto w-full max-w-5xl px-6 py-10">
             <div className="mb-10">
                 <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-                <p className="mt-1 text-zinc-500">Welcome. Here's an overview of your local workspace.</p>
+                <p className="mt-1 text-zinc-500">Welcome to CardGen. Explore the sample data or create your own.</p>
             </div>
 
             <div className="mb-10 grid grid-cols-3 gap-4">
-                <StatCard label="Companies" value={data.companies.length} />
-                <StatCard label="Templates" value={data.templates.length} />
-                <StatCard label="People" value={data.people.length} />
+                <Link href="/companies" className="transition hover:shadow-sm">
+                    <div className="rounded-xl border border-zinc-200 bg-white p-5">
+                        <p className="text-sm text-zinc-500">Companies</p>
+                        <p className="mt-1 text-2xl font-bold">{totalCompanies}</p>
+                    </div>
+                </Link>
+                <Link href="/templates" className="transition hover:shadow-sm">
+                    <div className="rounded-xl border border-zinc-200 bg-white p-5">
+                        <p className="text-sm text-zinc-500">Templates</p>
+                        <p className="mt-1 text-2xl font-bold">{totalTemplates}</p>
+                    </div>
+                </Link>
+                <div className="rounded-xl border border-zinc-200 bg-white p-5">
+                    <p className="text-sm text-zinc-500">People</p>
+                    <p className="mt-1 text-2xl font-bold">{totalPeople}</p>
+                </div>
             </div>
 
             <div className="mb-10">
                 <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-zinc-400">Quick Actions</h2>
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                    <QuickAction href="/companies" title="Add Company" description="Create a new company with details" />
+                    <QuickAction href="/companies" title="Browse Companies" description="Explore sample companies and add your own" />
                     <QuickAction href="/templates/new" title="Create Template" description="Design a new business card layout" />
-                    <QuickAction href="/templates" title="Browse Templates" description="View starter templates" />
+                    <QuickAction href="/templates" title="Browse Templates" description="View and use starter templates" />
                 </div>
             </div>
 
-            {data.companies.length === 0 && (
-                <div className="mb-10 rounded-xl border border-dashed border-zinc-300 px-6 py-12 text-center">
-                    <p className="font-medium text-zinc-700">No data yet</p>
-                    <p className="mt-1 text-sm text-zinc-500">Add your own companies or try with sample data.</p>
-                    <div className="mt-4 flex items-center justify-center gap-3">
-                        <Link
-                            href="/companies"
-                            className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700"
-                        >
-                            Add Company
-                        </Link>
-                        <SeedGuestData />
-                    </div>
+            <div>
+                <div className="mb-4 flex items-center justify-between">
+                    <h2 className="text-sm font-semibold uppercase tracking-wider text-zinc-400">Companies</h2>
+                    <Link href="/companies" className="text-sm text-zinc-500 hover:text-zinc-800">View all</Link>
                 </div>
-            )}
-
-            {data.companies.length > 0 && (
-                <div>
-                    <div className="mb-4 flex items-center justify-between">
-                        <h2 className="text-sm font-semibold uppercase tracking-wider text-zinc-400">Your Companies</h2>
-                        <Link href="/companies" className="text-sm text-zinc-500 hover:text-zinc-800">View all</Link>
-                    </div>
-                    <div className="grid gap-3 sm:grid-cols-2">
-                        {data.companies.map((company) => (
-                            <Link
-                                key={company.id}
-                                href={`/companies/${company.id}`}
-                                className="flex items-center gap-4 rounded-xl border border-zinc-200 bg-white p-4 transition hover:border-zinc-300 hover:shadow-sm"
-                            >
+                <div className="grid gap-3 sm:grid-cols-2">
+                    {allCompanies.map((company) => (
+                        <Link
+                            key={company.id}
+                            href={`/companies/${company.id}`}
+                            className="flex items-center gap-4 rounded-xl border border-zinc-200 bg-white p-4 transition hover:border-zinc-300 hover:shadow-sm"
+                        >
+                            {company.logoUrl ? (
+                                <img src={company.logoUrl} alt={company.name} className="h-10 w-10 rounded-lg object-contain" />
+                            ) : (
                                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-zinc-100 text-sm font-semibold text-zinc-500">
                                     {company.name[0]}
                                 </div>
-                                <div>
+                            )}
+                            <div>
+                                <div className="flex items-center gap-2">
                                     <p className="font-medium text-zinc-900">{company.name}</p>
-                                    {company.domain && <p className="text-sm text-zinc-500">{company.domain}</p>}
+                                    {company.is_sample && (
+                                        <span className="rounded bg-sky-50 px-1.5 py-0.5 text-[10px] font-medium text-sky-600">Sample</span>
+                                    )}
                                 </div>
-                            </Link>
-                        ))}
-                    </div>
+                                {company.domain && <p className="text-sm text-zinc-500">{company.domain}</p>}
+                            </div>
+                        </Link>
+                    ))}
                 </div>
-            )}
-        </div>
-    );
-}
-
-function StatCard({ label, value }: { label: string; value: number }) {
-    return (
-        <div className="rounded-xl border border-zinc-200 bg-white p-5">
-            <p className="text-sm text-zinc-500">{label}</p>
-            <p className="mt-1 text-2xl font-bold">{value}</p>
+            </div>
         </div>
     );
 }
