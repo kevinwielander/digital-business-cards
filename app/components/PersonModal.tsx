@@ -6,6 +6,7 @@ import { TABLES, STORAGE } from "@/lib/supabase/constants";
 import { isGuestMode } from "@/lib/guest-store";
 import { getSampleAssetUrl } from "@/lib/sample-utils";
 import { useGuest } from "./GuestProvider";
+import { useTranslation } from "./I18nProvider";
 import ImageUpload from "./ImageUpload";
 import ConfirmModal from "./ConfirmModal";
 import CardPreviewRenderer from "./designer/CardPreviewRenderer";
@@ -40,6 +41,7 @@ interface PersonModalProps {
 
 export default function PersonModal({ onClose, companyId, templates, companyName, companyLogoUrl, customFieldDefs, person }: PersonModalProps) {
     const guest = useGuest();
+    const { t } = useTranslation();
     const [firstName, setFirstName] = useState(person?.first_name ?? "");
     const [lastName, setLastName] = useState(person?.last_name ?? "");
     const [title, setTitle] = useState(person?.title ?? "");
@@ -217,7 +219,7 @@ export default function PersonModal({ onClose, companyId, templates, companyName
                 <div className="w-1/2">
                     <div className="mb-6 flex items-center justify-between">
                         <h2 className="text-xl font-semibold">
-                            {person ? "Edit Person" : "Add Person"}
+                            {person ? t.people_edit : t.people_add}
                         </h2>
                         <button
                             onClick={onClose}
@@ -230,7 +232,7 @@ export default function PersonModal({ onClose, companyId, templates, companyName
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="mb-1 block text-sm font-medium text-zinc-700">First Name</label>
+                                <label className="mb-1 block text-sm font-medium text-zinc-700">{t.form_first_name}</label>
                                 <input
                                     type="text"
                                     value={firstName}
@@ -240,7 +242,7 @@ export default function PersonModal({ onClose, companyId, templates, companyName
                                 />
                             </div>
                             <div>
-                                <label className="mb-1 block text-sm font-medium text-zinc-700">Last Name</label>
+                                <label className="mb-1 block text-sm font-medium text-zinc-700">{t.form_last_name}</label>
                                 <input
                                     type="text"
                                     value={lastName}
@@ -252,7 +254,7 @@ export default function PersonModal({ onClose, companyId, templates, companyName
                         </div>
 
                         <div>
-                            <label className="mb-1 block text-sm font-medium text-zinc-700">Job Title</label>
+                            <label className="mb-1 block text-sm font-medium text-zinc-700">{t.form_job_title}</label>
                             <input
                                 type="text"
                                 value={title}
@@ -262,7 +264,7 @@ export default function PersonModal({ onClose, companyId, templates, companyName
                         </div>
 
                         <div>
-                            <label className="mb-1 block text-sm font-medium text-zinc-700">Email</label>
+                            <label className="mb-1 block text-sm font-medium text-zinc-700">{t.form_email}</label>
                             <input
                                 type="email"
                                 value={email}
@@ -272,7 +274,7 @@ export default function PersonModal({ onClose, companyId, templates, companyName
                         </div>
 
                         <div>
-                            <label className="mb-1 block text-sm font-medium text-zinc-700">Phone</label>
+                            <label className="mb-1 block text-sm font-medium text-zinc-700">{t.form_phone}</label>
                             <input
                                 type="tel"
                                 value={phone}
@@ -282,9 +284,9 @@ export default function PersonModal({ onClose, companyId, templates, companyName
                         </div>
 
                         <div>
-                            <label className="mb-1 block text-sm font-medium text-zinc-700">Template</label>
+                            <label className="mb-1 block text-sm font-medium text-zinc-700">{t.form_template}</label>
                             {templates.length === 0 ? (
-                                <p className="text-sm text-red-500">No templates available. Create one first.</p>
+                                <p className="text-sm text-red-500">{t.form_no_templates}</p>
                             ) : (
                                 <select
                                     value={templateId}
@@ -301,7 +303,7 @@ export default function PersonModal({ onClose, companyId, templates, companyName
                         {/* Custom fields */}
                         {customFieldDefs && customFieldDefs.length > 0 && (
                             <div className="space-y-3">
-                                <label className="block text-sm font-medium text-zinc-700">Custom Fields</label>
+                                <label className="block text-sm font-medium text-zinc-700">{t.custom_fields_title}</label>
                                 {customFieldDefs.map((def) => (
                                     <div key={def.key}>
                                         <label className="mb-1 block text-xs text-zinc-500">{def.label}</label>
@@ -317,7 +319,7 @@ export default function PersonModal({ onClose, companyId, templates, companyName
                         )}
 
                         <ImageUpload
-                            label="Photo"
+                            label={t.form_photo}
                             onImageReady={(file) => setPhoto(file)}
                             currentImageUrl={person?.photoSignedUrl}
                             aspectRatio={1}
@@ -333,7 +335,7 @@ export default function PersonModal({ onClose, companyId, templates, companyName
                                     onClick={() => setShowDeleteConfirm(true)}
                                     className="rounded-lg px-3 py-2 text-sm text-red-500 hover:bg-red-50"
                                 >
-                                    Delete
+                                    {t.people_delete}
                                 </button>
                             ) : <div />}
                             <div className="flex gap-3">
@@ -342,14 +344,14 @@ export default function PersonModal({ onClose, companyId, templates, companyName
                                     onClick={onClose}
                                     className="rounded-lg px-4 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-100"
                                 >
-                                    Cancel
+                                    {t.modal_cancel}
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={templates.length === 0}
                                     className="rounded-lg bg-zinc-900 px-5 py-2 text-sm font-medium text-white hover:bg-zinc-700 disabled:opacity-50"
                                 >
-                                    {person ? "Update" : "Add"}
+                                    {person ? t.modal_save : t.people_add}
                                 </button>
                             </div>
                         </div>
@@ -374,9 +376,9 @@ export default function PersonModal({ onClose, companyId, templates, companyName
             </div>
             {showDeleteConfirm && person && (
                 <ConfirmModal
-                    title="Delete Person"
-                    message={`Are you sure you want to delete ${person.first_name} ${person.last_name}? This cannot be undone.`}
-                    confirmLabel="Delete"
+                    title={t.people_delete}
+                    message={t.people_delete_confirm.replace("{name}", `${person.first_name} ${person.last_name}`)}
+                    confirmLabel={t.modal_delete}
                     destructive
                     onConfirm={handleDelete}
                     onCancel={() => setShowDeleteConfirm(false)}

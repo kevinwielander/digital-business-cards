@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useGuest } from "./GuestProvider";
+import { useTranslation } from "./I18nProvider";
 import { createClient } from "@/lib/supabase/client";
 import { TABLES } from "@/lib/supabase/constants";
 import { getSampleAssetUrl } from "@/lib/sample-utils";
@@ -16,6 +17,7 @@ interface SampleCompany {
 
 export default function GuestDashboard() {
     const { isGuest, data } = useGuest();
+    const { t } = useTranslation();
     const [sampleCompanies, setSampleCompanies] = useState<SampleCompany[]>([]);
     const [sampleTemplateCount, setSampleTemplateCount] = useState(0);
     const [samplePeopleCount, setSamplePeopleCount] = useState(0);
@@ -62,42 +64,42 @@ export default function GuestDashboard() {
     return (
         <div className="mx-auto w-full max-w-5xl px-6 py-10">
             <div className="mb-10">
-                <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
-                <p className="mt-1 text-zinc-500">Welcome to CardGen. Explore the sample data or create your own.</p>
+                <h1 className="text-3xl font-bold tracking-tight">{t.dash_title}</h1>
+                <p className="mt-1 text-zinc-500">{t.dash_welcome}</p>
             </div>
 
             <div className="mb-10 grid grid-cols-3 gap-4">
                 <Link href="/companies" className="transition hover:shadow-sm">
                     <div className="rounded-xl border border-zinc-200 bg-white p-5">
-                        <p className="text-sm text-zinc-500">Companies</p>
+                        <p className="text-sm text-zinc-500">{t.dash_companies}</p>
                         <p className="mt-1 text-2xl font-bold">{totalCompanies}</p>
                     </div>
                 </Link>
                 <Link href="/templates" className="transition hover:shadow-sm">
                     <div className="rounded-xl border border-zinc-200 bg-white p-5">
-                        <p className="text-sm text-zinc-500">Templates</p>
+                        <p className="text-sm text-zinc-500">{t.dash_templates}</p>
                         <p className="mt-1 text-2xl font-bold">{totalTemplates}</p>
                     </div>
                 </Link>
                 <div className="rounded-xl border border-zinc-200 bg-white p-5">
-                    <p className="text-sm text-zinc-500">People</p>
+                    <p className="text-sm text-zinc-500">{t.dash_people}</p>
                     <p className="mt-1 text-2xl font-bold">{totalPeople}</p>
                 </div>
             </div>
 
             <div className="mb-10">
-                <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-zinc-400">Quick Actions</h2>
+                <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-zinc-400">{t.dash_quick_actions}</h2>
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                    <QuickAction href="/companies" title="Browse Companies" description="Explore sample companies and add your own" />
-                    <QuickAction href="/templates/new" title="Create Template" description="Design a new business card layout" />
-                    <QuickAction href="/templates" title="Browse Templates" description="View and use starter templates" />
+                    <QuickAction href="/companies" title={t.dash_add_company} description={t.dash_add_company_desc} />
+                    <QuickAction href="/templates/new" title={t.dash_create_template} description={t.dash_create_template_desc} />
+                    <QuickAction href="/templates" title={t.dash_browse_templates} description={t.dash_browse_templates_desc} />
                 </div>
             </div>
 
             <div>
                 <div className="mb-4 flex items-center justify-between">
-                    <h2 className="text-sm font-semibold uppercase tracking-wider text-zinc-400">Companies</h2>
-                    <Link href="/companies" className="text-sm text-zinc-500 hover:text-zinc-800">View all</Link>
+                    <h2 className="text-sm font-semibold uppercase tracking-wider text-zinc-400">{t.dash_companies}</h2>
+                    <Link href="/companies" className="text-sm text-zinc-500 hover:text-zinc-800">{t.dash_view_all}</Link>
                 </div>
                 <div className="grid gap-3 sm:grid-cols-2">
                     {allCompanies.map((company) => (
@@ -117,7 +119,7 @@ export default function GuestDashboard() {
                                 <div className="flex items-center gap-2">
                                     <p className="font-medium text-zinc-900">{company.name}</p>
                                     {company.is_sample && (
-                                        <span className="rounded bg-sky-50 px-1.5 py-0.5 text-[10px] font-medium text-sky-600">Sample</span>
+                                        <span className="rounded bg-sky-50 px-1.5 py-0.5 text-[10px] font-medium text-sky-600">{t.companies_sample}</span>
                                     )}
                                 </div>
                                 {company.domain && <p className="text-sm text-zinc-500">{company.domain}</p>}

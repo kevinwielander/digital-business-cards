@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { TABLES } from "@/lib/supabase/constants";
 import { isGuestMode } from "@/lib/guest-store";
 import { useGuest } from "./GuestProvider";
+import { useTranslation } from "./I18nProvider";
 import type { CustomFieldDefinition } from "@/lib/types";
 
 const KNOWN_FIELDS = ["first_name", "last_name", "title", "email", "phone"] as const;
@@ -71,6 +72,7 @@ interface ParsedRow {
 
 export default function BulkImportModal({ onClose, companyId, templates, customFieldDefs }: BulkImportModalProps) {
     const guest = useGuest();
+    const { t } = useTranslation();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [step, setStep] = useState<"upload" | "map" | "preview" | "done">("upload");
     const [rawHeaders, setRawHeaders] = useState<string[]>([]);
@@ -239,7 +241,7 @@ export default function BulkImportModal({ onClose, companyId, templates, customF
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className="mb-6 flex items-center justify-between">
-                    <h2 className="text-xl font-semibold">Bulk Import People</h2>
+                    <h2 className="text-xl font-semibold">{t.import_title}</h2>
                     <button
                         onClick={onClose}
                         className="flex h-8 w-8 items-center justify-center rounded-full text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700"
@@ -252,7 +254,7 @@ export default function BulkImportModal({ onClose, companyId, templates, customF
                 {step === "upload" && (
                     <div className="space-y-6">
                         <div>
-                            <label className="mb-2 block text-sm font-medium text-zinc-700">Upload CSV file</label>
+                            <label className="mb-2 block text-sm font-medium text-zinc-700">{t.import_upload}</label>
                             <input
                                 ref={fileInputRef}
                                 type="file"
@@ -269,24 +271,24 @@ export default function BulkImportModal({ onClose, companyId, templates, customF
                         </div>
 
                         <div>
-                            <label className="mb-2 block text-sm font-medium text-zinc-700">Paste from spreadsheet</label>
+                            <label className="mb-2 block text-sm font-medium text-zinc-700">{t.import_paste}</label>
                             <textarea
                                 onPaste={handlePaste}
-                                placeholder="Copy rows from Excel or Google Sheets and paste here (include headers)"
+                                placeholder={t.import_paste_placeholder}
                                 rows={5}
                                 className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500"
                             />
                         </div>
 
                         <div className="rounded-lg bg-zinc-50 p-4">
-                            <p className="text-sm font-medium text-zinc-700">Expected format</p>
-                            <p className="mt-1 text-xs text-zinc-500">CSV with headers: First Name, Last Name, Job Title, Email, Phone</p>
+                            <p className="text-sm font-medium text-zinc-700">{t.import_format}</p>
+                            <p className="mt-1 text-xs text-zinc-500">CSV with headers: {t.form_first_name}, {t.form_last_name}, {t.form_job_title}, {t.form_email}, {t.form_phone}</p>
                             <a
                                 href="/sample-import.csv"
                                 download
                                 className="mt-2 inline-block text-xs font-medium text-sky-600 hover:underline"
                             >
-                                Download sample CSV
+                                {t.import_sample}
                             </a>
                         </div>
 
@@ -317,7 +319,7 @@ export default function BulkImportModal({ onClose, companyId, templates, customF
                                             columnMap[header] === "skip" ? "border-zinc-200 text-zinc-400" : "border-zinc-300 text-zinc-900"
                                         }`}
                                     >
-                                        <option value="skip">-- Skip this column --</option>
+                                        <option value="skip">{t.import_skip}</option>
                                         {KNOWN_FIELDS.map((f) => (
                                             <option key={f} value={f}>{FIELD_LABELS[f]}</option>
                                         ))}

@@ -1,14 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useGuest } from "./GuestProvider";
 import { useTranslation } from "./I18nProvider";
 
-export default function GuestNavLinks() {
-    const { isGuest } = useGuest();
+export default function NavLinks() {
     const { t } = useTranslation();
-
-    if (!isGuest) return null;
 
     return (
         <div className="flex items-center gap-1">

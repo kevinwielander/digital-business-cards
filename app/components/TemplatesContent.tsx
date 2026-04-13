@@ -1,40 +1,25 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { useGuest } from "./GuestProvider";
 import { useTranslation } from "./I18nProvider";
-import { createClient } from "@/lib/supabase/client";
-import { TABLES } from "@/lib/supabase/constants";
 import UseTemplateButton from "./UseTemplateButton";
+import DeleteTemplateButton from "./DeleteTemplateButton";
 import type { TemplateConfig } from "@/lib/types";
 
-interface SampleTemplate {
+interface Template {
     id: string;
     name: string;
-    config: TemplateConfig;
-    is_sample: boolean;
+    is_sample?: boolean;
+    config?: TemplateConfig;
 }
 
-export default function GuestTemplatesPage() {
-    const { isGuest, data } = useGuest();
+interface TemplatesContentProps {
+    userTemplates: Template[];
+    sampleTemplates: Template[];
+}
+
+export default function TemplatesContent({ userTemplates, sampleTemplates }: TemplatesContentProps) {
     const { t } = useTranslation();
-    const [sampleTemplates, setSampleTemplates] = useState<SampleTemplate[]>([]);
-
-    useEffect(() => {
-        async function loadSamples() {
-            const supabase = createClient();
-            const { data } = await supabase
-                .from(TABLES.TEMPLATES)
-                .select("*")
-                .eq("is_sample", true)
-                .order("created_at", { ascending: true });
-            if (data) setSampleTemplates(data);
-        }
-        loadSamples();
-    }, []);
-
-    if (!isGuest) return null;
 
     return (
         <div className="mx-auto w-full max-w-4xl px-6 py-10">
@@ -51,29 +36,36 @@ export default function GuestTemplatesPage() {
                 </Link>
             </div>
 
-            {/* Guest's own templates from localStorage */}
-            {data.templates.length > 0 && (
+            {userTemplates.length > 0 && (
                 <div className="mb-12">
                     <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-zinc-400">{t.templates_your}</h2>
                     <div className="grid gap-3 sm:grid-cols-2">
-                        {data.templates.map((template) => (
+                        {userTemplates.map((template) => (
                             <div
                                 key={template.id}
                                 className="flex items-center justify-between rounded-xl border border-zinc-200 bg-white p-5 transition hover:border-zinc-300 hover:shadow-sm"
                             >
                                 <Link href={`/templates/${template.id}/edit`} className="flex-1">
                                     <p className="font-semibold text-zinc-900">{template.name}</p>
+                                    <p className="mt-1 text-sm text-zinc-500">
+                                        {template.config?.width ?? 450} x {template.config?.height ?? 260}
+                                        {template.config?.elements && ` · ${template.config.elements.length} elements`}
+                                    </p>
                                 </Link>
-                                <svg className="h-5 w-5 text-zinc-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
-                                </svg>
+                                <div className="flex items-center gap-2">
+                                    <DeleteTemplateButton templateId={template.id} templateName={template.name} />
+                                    <Link href={`/templates/${template.id}/edit`}>
+                                        <svg className="h-5 w-5 text-zinc-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                                        </svg>
+                                    </Link>
+                                </div>
                             </div>
                         ))}
                     </div>
                 </div>
             )}
 
-            {/* Sample templates from DB */}
             {sampleTemplates.length > 0 && (
                 <div>
                     <h2 className="mb-2 text-sm font-semibold uppercase tracking-wider text-zinc-400">{t.templates_starter}</h2>
@@ -91,7 +83,6 @@ export default function GuestTemplatesPage() {
                                         {template.config?.elements && ` · ${template.config.elements.length} elements`}
                                     </p>
                                 </div>
-                                {/* Mini preview */}
                                 <div className="mb-4 flex justify-center rounded-lg bg-zinc-50 p-4">
                                     <div
                                         className="relative overflow-hidden rounded shadow-sm"
@@ -102,8 +93,8 @@ export default function GuestTemplatesPage() {
                                         }}
                                     >
                                         {(template.config?.elements ?? [])
-                                            .filter((el: { type: string }) => el.type === "shape")
-                                            .map((el: { id: string; x: number; y: number; width: number; height: number; backgroundColor?: string; gradient?: string; shapeRadius?: number }) => (
+                                            .filter((el) => el.type === "shape")
+                                            .map((el) => (
                                                 <div
                                                     key={el.id}
                                                     style={{
@@ -119,15 +110,11 @@ export default function GuestTemplatesPage() {
                                             ))}
                                     </div>
                                 </div>
-                                <UseTemplateButton name={template.name} config={template.config} />
+                                <UseTemplateButton name={template.name} config={template.config!} />
                             </div>
                         ))}
                     </div>
                 </div>
-            )}
-
-            {data.templates.length === 0 && sampleTemplates.length === 0 && (
-                <p className="text-center text-zinc-500">{t.templates_empty}</p>
             )}
         </div>
     );

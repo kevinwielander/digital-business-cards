@@ -1,11 +1,15 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import TryGuestButton from "../components/TryGuestButton";
+import { useTranslation } from "../components/I18nProvider";
+import LanguageSwitcher from "../components/LanguageSwitcher";
 
 export default function LoginPage() {
     const [error, setError] = useState<string | null>(null);
+    const { t } = useTranslation();
 
     async function handleGoogleLogin() {
         const supabase = createClient();
@@ -25,40 +29,36 @@ export default function LoginPage() {
         <div className="flex flex-1">
             {/* Left — branding panel */}
             <div className="hidden flex-col justify-between bg-zinc-900 p-12 text-white lg:flex lg:w-1/2">
-                <div>
-                    <div className="flex items-center gap-2">
-                        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/10">
-                            <span className="text-sm font-bold">CG</span>
-                        </div>
-                        <span className="text-lg font-bold">CardGen</span>
+                <div className="flex items-center gap-2">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/10">
+                        <span className="text-sm font-bold">CG</span>
                     </div>
+                    <span className="text-lg font-bold">CardGen</span>
                 </div>
 
                 <div>
                     <blockquote className="text-2xl font-semibold leading-relaxed">
-                        "Design once, generate for everyone. The fastest way to create professional business cards for your entire team."
+                        &ldquo;{t.login_quote}&rdquo;
                     </blockquote>
-                    <div className="mt-6 flex items-center gap-4">
-                        <div className="h-px flex-1 bg-white/20" />
-                    </div>
+                    <div className="mt-6 h-px bg-white/20" />
                     <div className="mt-6 grid grid-cols-3 gap-6">
                         <div>
                             <p className="text-2xl font-bold">8+</p>
-                            <p className="text-sm text-zinc-400">Template designs</p>
+                            <p className="text-sm text-zinc-400">{t.templates_starter}</p>
                         </div>
                         <div>
                             <p className="text-2xl font-bold">CSV</p>
-                            <p className="text-sm text-zinc-400">Bulk import</p>
+                            <p className="text-sm text-zinc-400">{t.feature_import_title}</p>
                         </div>
                         <div>
                             <p className="text-2xl font-bold">vCard</p>
-                            <p className="text-sm text-zinc-400">Contact sharing</p>
+                            <p className="text-sm text-zinc-400">{t.feature_export_title}</p>
                         </div>
                     </div>
                 </div>
 
                 <div className="flex flex-wrap gap-2">
-                    {["Drag & Drop", "Custom Fields", "QR Codes", "Gradients", "Photo Cropping", "Bulk Import"].map((tag) => (
+                    {[t.feature_designer_title, t.feature_fields_title, "QR Codes", t.feature_import_title, t.feature_export_title].map((tag) => (
                         <span key={tag} className="rounded-full bg-white/10 px-3 py-1 text-xs text-zinc-300">
                             {tag}
                         </span>
@@ -78,10 +78,8 @@ export default function LoginPage() {
                     </div>
 
                     <div className="mb-8 text-center">
-                        <h1 className="text-2xl font-bold tracking-tight">Sign in to your account</h1>
-                        <p className="mt-2 text-sm text-zinc-500">
-                            Start designing professional business cards in minutes.
-                        </p>
+                        <h1 className="text-2xl font-bold tracking-tight">{t.login_title}</h1>
+                        <p className="mt-2 text-sm text-zinc-500">{t.login_subtitle}</p>
                     </div>
 
                     <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
@@ -101,20 +99,20 @@ export default function LoginPage() {
                                 <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
                                 <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
                             </svg>
-                            Continue with Google
+                            {t.login_google}
                         </button>
 
                         <div className="my-5 flex items-center gap-4">
                             <div className="h-px flex-1 bg-zinc-200" />
-                            <span className="text-xs text-zinc-400">or</span>
+                            <span className="text-xs text-zinc-400">{t.login_or}</span>
                             <div className="h-px flex-1 bg-zinc-200" />
                         </div>
 
-                        <TryGuestButton />
+                        <TryGuestButton className="flex w-full items-center justify-center gap-2 rounded-xl border border-zinc-200 px-5 py-3 text-sm font-medium text-zinc-600 transition hover:bg-zinc-50" />
                     </div>
 
                     <p className="mt-6 text-center text-xs text-zinc-400">
-                        No account needed to try. Your guest data stays in your browser.
+                        {t.login_guest_note}
                     </p>
                 </div>
             </div>

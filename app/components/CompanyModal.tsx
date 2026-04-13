@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import { STORAGE, TABLES } from "@/lib/supabase/constants";
 import { isGuestMode } from "@/lib/guest-store";
 import { useGuest } from "./GuestProvider";
+import { useTranslation } from "./I18nProvider";
 import ImageUpload from "./ImageUpload";
 
 interface CompanyProps {
@@ -19,6 +20,7 @@ interface CompanyProps {
 
 export function CompanyModal(props: CompanyProps) {
     const guest = useGuest();
+    const { t } = useTranslation();
     const [name, setName] = useState(props.name);
     const [domain, setDomain] = useState(props.domain);
     const [website, setWebsite] = useState(props.website);
@@ -111,7 +113,7 @@ export function CompanyModal(props: CompanyProps) {
             >
                 <div className="mb-6 flex items-center justify-between">
                     <h2 className="text-xl font-semibold">
-                        {isEdit ? "Edit Company" : "Add Company"}
+                        {isEdit ? t.companies_edit : t.companies_add}
                     </h2>
                     <button
                         onClick={props.onClose}
@@ -124,7 +126,7 @@ export function CompanyModal(props: CompanyProps) {
                 <form onSubmit={handleSubmit} className="space-y-5">
                     <div>
                         <label className="mb-1 block text-sm font-medium text-zinc-700">
-                            Company Name
+                            {t.form_company_name}
                         </label>
                         <input
                             type="text"
@@ -138,7 +140,7 @@ export function CompanyModal(props: CompanyProps) {
 
                     <div>
                         <label className="mb-1 block text-sm font-medium text-zinc-700">
-                            Domain
+                            {t.form_domain}
                         </label>
                         <input
                             type="text"
@@ -151,7 +153,7 @@ export function CompanyModal(props: CompanyProps) {
 
                     <div>
                         <label className="mb-1 block text-sm font-medium text-zinc-700">
-                            Website
+                            {t.form_website}
                         </label>
                         <input
                             type="url"
@@ -163,7 +165,7 @@ export function CompanyModal(props: CompanyProps) {
                     </div>
 
                     <ImageUpload
-                        label="Logo"
+                        label={t.form_logo}
                         onImageReady={(file) => setLogo(file)}
                         currentImageUrl={props.currentLogoUrl}
                     />
@@ -176,13 +178,13 @@ export function CompanyModal(props: CompanyProps) {
                             onClick={props.onClose}
                             className="rounded-lg px-4 py-2 text-sm font-medium text-zinc-600 hover:bg-zinc-100"
                         >
-                            Cancel
+                            {t.modal_cancel}
                         </button>
                         <button
                             type="submit"
                             className="rounded-lg bg-zinc-900 px-5 py-2 text-sm font-medium text-white hover:bg-zinc-700"
                         >
-                            {isEdit ? "Save Changes" : "Create Company"}
+                            {isEdit ? t.modal_save : t.companies_add}
                         </button>
                     </div>
                 </form>

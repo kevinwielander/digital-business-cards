@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { CustomFieldDefinition } from "@/lib/types";
+import { useTranslation } from "./I18nProvider";
 import PersonModal from "./PersonModal";
 import GenerateModal from "./GenerateModal";
 import BulkImportModal from "./BulkImportModal";
@@ -34,6 +35,7 @@ interface PeopleListProps {
 }
 
 export default function PeopleList({ people, companyId, templates, isSample, companyName, companyLogoUrl, customFieldDefs }: PeopleListProps) {
+    const { t } = useTranslation();
     const [showPersonModal, setShowPersonModal] = useState(false);
     const [showGenerateModal, setShowGenerateModal] = useState(false);
     const [showImportModal, setShowImportModal] = useState(false);
@@ -58,7 +60,7 @@ export default function PeopleList({ people, companyId, templates, isSample, com
     return (
         <div>
             <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-lg font-semibold">People</h2>
+                <h2 className="text-lg font-semibold">{t.people_title}</h2>
                 {!isSample && (
                     <div className="flex items-center gap-3">
                         {people.length > 0 && (
@@ -66,27 +68,27 @@ export default function PeopleList({ people, companyId, templates, isSample, com
                                 onClick={() => setShowGenerateModal(true)}
                                 className="rounded-lg bg-sky-600 px-4 py-2 text-sm font-medium text-white hover:bg-sky-700"
                             >
-                                Generate Cards
+                                {t.people_generate}
                             </button>
                         )}
                         <button
                             onClick={() => setShowImportModal(true)}
                             className="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
                         >
-                            Import CSV
+                            {t.people_import}
                         </button>
                         <button
                             onClick={handleAdd}
                             className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700"
                         >
-                            + Add Person
+                            {t.people_add}
                         </button>
                     </div>
                 )}
             </div>
 
             {people.length === 0 ? (
-                <p className="text-zinc-500">No people added yet.</p>
+                <p className="text-zinc-500">{t.people_empty}</p>
             ) : (
                 <div className="grid gap-3">
                     {people.map((person) => (
@@ -112,7 +114,7 @@ export default function PeopleList({ people, companyId, templates, isSample, com
                                 </p>
                                 <p className="text-sm text-zinc-500">{person.title}</p>
                             </div>
-                            <span className="text-sm text-zinc-400">Edit</span>
+                            <span className="text-sm text-zinc-400">{t.people_edit}</span>
                         </button>
                     ))}
                 </div>

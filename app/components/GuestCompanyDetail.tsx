@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useGuest } from "./GuestProvider";
+import { useTranslation } from "./I18nProvider";
 import { createClient } from "@/lib/supabase/client";
 import { TABLES } from "@/lib/supabase/constants";
 import { getSampleAssetUrl } from "@/lib/sample-utils";
@@ -33,6 +34,7 @@ interface DbPerson {
 
 export default function GuestCompanyDetail({ companyId }: { companyId: string }) {
     const { isGuest, data, deleteCompany } = useGuest();
+    const { t } = useTranslation();
     const router = useRouter();
     const [showPersonModal, setShowPersonModal] = useState(false);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -81,10 +83,10 @@ export default function GuestCompanyDetail({ companyId }: { companyId: string })
         return (
             <div className="mx-auto w-full max-w-3xl px-6 py-10">
                 <div className="mb-6 flex items-center gap-2 text-sm text-zinc-500">
-                    <Link href="/companies" className="hover:text-zinc-800">Companies</Link>
+                    <Link href="/companies" className="hover:text-zinc-800">{t.companies_title}</Link>
                     <span>/</span>
                     <span className="text-zinc-900">{sampleCompany.name}</span>
-                    <span className="ml-1 rounded bg-sky-50 px-1.5 py-0.5 text-[10px] font-medium text-sky-600">Sample</span>
+                    <span className="ml-1 rounded bg-sky-50 px-1.5 py-0.5 text-[10px] font-medium text-sky-600">{t.companies_sample}</span>
                 </div>
 
                 <div className="mb-8 flex items-center gap-5">
@@ -113,7 +115,7 @@ export default function GuestCompanyDetail({ companyId }: { companyId: string })
                     This is a sample company with demo data. Sign in to create your own companies.
                 </div>
 
-                <h2 className="mb-4 text-lg font-semibold">People</h2>
+                <h2 className="mb-4 text-lg font-semibold">{t.people_title}</h2>
                 <div className="grid gap-3">
                     {peopleWithPhotos.map((person) => (
                         <div
@@ -151,7 +153,7 @@ export default function GuestCompanyDetail({ companyId }: { companyId: string })
     return (
         <div className="mx-auto w-full max-w-3xl px-6 py-10">
             <div className="mb-6 flex items-center gap-2 text-sm text-zinc-500">
-                <Link href="/companies" className="hover:text-zinc-800">Companies</Link>
+                <Link href="/companies" className="hover:text-zinc-800">{t.companies_title}</Link>
                 <span>/</span>
                 <span className="text-zinc-900">{company.name}</span>
             </div>
@@ -172,22 +174,22 @@ export default function GuestCompanyDetail({ companyId }: { companyId: string })
                     onClick={() => setShowDeleteConfirm(true)}
                     className="rounded-lg px-3 py-2 text-sm text-red-500 hover:bg-red-50"
                 >
-                    Delete
+                    {t.companies_delete}
                 </button>
             </div>
 
             <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-lg font-semibold">People</h2>
+                <h2 className="text-lg font-semibold">{t.people_title}</h2>
                 <button
                     onClick={() => { setEditPerson(undefined); setShowPersonModal(true); }}
                     className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700"
                 >
-                    + Add Person
+                    {t.people_add}
                 </button>
             </div>
 
             {people.length === 0 ? (
-                <p className="text-zinc-500">No people added yet.</p>
+                <p className="text-zinc-500">{t.people_empty}</p>
             ) : (
                 <div className="grid gap-3">
                     {people.map((person) => (
@@ -203,7 +205,7 @@ export default function GuestCompanyDetail({ companyId }: { companyId: string })
                                 <p className="font-medium text-zinc-900">{person.first_name} {person.last_name}</p>
                                 <p className="text-sm text-zinc-500">{person.title}</p>
                             </div>
-                            <span className="text-sm text-zinc-400">Edit</span>
+                            <span className="text-sm text-zinc-400">{t.people_edit}</span>
                         </button>
                     ))}
                 </div>
@@ -220,9 +222,9 @@ export default function GuestCompanyDetail({ companyId }: { companyId: string })
 
             {showDeleteConfirm && (
                 <ConfirmModal
-                    title="Delete Company"
-                    message={`Delete "${company.name}" and all its people?`}
-                    confirmLabel="Delete"
+                    title={t.companies_delete}
+                    message={t.companies_delete_confirm.replace("{name}", company.name)}
+                    confirmLabel={t.modal_delete}
                     destructive
                     onConfirm={() => { deleteCompany(companyId); router.push("/companies"); }}
                     onCancel={() => setShowDeleteConfirm(false)}
