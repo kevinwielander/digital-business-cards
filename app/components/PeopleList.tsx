@@ -26,9 +26,11 @@ interface PeopleListProps {
     companyId: string;
     templates: Template[];
     isSample?: boolean;
+    companyName?: string;
+    companyLogoUrl?: string | null;
 }
 
-export default function PeopleList({ people, companyId, templates, isSample }: PeopleListProps) {
+export default function PeopleList({ people, companyId, templates, isSample, companyName, companyLogoUrl }: PeopleListProps) {
     const [showPersonModal, setShowPersonModal] = useState(false);
     const [showGenerateModal, setShowGenerateModal] = useState(false);
     const [editPerson, setEditPerson] = useState<Person | undefined>(undefined);
@@ -111,6 +113,8 @@ export default function PeopleList({ people, companyId, templates, isSample }: P
                     onClose={handleClosePersonModal}
                     companyId={companyId}
                     templates={templates}
+                    companyName={companyName}
+                    companyLogoUrl={companyLogoUrl}
                     person={editPerson}
                 />
             )}

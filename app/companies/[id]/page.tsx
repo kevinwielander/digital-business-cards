@@ -103,6 +103,8 @@ export default async function CompanyDetailPage(props: PageProps<"/companies/[id
                 companyId={id}
                 templates={templates ?? []}
                 isSample={company.is_sample}
+                companyName={company.name}
+                companyLogoUrl={logoUrl}
             />
         </div>
     );
