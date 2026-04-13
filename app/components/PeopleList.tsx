@@ -3,6 +3,7 @@
 import { useState } from "react";
 import PersonModal from "./PersonModal";
 import GenerateModal from "./GenerateModal";
+import BulkImportModal from "./BulkImportModal";
 
 interface Person {
     id: string;
@@ -33,6 +34,7 @@ interface PeopleListProps {
 export default function PeopleList({ people, companyId, templates, isSample, companyName, companyLogoUrl }: PeopleListProps) {
     const [showPersonModal, setShowPersonModal] = useState(false);
     const [showGenerateModal, setShowGenerateModal] = useState(false);
+    const [showImportModal, setShowImportModal] = useState(false);
     const [editPerson, setEditPerson] = useState<Person | undefined>(undefined);
 
     function handleAdd() {
@@ -65,6 +67,12 @@ export default function PeopleList({ people, companyId, templates, isSample, com
                                 Generate Cards
                             </button>
                         )}
+                        <button
+                            onClick={() => setShowImportModal(true)}
+                            className="rounded-lg border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
+                        >
+                            Import CSV
+                        </button>
                         <button
                             onClick={handleAdd}
                             className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700"
@@ -124,6 +132,14 @@ export default function PeopleList({ people, companyId, templates, isSample, com
                     companyId={companyId}
                     people={people}
                     onClose={() => setShowGenerateModal(false)}
+                />
+            )}
+
+            {showImportModal && (
+                <BulkImportModal
+                    onClose={() => setShowImportModal(false)}
+                    companyId={companyId}
+                    templates={templates}
                 />
             )}
         </div>
