@@ -16,6 +16,7 @@ import { getSampleAssetUrl } from "@/lib/sample-utils";
 import { useGuest } from "./GuestProvider";
 import { useTranslation } from "./I18nProvider";
 import ConfirmModal from "./ConfirmModal";
+import { useToast } from "./ToastProvider";
 import DesignerCanvas from "./designer/DesignerCanvas";
 import PropertiesPanel from "./designer/PropertiesPanel";
 import ElementsToolbar from "./designer/ElementsToolbar";
@@ -65,6 +66,7 @@ export default function TemplateDesigner({
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [showGrid, setShowGrid] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const { toast } = useToast();
     const [assetUrls, setAssetUrls] = useState<Record<string, string>>({});
     const [companies, setCompanies] = useState<(Company & { is_sample?: boolean })[]>([]);
     const [people, setPeople] = useState<{ id: string; first_name: string; last_name: string; title: string; email: string; phone: string; photo_url: string | null; company_id: string; is_sample?: boolean; custom_fields?: Record<string, string> }[]>([]);
@@ -262,11 +264,13 @@ export default function TemplateDesigner({
         if (isGuestMode()) {
             if (templateId) {
                 guest.updateTemplate(templateId, { name, config });
+                clearDraft();
+                toast("Template saved successfully");
             } else {
                 guest.addTemplate(name, config);
+                clearDraft();
+                router.push("/templates");
             }
-            clearDraft();
-            router.push("/templates");
             return;
         }
 
@@ -296,7 +300,11 @@ export default function TemplateDesigner({
         }
 
         clearDraft();
-        router.push("/templates");
+        if (templateId) {
+            toast("Template saved successfully");
+        } else {
+            router.push("/templates");
+        }
     }
 
     if (!ready) {

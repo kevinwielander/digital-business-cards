@@ -5,6 +5,7 @@ import { Navbar } from "./components/Navbar";
 import GuestProvider from "./components/GuestProvider";
 import GuestBanner from "./components/GuestBanner";
 import I18nProvider from "./components/I18nProvider";
+import ToastProvider from "./components/ToastProvider";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -33,11 +34,13 @@ export default function RootLayout({
         >
             <body className="flex min-h-full flex-col">
                 <I18nProvider>
-                    <GuestProvider>
-                        <Navbar />
-                        <GuestBanner />
-                        <main className="flex flex-1 flex-col">{children}</main>
-                    </GuestProvider>
+                    <ToastProvider>
+                        <GuestProvider>
+                            <Navbar />
+                            <GuestBanner />
+                            <main className="flex flex-1 flex-col">{children}</main>
+                        </GuestProvider>
+                    </ToastProvider>
                 </I18nProvider>
             </body>
         </html>
