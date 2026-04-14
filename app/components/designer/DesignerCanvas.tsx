@@ -177,7 +177,13 @@ export default function DesignerCanvas({
                     position={{ x: el.x, y: el.y }}
                     bounds="parent"
                     disableDragging={el.locked}
-                    enableResizing={!el.locked}
+                    enableResizing={!el.locked && el.width > 24 && el.height > 24 ? true : {
+                        bottomRight: true,
+                        top: false, right: false, bottom: false, left: false,
+                        topRight: false, bottomLeft: false, topLeft: false,
+                    }}
+                    minWidth={12}
+                    minHeight={12}
                     onDrag={(_e, d) => {
                         const snapped = handleDrag(el.id, d.x, d.y, el.width, el.height);
                         d.x = snapped.x;

@@ -130,7 +130,7 @@ export default function TemplateDesigner({
     useEffect(() => {
         async function loadAssetUrls() {
             const assetPaths = config.elements
-                .filter((el) => el.imageSource?.startsWith("asset:"))
+                .filter((el) => el.imageSource?.startsWith("asset:") && !el.imageSource?.startsWith("asset:data:"))
                 .map((el) => el.imageSource!.slice(6));
 
             if (assetPaths.length === 0) { setAssetUrls({}); return; }

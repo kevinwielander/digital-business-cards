@@ -71,8 +71,8 @@ export default function IconPicker({ onAddIcon }: IconPickerProps) {
             type: "image",
             x: 20,
             y: 20,
-            width: 20,
-            height: 20,
+            width: 32,
+            height: 32,
             zIndex: 10,
             // Store the data URL — the renderer will check for data: prefix
             imageSource: `asset:${dataUrl}` as `asset:${string}`,

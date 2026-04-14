@@ -260,7 +260,7 @@ export async function GET(
         // Load asset images as base64
         const assetBase64Map: Record<string, string> = {};
         for (const el of config.elements) {
-            if (el.imageSource?.startsWith("asset:")) {
+            if (el.imageSource?.startsWith("asset:") && !el.imageSource?.startsWith("asset:data:")) {
                 const path = el.imageSource.slice(6);
                 if (!assetBase64Map[path]) {
                     const b64 = await imageToBase64(supabase, STORAGE.ASSETS, path);
