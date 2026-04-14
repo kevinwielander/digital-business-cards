@@ -185,9 +185,7 @@ export default function DesignerCanvas({
                     minWidth={12}
                     minHeight={12}
                     onDrag={(_e, d) => {
-                        const snapped = handleDrag(el.id, d.x, d.y, el.width, el.height);
-                        d.x = snapped.x;
-                        d.y = snapped.y;
+                        handleDrag(el.id, d.x, d.y, el.width, el.height);
                     }}
                     onDragStop={(_e, d) => {
                         const snapped = handleDrag(el.id, d.x, d.y, el.width, el.height);

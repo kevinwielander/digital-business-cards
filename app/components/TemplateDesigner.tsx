@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { TABLES, STORAGE } from "@/lib/supabase/constants";
@@ -15,6 +15,7 @@ import { isGuestMode } from "@/lib/guest-store";
 import { getSampleAssetUrl } from "@/lib/sample-utils";
 import { useGuest } from "./GuestProvider";
 import { useTranslation } from "./I18nProvider";
+import ConfirmModal from "./ConfirmModal";
 import DesignerCanvas from "./designer/DesignerCanvas";
 import PropertiesPanel from "./designer/PropertiesPanel";
 import ElementsToolbar from "./designer/ElementsToolbar";
@@ -40,11 +41,27 @@ export default function TemplateDesigner({
     const router = useRouter();
     const guest = useGuest();
     const { t } = useTranslation();
+    const draftKey = `cardgen_draft_${templateId ?? "new"}`;
     const [name, setName] = useState(initialName);
-    const [config, setConfig] = useState<TemplateConfig>(() => {
-        if (initialConfig) return initialConfig;
-        return DEFAULT_TEMPLATE_CONFIG;
-    });
+    const [config, setConfig] = useState<TemplateConfig>(initialConfig ?? DEFAULT_TEMPLATE_CONFIG);
+    const [draftRestored, setDraftRestored] = useState(false);
+    const [ready, setReady] = useState(false);
+    const skipAutoSave = useRef(false);
+
+    // Restore draft from localStorage on mount (client-only)
+    useEffect(() => {
+        const raw = localStorage.getItem(draftKey);
+        if (raw) {
+            try {
+                const draft = JSON.parse(raw);
+                if (draft.name) setName(draft.name);
+                if (draft.config) setConfig(draft.config);
+                setDraftRestored(true);
+            } catch { /* ignore */ }
+        }
+        setReady(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [showGrid, setShowGrid] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -125,6 +142,29 @@ export default function TemplateDesigner({
     }, [selectedCompanyId, selectedPersonId, companies, people]);
 
     const selectedElement = config.elements.find((el) => el.id === selectedId) ?? null;
+
+    // Auto-save draft to localStorage
+    useEffect(() => {
+        if (skipAutoSave.current) {
+            skipAutoSave.current = false;
+            return;
+        }
+        localStorage.setItem(draftKey, JSON.stringify({ name, config }));
+    }, [name, config, draftKey]);
+
+    const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
+
+    function clearDraft() {
+        localStorage.removeItem(draftKey);
+        setDraftRestored(false);
+    }
+
+    function discardDraft() {
+        skipAutoSave.current = true;
+        clearDraft();
+        setName(initialName);
+        setConfig(initialConfig ?? DEFAULT_TEMPLATE_CONFIG);
+    }
 
     // Load signed URLs for asset images used in the template
     useEffect(() => {
@@ -225,6 +265,7 @@ export default function TemplateDesigner({
             } else {
                 guest.addTemplate(name, config);
             }
+            clearDraft();
             router.push("/templates");
             return;
         }
@@ -254,7 +295,25 @@ export default function TemplateDesigner({
             }
         }
 
+        clearDraft();
         router.push("/templates");
+    }
+
+    if (!ready) {
+        return (
+            <div className="flex flex-col gap-6">
+                <div className="flex flex-wrap items-center gap-3">
+                    <div className="h-10 w-40 animate-pulse rounded-lg bg-zinc-200" />
+                    <div className="h-10 w-36 animate-pulse rounded-lg bg-zinc-200" />
+                </div>
+                <div className="flex gap-2">
+                    {[1, 2, 3, 4].map((i) => <div key={i} className="h-10 w-20 animate-pulse rounded-lg bg-zinc-200" />)}
+                </div>
+                <div className="animate-pulse rounded-xl bg-zinc-100 p-8">
+                    <div className="h-[260px] w-[450px] rounded-lg bg-zinc-200" />
+                </div>
+            </div>
+        );
     }
 
     return (
@@ -296,7 +355,13 @@ export default function TemplateDesigner({
                 <div className="hidden flex-1 sm:block" />
                 <div className="flex w-full gap-2 sm:w-auto">
                     <button
-                        onClick={() => router.back()}
+                        onClick={() => {
+                            if (draftRestored) {
+                                setShowLeaveConfirm(true);
+                            } else {
+                                router.back();
+                            }
+                        }}
                         className="rounded-lg px-4 py-2 text-sm text-zinc-500 hover:text-zinc-800"
                     >
                         {t.designer_cancel}
@@ -311,6 +376,15 @@ export default function TemplateDesigner({
             </div>
 
             {error && <p className="text-sm text-red-500">{error}</p>}
+
+            {draftRestored && (
+                <div className="flex items-center gap-3 rounded-lg bg-amber-50 px-4 py-2 text-sm text-amber-800">
+                    <span>Unsaved draft restored.</span>
+                    <button onClick={discardDraft} className="font-medium underline hover:no-underline">
+                        Discard draft
+                    </button>
+                </div>
+            )}
 
             {/* Card size controls */}
             <div className="flex items-center gap-4">
@@ -417,6 +491,20 @@ export default function TemplateDesigner({
                     )}
                 </div>
             </div>
+
+            {showLeaveConfirm && (
+                <ConfirmModal
+                    title="Unsaved changes"
+                    message="You have unsaved changes. Do you want to discard them?"
+                    confirmLabel="Discard & leave"
+                    destructive
+                    onConfirm={() => {
+                        clearDraft();
+                        router.back();
+                    }}
+                    onCancel={() => setShowLeaveConfirm(false)}
+                />
+            )}
         </div>
     );
 }
