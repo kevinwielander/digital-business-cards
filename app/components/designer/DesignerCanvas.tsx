@@ -19,6 +19,7 @@ interface DesignerCanvasProps {
     elements: CardElement[];
     selectedId: string | null;
     sampleData: SampleCardData;
+    assetUrls?: Record<string, string>;
     showGrid: boolean;
     onSelect: (id: string | null) => void;
     onUpdateElement: (id: string, updates: Partial<CardElement>) => void;
@@ -53,6 +54,7 @@ export default function DesignerCanvas({
     elements,
     selectedId,
     sampleData,
+    assetUrls = {},
     showGrid,
     onSelect,
     onUpdateElement,
@@ -240,26 +242,33 @@ export default function DesignerCanvas({
                             </div>
                         )}
 
-                        {el.type === "image" && (
-                            <div
-                                className="flex h-full w-full items-center justify-center overflow-hidden"
-                                style={{
-                                    borderRadius: el.borderRadius ?? 0,
-                                    backgroundColor: "#e4e4e7",
-                                    boxShadow: el.boxShadow ?? undefined,
-                                }}
-                            >
-                                {el.imageSource === "logo" && sampleData.logoUrl ? (
-                                    <img src={sampleData.logoUrl} alt="Logo" className="h-full w-full" style={{ objectFit: el.objectFit ?? "contain", opacity: el.imageOpacity ?? 1 }} />
-                                ) : el.imageSource === "photo" && sampleData.photoUrl ? (
-                                    <img src={sampleData.photoUrl} alt="Photo" className="h-full w-full" style={{ objectFit: el.objectFit ?? "cover", borderRadius: el.borderRadius ?? 0, opacity: el.imageOpacity ?? 1 }} />
-                                ) : (
-                                    <span className="text-xs text-zinc-400">
-                                        {el.imageSource === "logo" ? "Logo" : el.imageSource === "photo" ? "Photo" : "Image"}
-                                    </span>
-                                )}
-                            </div>
-                        )}
+                        {el.type === "image" && (() => {
+                            const assetUrl = el.imageSource?.startsWith("asset:") ? assetUrls[el.imageSource.slice(6)] : null;
+                            const imgSrc =
+                                el.imageSource === "photo" ? sampleData.photoUrl :
+                                el.imageSource?.startsWith("asset:") ? assetUrl :
+                                sampleData.logoUrl;
+                            const imgLabel =
+                                el.imageSource === "photo" ? "Photo" :
+                                el.imageSource?.startsWith("asset:") ? "Asset" :
+                                "Image";
+                            return (
+                                <div
+                                    className="flex h-full w-full items-center justify-center overflow-hidden"
+                                    style={{
+                                        borderRadius: el.borderRadius ?? 0,
+                                        backgroundColor: "#e4e4e7",
+                                        boxShadow: el.boxShadow ?? undefined,
+                                    }}
+                                >
+                                    {imgSrc ? (
+                                        <img src={imgSrc} alt={imgLabel} className="h-full w-full" style={{ objectFit: el.objectFit ?? "contain", borderRadius: el.borderRadius ?? 0, opacity: el.imageOpacity ?? 1 }} />
+                                    ) : (
+                                        <span className="text-xs text-zinc-400">{imgLabel}</span>
+                                    )}
+                                </div>
+                            );
+                        })()}
 
                         {el.type === "shape" && (
                             <div

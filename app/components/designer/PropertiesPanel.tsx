@@ -2,10 +2,12 @@
 
 import type { CardElement, BoundField, CustomFieldDefinition } from "@/lib/types";
 import { BUILT_IN_FIELD_LABELS } from "@/lib/types";
+import AssetPicker from "./AssetPicker";
 
 interface PropertiesPanelProps {
     element: CardElement;
     cardWidth: number;
+    companyId?: string;
     customFieldDefs?: CustomFieldDefinition[];
     cardHeight: number;
     onUpdate: (updates: Partial<CardElement>) => void;
@@ -19,6 +21,7 @@ export default function PropertiesPanel({
     element,
     cardWidth,
     cardHeight,
+    companyId,
     customFieldDefs,
     onUpdate,
     onDelete,
@@ -230,17 +233,18 @@ export default function PropertiesPanel({
             {/* Image properties */}
             {element.type === "image" && (
                 <Section title="Image">
-                    <div>
-                        <label className="mb-1 block text-xs font-medium text-zinc-500">Source</label>
-                        <select
-                            value={element.imageSource ?? "logo"}
-                            onChange={(e) => onUpdate({ imageSource: e.target.value as "logo" | "photo" })}
-                            className="w-full rounded border border-zinc-300 px-2 py-1.5 text-sm"
-                        >
-                            <option value="logo">Company Logo</option>
-                            <option value="photo">Person Photo</option>
-                        </select>
-                    </div>
+                    {companyId ? (
+                        <AssetPicker
+                            companyId={companyId}
+                            currentSource={element.imageSource}
+                            onSelect={(source) => onUpdate({ imageSource: source as CardElement["imageSource"] })}
+                        />
+                    ) : (
+                        <div>
+                            <label className="mb-1 block text-xs font-medium text-zinc-500">Source</label>
+                            <p className="text-xs text-zinc-400">Select a company to manage assets</p>
+                        </div>
+                    )}
 
                     <div>
                         <label className="mb-1 block text-xs font-medium text-zinc-500">Fit</label>

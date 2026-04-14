@@ -6,6 +6,7 @@ import PeopleList from "./PeopleList";
 import DeleteCompanyButton from "./DeleteCompanyButton";
 import EditCompanyButton from "./EditCompanyButton";
 import CustomFieldsManager from "./CustomFieldsManager";
+import CompanyAssets from "./CompanyAssets";
 import type { CustomFieldDefinition } from "@/lib/types";
 
 interface Person {
@@ -101,10 +102,13 @@ export default function CompanyDetailContent({ company, logoUrl, people, templat
             )}
 
             {!company.is_sample && (
-                <CustomFieldsManager
-                    companyId={company.id}
-                    initialDefs={company.custom_field_definitions ?? []}
-                />
+                <>
+                    <CompanyAssets companyId={company.id} />
+                    <CustomFieldsManager
+                        companyId={company.id}
+                        initialDefs={company.custom_field_definitions ?? []}
+                    />
+                </>
             )}
 
             <PeopleList

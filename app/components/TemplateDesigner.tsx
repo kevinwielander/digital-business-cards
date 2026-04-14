@@ -48,6 +48,7 @@ export default function TemplateDesigner({
     const [selectedId, setSelectedId] = useState<string | null>(null);
     const [showGrid, setShowGrid] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [assetUrls, setAssetUrls] = useState<Record<string, string>>({});
     const [companies, setCompanies] = useState<(Company & { is_sample?: boolean })[]>([]);
     const [people, setPeople] = useState<{ id: string; first_name: string; last_name: string; title: string; email: string; phone: string; photo_url: string | null; company_id: string; is_sample?: boolean; custom_fields?: Record<string, string> }[]>([]);
     const [selectedCompanyId, setSelectedCompanyId] = useState("");
@@ -124,6 +125,30 @@ export default function TemplateDesigner({
     }, [selectedCompanyId, selectedPersonId, companies, people]);
 
     const selectedElement = config.elements.find((el) => el.id === selectedId) ?? null;
+
+    // Load signed URLs for asset images used in the template
+    useEffect(() => {
+        async function loadAssetUrls() {
+            const assetPaths = config.elements
+                .filter((el) => el.imageSource?.startsWith("asset:"))
+                .map((el) => el.imageSource!.slice(6));
+
+            if (assetPaths.length === 0) { setAssetUrls({}); return; }
+
+            const supabase = createClient();
+            const urls: Record<string, string> = {};
+            for (const path of assetPaths) {
+                if (!assetUrls[path]) {
+                    const { data } = await supabase.storage.from(STORAGE.ASSETS).createSignedUrl(path, 3600);
+                    if (data?.signedUrl) urls[path] = data.signedUrl;
+                } else {
+                    urls[path] = assetUrls[path];
+                }
+            }
+            setAssetUrls(urls);
+        }
+        loadAssetUrls();
+    }, [config.elements]);
 
     function addElement(element: CardElement) {
         setConfig((prev) => ({
@@ -329,7 +354,7 @@ export default function TemplateDesigner({
             </div>
 
             {/* Elements toolbar */}
-            <ElementsToolbar onAddElement={addElement} />
+            <ElementsToolbar onAddElement={addElement} companyId={selectedCompanyId || undefined} />
 
             {/* Main area: canvas + properties */}
             <div className="flex flex-col gap-6 lg:flex-row">
@@ -362,6 +387,7 @@ export default function TemplateDesigner({
                             elements={config.elements}
                             selectedId={selectedId}
                             sampleData={previewData}
+                            assetUrls={assetUrls}
                             showGrid={showGrid}
                             onSelect={setSelectedId}
                             onUpdateElement={updateElement}
@@ -376,6 +402,7 @@ export default function TemplateDesigner({
                             element={selectedElement}
                             cardWidth={config.width}
                             cardHeight={config.height}
+                            companyId={selectedCompanyId || undefined}
                             customFieldDefs={companies.find((c) => c.id === selectedCompanyId)?.custom_field_definitions}
                             onUpdate={(updates) => updateElement(selectedElement.id, updates)}
                             onDelete={() => deleteElement(selectedElement.id)}

@@ -38,7 +38,7 @@ export interface CardElement {
     lineHeight?: number;
     textTransform?: "none" | "uppercase" | "lowercase" | "capitalize";
     // Image properties
-    imageSource?: "logo" | "photo";
+    imageSource?: "logo" | "photo" | `asset:${string}`;
     borderRadius?: number;
     objectFit?: "cover" | "contain";
     // Image advanced

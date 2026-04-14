@@ -205,14 +205,41 @@ export default function ImageUpload({
                 </div>
             )}
 
-            {/* File input */}
-            <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleFileSelect}
-                className="w-full text-sm text-zinc-500 file:mr-4 file:rounded-lg file:border-0 file:bg-zinc-100 file:px-4 file:py-2 file:text-sm file:font-medium file:text-zinc-700 hover:file:bg-zinc-200"
-            />
+            {/* Drop zone + file input */}
+            {!preview && (
+                <div
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={(e) => {
+                        e.preventDefault();
+                        const file = e.dataTransfer.files?.[0];
+                        if (file && file.type.startsWith("image/")) {
+                            const input = fileInputRef.current;
+                            const dt = new DataTransfer();
+                            dt.items.add(file);
+                            if (input) { input.files = dt.files; input.dispatchEvent(new Event("change", { bubbles: true })); }
+                        }
+                    }}
+                    className="rounded-lg border-2 border-dashed border-zinc-300 px-4 py-4 text-center transition hover:border-zinc-400 hover:bg-zinc-50"
+                >
+                    <p className="mb-2 text-sm text-zinc-500">Drag & drop or click to browse</p>
+                    <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={handleFileSelect}
+                        className="w-full text-sm text-zinc-500 file:mr-4 file:rounded-lg file:border-0 file:bg-zinc-100 file:px-4 file:py-2 file:text-sm file:font-medium file:text-zinc-700 hover:file:bg-zinc-200"
+                    />
+                </div>
+            )}
+            {preview && (
+                <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileSelect}
+                    className="w-full text-sm text-zinc-500 file:mr-4 file:rounded-lg file:border-0 file:bg-zinc-100 file:px-4 file:py-2 file:text-sm file:font-medium file:text-zinc-700 hover:file:bg-zinc-200"
+                />
+            )}
         </div>
     );
 }

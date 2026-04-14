@@ -7,4 +7,5 @@ export const TABLES = {
   export const STORAGE = {
     LOGOS: "logos",
     PHOTOS: "photos",
+    ASSETS: "assets",
   } as const;

@@ -3,6 +3,7 @@ import type { TemplateConfig, SampleCardData, CardElement } from "@/lib/types";
 interface CardPreviewRendererProps {
     config: TemplateConfig;
     data: SampleCardData;
+    assetUrls?: Record<string, string>;
     scale?: number;
 }
 
@@ -18,7 +19,7 @@ function getDisplayText(el: CardElement, data: SampleCardData): string {
     return "Text";
 }
 
-export default function CardPreviewRenderer({ config, data, scale = 1 }: CardPreviewRendererProps) {
+export default function CardPreviewRenderer({ config, data, assetUrls = {}, scale = 1 }: CardPreviewRendererProps) {
     const sorted = [...config.elements].sort((a, b) => a.zIndex - b.zIndex);
 
     return (
@@ -75,9 +76,9 @@ export default function CardPreviewRenderer({ config, data, scale = 1 }: CardPre
 
                 if (el.type === "image") {
                     const src =
-                        el.imageSource === "logo" ? data.logoUrl :
                         el.imageSource === "photo" ? data.photoUrl :
-                        null;
+                        el.imageSource?.startsWith("asset:") ? assetUrls[el.imageSource.slice(6)] ?? null :
+                        data.logoUrl;
                     return (
                         <div
                             key={el.id}

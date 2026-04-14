@@ -79,6 +79,7 @@ function renderElementHtml(
     data: SampleCardData,
     logoBase64: string | null,
     photoBase64: string | null,
+    assetBase64Map: Record<string, string>,
     qrDataUrl: string | null,
     vcfDataUrl: string,
 ): string {
@@ -100,11 +101,11 @@ function renderElementHtml(
 
     if (el.type === "image") {
         const src =
-            el.imageSource === "logo"
-                ? logoBase64
-                : el.imageSource === "photo"
-                  ? photoBase64
-                  : null;
+            el.imageSource === "photo"
+                ? photoBase64
+                : el.imageSource?.startsWith("asset:")
+                  ? assetBase64Map[el.imageSource.slice(6)] ?? null
+                  : logoBase64;
         const radius = el.borderRadius ?? 0;
         const fit = el.objectFit ?? "contain";
         const imgOpacity = el.imageOpacity !== undefined ? `opacity:${el.imageOpacity};` : "";
@@ -139,12 +140,13 @@ function renderCardHtml(
     config: TemplateConfig,
     logoBase64: string | null,
     photoBase64: string | null,
+    assetBase64Map: Record<string, string>,
     qrDataUrl: string | null,
     vcfDataUrl: string,
 ): string {
     const sorted = [...config.elements].sort((a, b) => a.zIndex - b.zIndex);
     const elementsHtml = sorted
-        .map((el) => renderElementHtml(el, person, logoBase64, photoBase64, qrDataUrl, vcfDataUrl))
+        .map((el) => renderElementHtml(el, person, logoBase64, photoBase64, assetBase64Map, qrDataUrl, vcfDataUrl))
         .join("\n  ");
 
     return `<!DOCTYPE html>
@@ -252,11 +254,23 @@ export async function GET(
         // Embed vCard as data URL for the save-contact button
         const vcfDataUrl = `data:text/vcard;base64,${Buffer.from(vcard).toString("base64")}`;
 
+        // Load asset images as base64
+        const assetBase64Map: Record<string, string> = {};
+        for (const el of config.elements) {
+            if (el.imageSource?.startsWith("asset:")) {
+                const path = el.imageSource.slice(6);
+                if (!assetBase64Map[path]) {
+                    const b64 = await imageToBase64(supabase, STORAGE.ASSETS, path);
+                    if (b64) assetBase64Map[path] = b64;
+                }
+            }
+        }
+
         // Generate QR code if template uses it
         const hasQr = config.elements.some((el) => el.type === "qrcode");
         const qrDataUrl = hasQr ? await generateQrDataUrl(vcard) : null;
 
-        const html = renderCardHtml(personData, config, logoBase64, photoBase64, qrDataUrl, vcfDataUrl);
+        const html = renderCardHtml(personData, config, logoBase64, photoBase64, assetBase64Map, qrDataUrl, vcfDataUrl);
         zip.file(`${baseName}.html`, html);
     }
 
