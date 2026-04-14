@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useTranslation } from "./I18nProvider";
 import UseTemplateButton from "./UseTemplateButton";
 import DeleteTemplateButton from "./DeleteTemplateButton";
+import DuplicateTemplateButton from "./DuplicateTemplateButton";
 import type { TemplateConfig } from "@/lib/types";
 
 interface Template {
@@ -53,6 +54,7 @@ export default function TemplatesContent({ userTemplates, sampleTemplates }: Tem
                                     </p>
                                 </Link>
                                 <div className="flex items-center gap-2">
+                                    <DuplicateTemplateButton templateName={template.name} config={template.config!} />
                                     <DeleteTemplateButton templateId={template.id} templateName={template.name} />
                                     <Link href={`/templates/${template.id}/edit`}>
                                         <svg className="h-5 w-5 text-zinc-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
