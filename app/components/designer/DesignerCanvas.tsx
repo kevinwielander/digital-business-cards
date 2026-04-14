@@ -243,7 +243,10 @@ export default function DesignerCanvas({
                         )}
 
                         {el.type === "image" && (() => {
-                            const assetUrl = el.imageSource?.startsWith("asset:") ? assetUrls[el.imageSource.slice(6)] : null;
+                            const isDataUri = el.imageSource?.startsWith("asset:data:");
+                            const assetUrl = isDataUri
+                                ? el.imageSource!.slice(6)
+                                : el.imageSource?.startsWith("asset:") ? assetUrls[el.imageSource.slice(6)] : null;
                             const imgSrc =
                                 el.imageSource === "photo" ? sampleData.photoUrl :
                                 el.imageSource?.startsWith("asset:") ? assetUrl :

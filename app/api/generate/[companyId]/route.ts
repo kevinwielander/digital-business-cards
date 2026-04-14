@@ -100,12 +100,15 @@ function renderElementHtml(
     }
 
     if (el.type === "image") {
+        const isDataUri = el.imageSource?.startsWith("asset:data:");
         const src =
             el.imageSource === "photo"
                 ? photoBase64
-                : el.imageSource?.startsWith("asset:")
-                  ? assetBase64Map[el.imageSource.slice(6)] ?? null
-                  : logoBase64;
+                : isDataUri
+                  ? el.imageSource!.slice(6)
+                  : el.imageSource?.startsWith("asset:")
+                    ? assetBase64Map[el.imageSource.slice(6)] ?? null
+                    : logoBase64;
         const radius = el.borderRadius ?? 0;
         const fit = el.objectFit ?? "contain";
         const imgOpacity = el.imageOpacity !== undefined ? `opacity:${el.imageOpacity};` : "";

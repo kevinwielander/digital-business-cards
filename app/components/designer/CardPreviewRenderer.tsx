@@ -75,8 +75,10 @@ export default function CardPreviewRenderer({ config, data, assetUrls = {}, scal
                 }
 
                 if (el.type === "image") {
+                    const isDataUri = el.imageSource?.startsWith("asset:data:");
                     const src =
                         el.imageSource === "photo" ? data.photoUrl :
+                        isDataUri ? el.imageSource!.slice(6) :
                         el.imageSource?.startsWith("asset:") ? assetUrls[el.imageSource.slice(6)] ?? null :
                         data.logoUrl;
                     return (

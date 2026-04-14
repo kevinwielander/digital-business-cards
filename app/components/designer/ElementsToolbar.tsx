@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { STORAGE } from "@/lib/supabase/constants";
 import type { CardElement } from "@/lib/types";
+import IconPicker from "./IconPicker";
 
 interface ElementsToolbarProps {
     onAddElement: (element: CardElement) => void;
@@ -167,6 +168,9 @@ export default function ElementsToolbar({ onAddElement, companyId }: ElementsToo
             <button onClick={addSaveContact} className="flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm font-medium shadow-sm transition hover:bg-zinc-50 hover:shadow-md">
                 <span className="text-base">↓</span> Save Contact
             </button>
+
+            {/* Icons */}
+            <IconPicker onAddIcon={onAddElement} />
 
             {/* Upload image — adds to company assets + creates element */}
             {companyId ? (
