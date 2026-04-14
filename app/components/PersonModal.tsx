@@ -54,6 +54,7 @@ export default function PersonModal({ onClose, companyId, templates, companyName
     const [error, setError] = useState<string | null>(null);
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [templateConfig, setTemplateConfig] = useState<TemplateConfig | null>(null);
+    const [assetUrls, setAssetUrls] = useState<Record<string, string>>({});
 
     // Load template config when templateId changes
     useEffect(() => {
@@ -79,6 +80,26 @@ export default function PersonModal({ onClose, companyId, templates, companyName
         }
         loadTemplate();
     }, [templateId]);
+
+    // Load signed URLs for asset images in the template
+    useEffect(() => {
+        async function loadAssetUrls() {
+            if (!templateConfig) return;
+            const assetPaths = templateConfig.elements
+                .filter((el) => el.imageSource?.startsWith("asset:"))
+                .map((el) => el.imageSource!.slice(6));
+            if (assetPaths.length === 0) { setAssetUrls({}); return; }
+
+            const supabase = createClient();
+            const urls: Record<string, string> = {};
+            for (const path of assetPaths) {
+                const { data } = await supabase.storage.from(STORAGE.ASSETS).createSignedUrl(path, 3600);
+                if (data?.signedUrl) urls[path] = data.signedUrl;
+            }
+            setAssetUrls(urls);
+        }
+        loadAssetUrls();
+    }, [templateConfig]);
 
     // Update photo preview when a new file is selected
     useEffect(() => {
@@ -366,6 +387,7 @@ export default function PersonModal({ onClose, companyId, templates, companyName
                             <CardPreviewRenderer
                                 config={templateConfig}
                                 data={previewData}
+                                assetUrls={assetUrls}
                                 scale={0.8}
                             />
                         ) : (
