@@ -2,8 +2,10 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
+import Head from "next/head";
 import { createClient } from "@/lib/supabase/client";
 import { TABLES, STORAGE } from "@/lib/supabase/constants";
+import { getGoogleFontsUrl, getUsedFonts } from "@/lib/fonts";
 import {
     DEFAULT_TEMPLATE_CONFIG,
     SAMPLE_CARD_DATA,
@@ -324,8 +326,16 @@ export default function TemplateDesigner({
         );
     }
 
+    const fontsUrl = getGoogleFontsUrl(getUsedFonts(config.elements));
+
     return (
         <div className="flex flex-col gap-6">
+            {/* Load Google Fonts used in the template */}
+            {fontsUrl && (
+                // eslint-disable-next-line @next/next/no-css-tags
+                <link rel="stylesheet" href={fontsUrl} />
+            )}
+
             {/* Top bar */}
             <div className="flex flex-wrap items-center gap-3 sm:gap-4">
                 <input

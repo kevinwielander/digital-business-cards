@@ -4,6 +4,7 @@ import { TABLES, STORAGE } from "@/lib/supabase/constants";
 import JSZip from "jszip";
 import QRCode from "qrcode";
 import type { TemplateConfig, CardElement, SampleCardData } from "@/lib/types";
+import { getGoogleFontsUrl, getUsedFonts } from "@/lib/fonts";
 
 async function imageToBase64(
     supabase: Awaited<ReturnType<typeof createClient>>,
@@ -152,12 +153,15 @@ function renderCardHtml(
         .map((el) => renderElementHtml(el, person, logoBase64, photoBase64, assetBase64Map, qrDataUrl, vcfDataUrl))
         .join("\n  ");
 
+    const fontsUrl = getGoogleFontsUrl(getUsedFonts(config.elements));
+
     return `<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>${person.full_name} - ${person.company}</title>
+${fontsUrl ? `<link rel="stylesheet" href="${fontsUrl}">` : ""}
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #f4f4f5; }

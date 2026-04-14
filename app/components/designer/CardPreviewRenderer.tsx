@@ -1,4 +1,5 @@
 import type { TemplateConfig, SampleCardData, CardElement } from "@/lib/types";
+import { getGoogleFontsUrl, getUsedFonts } from "@/lib/fonts";
 
 interface CardPreviewRendererProps {
     config: TemplateConfig;
@@ -21,8 +22,11 @@ function getDisplayText(el: CardElement, data: SampleCardData): string {
 
 export default function CardPreviewRenderer({ config, data, assetUrls = {}, scale = 1 }: CardPreviewRendererProps) {
     const sorted = [...config.elements].sort((a, b) => a.zIndex - b.zIndex);
+    const fontsUrl = getGoogleFontsUrl(getUsedFonts(config.elements));
 
     return (
+        <>
+        {fontsUrl && <link rel="stylesheet" href={fontsUrl} />}
         <div
             style={{
                 width: config.width * scale,
@@ -162,5 +166,6 @@ export default function CardPreviewRenderer({ config, data, assetUrls = {}, scal
                 return null;
             })}
         </div>
+        </>
     );
 }

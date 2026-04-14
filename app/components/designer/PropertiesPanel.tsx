@@ -2,6 +2,7 @@
 
 import type { CardElement, BoundField, CustomFieldDefinition } from "@/lib/types";
 import { BUILT_IN_FIELD_LABELS } from "@/lib/types";
+import { DESIGNER_FONTS } from "@/lib/fonts";
 import AssetPicker from "./AssetPicker";
 
 interface PropertiesPanelProps {
@@ -152,15 +153,15 @@ export default function PropertiesPanel({
                     <div>
                         <label className="mb-1 block text-xs font-medium text-zinc-500">Font</label>
                         <select
-                            value={element.fontFamily ?? "sans-serif"}
+                            value={element.fontFamily ?? "Inter, sans-serif"}
                             onChange={(e) => onUpdate({ fontFamily: e.target.value })}
                             className="w-full rounded border border-zinc-300 px-2 py-1.5 text-sm"
                         >
-                            <option value="sans-serif">Sans Serif</option>
-                            <option value="serif">Serif</option>
-                            <option value="monospace">Monospace</option>
-                            <option value="Georgia, serif">Georgia</option>
-                            <option value="'Courier New', monospace">Courier New</option>
+                            {DESIGNER_FONTS.map((f) => (
+                                <option key={f.value} value={f.value} style={{ fontFamily: f.value }}>
+                                    {f.label}
+                                </option>
+                            ))}
                         </select>
                     </div>
 
