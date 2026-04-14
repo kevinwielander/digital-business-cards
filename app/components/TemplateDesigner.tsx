@@ -46,10 +46,42 @@ export default function TemplateDesigner({
     const { t } = useTranslation();
     const draftKey = `cardgen_draft_${templateId ?? "new"}`;
     const [name, setName] = useState(initialName);
-    const [config, setConfig] = useState<TemplateConfig>(initialConfig ?? DEFAULT_TEMPLATE_CONFIG);
+    const [config, setConfigInternal] = useState<TemplateConfig>(initialConfig ?? DEFAULT_TEMPLATE_CONFIG);
     const [draftRestored, setDraftRestored] = useState(false);
     const [ready, setReady] = useState(false);
     const skipAutoSave = useRef(false);
+
+    // Undo/redo history
+    const undoStack = useRef<TemplateConfig[]>([]);
+    const redoStack = useRef<TemplateConfig[]>([]);
+
+    function setConfig(newConfig: TemplateConfig | ((prev: TemplateConfig) => TemplateConfig)) {
+        setConfigInternal((prev) => {
+            const resolved = typeof newConfig === "function" ? newConfig(prev) : newConfig;
+            undoStack.current.push(prev);
+            if (undoStack.current.length > 50) undoStack.current.shift();
+            redoStack.current = [];
+            return resolved;
+        });
+    }
+
+    function undo() {
+        if (undoStack.current.length === 0) return;
+        const prev = undoStack.current.pop()!;
+        setConfigInternal((current) => {
+            redoStack.current.push(current);
+            return prev;
+        });
+    }
+
+    function redo() {
+        if (redoStack.current.length === 0) return;
+        const next = redoStack.current.pop()!;
+        setConfigInternal((current) => {
+            undoStack.current.push(current);
+            return next;
+        });
+    }
 
     // Restore draft from localStorage on mount (client-only)
     useEffect(() => {
@@ -239,11 +271,31 @@ export default function TemplateDesigner({
 
     const handleKeyDown = useCallback(
         (e: KeyboardEvent) => {
-            if (e.key === "Delete" || e.key === "Backspace") {
-                if (selectedId && document.activeElement === document.body) {
+            const tag = (e.target as HTMLElement)?.tagName;
+            const isTyping = tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT";
+
+            // Undo/redo always works (even when typing — Ctrl+Z is standard in inputs too, but we override for the designer)
+            if ((e.ctrlKey || e.metaKey) && e.key === "z" && !e.shiftKey) {
+                if (!isTyping) {
+                    e.preventDefault();
+                    undo();
+                }
+            }
+            if ((e.ctrlKey || e.metaKey) && (e.key === "y" || (e.key === "z" && e.shiftKey))) {
+                if (!isTyping) {
+                    e.preventDefault();
+                    redo();
+                }
+            }
+
+            // Delete/Backspace only when not typing in an input
+            if ((e.key === "Delete" || e.key === "Backspace") && !isTyping) {
+                if (selectedId) {
+                    e.preventDefault();
                     deleteElement(selectedId);
                 }
             }
+
             if (e.key === "Escape") {
                 setSelectedId(null);
             }
