@@ -9,6 +9,7 @@ interface ImageUploadProps {
     aspectRatio?: number;
     shape?: "rect" | "round";
     label?: string;
+    allowSkipCrop?: boolean;
 }
 
 async function getCroppedImage(imageSrc: string, crop: Area): Promise<File> {
@@ -40,12 +41,19 @@ async function getCroppedImage(imageSrc: string, crop: Area): Promise<File> {
     });
 }
 
+async function dataUrlToFile(dataUrl: string, filename: string): Promise<File> {
+    const res = await fetch(dataUrl);
+    const blob = await res.blob();
+    return new File([blob], filename, { type: blob.type });
+}
+
 export default function ImageUpload({
     onImageReady,
     currentImageUrl,
     aspectRatio,
     shape = "rect",
     label = "Upload Image",
+    allowSkipCrop = false,
 }: ImageUploadProps) {
     const [imageSrc, setImageSrc] = useState<string | null>(null);
     const [crop, setCrop] = useState({ x: 0, y: 0 });
@@ -53,11 +61,14 @@ export default function ImageUpload({
     const [croppedArea, setCroppedArea] = useState<Area | null>(null);
     const [preview, setPreview] = useState<string | null>(currentImageUrl ?? null);
     const [cropping, setCropping] = useState(false);
+    const [originalFile, setOriginalFile] = useState<File | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
         const file = e.target.files?.[0];
         if (!file) return;
+
+        setOriginalFile(file);
 
         const reader = new FileReader();
         reader.onload = () => {
@@ -84,14 +95,29 @@ export default function ImageUpload({
         onImageReady(croppedFile);
     }
 
+    async function handleSkipCrop() {
+        if (!imageSrc) return;
+
+        // Use original file as-is
+        if (originalFile) {
+            const previewUrl = URL.createObjectURL(originalFile);
+            setPreview(previewUrl);
+            setCropping(false);
+            setImageSrc(null);
+            onImageReady(originalFile);
+        }
+    }
+
     function handleCancelCrop() {
         setCropping(false);
         setImageSrc(null);
+        setOriginalFile(null);
         if (fileInputRef.current) fileInputRef.current.value = "";
     }
 
     function handleRemove() {
         setPreview(null);
+        setOriginalFile(null);
         if (fileInputRef.current) fileInputRef.current.value = "";
     }
 
@@ -128,21 +154,34 @@ export default function ImageUpload({
                                 className="w-full"
                             />
                         </div>
-                        <div className="mt-4 flex justify-end gap-3">
-                            <button
-                                type="button"
-                                onClick={handleCancelCrop}
-                                className="rounded-lg px-4 py-2 text-sm text-zinc-500 hover:text-zinc-800"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                type="button"
-                                onClick={handleConfirmCrop}
-                                className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700"
-                            >
-                                Confirm
-                            </button>
+                        <div className="mt-4 flex items-center justify-between">
+                            <div>
+                                {allowSkipCrop && (
+                                    <button
+                                        type="button"
+                                        onClick={handleSkipCrop}
+                                        className="rounded-lg px-3 py-2 text-sm text-sky-600 hover:bg-sky-50"
+                                    >
+                                        Use original
+                                    </button>
+                                )}
+                            </div>
+                            <div className="flex gap-3">
+                                <button
+                                    type="button"
+                                    onClick={handleCancelCrop}
+                                    className="rounded-lg px-4 py-2 text-sm text-zinc-500 hover:text-zinc-800"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={handleConfirmCrop}
+                                    className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-700"
+                                >
+                                    Crop & Use
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -154,7 +193,7 @@ export default function ImageUpload({
                     <img
                         src={preview}
                         alt="Preview"
-                        className={`h-16 w-16 object-cover ${shape === "round" ? "rounded-full" : "rounded-lg"}`}
+                        className={`h-16 object-contain ${shape === "round" ? "w-16 rounded-full object-cover" : "max-w-32 rounded-lg"}`}
                     />
                     <button
                         type="button"

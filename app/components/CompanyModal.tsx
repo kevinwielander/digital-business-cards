@@ -168,6 +168,7 @@ export function CompanyModal(props: CompanyProps) {
                         label={t.form_logo}
                         onImageReady={(file) => setLogo(file)}
                         currentImageUrl={props.currentLogoUrl}
+                        allowSkipCrop
                     />
 
                     {error && <p className="text-sm text-red-500">{error}</p>}
