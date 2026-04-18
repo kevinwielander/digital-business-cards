@@ -18,8 +18,22 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-    title: "CardGen — Business Card Generator",
-    description: "Design, manage, and generate professional business cards for your team.",
+    title: "CardGen — Open Source Business Card Generator",
+    description: "Design, manage, and generate professional digital business cards for your team. Drag-and-drop designer, 11 templates, QR codes, vCard downloads. Free and open source.",
+    metadataBase: new URL("https://owncardly.com"),
+    openGraph: {
+        title: "CardGen — Open Source Business Card Generator",
+        description: "Design professional digital business cards with a drag-and-drop designer. Free and open source.",
+        url: "https://owncardly.com",
+        siteName: "CardGen",
+        type: "website",
+    },
+    twitter: {
+        card: "summary_large_image",
+        title: "CardGen — Open Source Business Card Generator",
+        description: "Design professional digital business cards with a drag-and-drop designer. Free and open source.",
+    },
+    keywords: ["business card", "digital card", "card generator", "vcard", "qr code", "open source", "nextjs"],
 };
 
 export default function RootLayout({

@@ -1,0 +1,10 @@
+node_modules
+.next
+.git
+.gitignore
+.env.local
+.env
+.vercel
+.claude
+*.md
+!README.md

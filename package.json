@@ -1,7 +1,25 @@
 {
-  "name": "digital-business-cards",
-  "version": "0.1.0",
-  "private": true,
+  "name": "cardgen",
+  "version": "1.0.0",
+  "description": "Open-source digital business card generator with drag-and-drop designer",
+  "license": "MIT",
+  "author": "Kevin Wielander",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kevinwielander/digital-business-cards"
+  },
+  "homepage": "https://owncardly.com",
+  "keywords": [
+    "business-card",
+    "digital-card",
+    "vcard",
+    "qrcode",
+    "nextjs",
+    "supabase",
+    "open-source",
+    "card-generator",
+    "drag-and-drop"
+  ],
   "scripts": {
     "dev": "next dev",
     "build": "next build",
