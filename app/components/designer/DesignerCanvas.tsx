@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Rnd } from "react-rnd";
 import type { CardElement, SampleCardData } from "@/lib/types";
 
-const SNAP_THRESHOLD = 5;
+const SNAP_THRESHOLD = 8;
 const GRID_SIZE = 10;
 
 interface SnapGuide {
@@ -36,15 +36,15 @@ function getDisplayText(element: CardElement, data: SampleCardData): string {
     return "Text";
 }
 
-function snapValue(value: number, targets: number[]): { snapped: number; guide: number | null } {
+function findClosestSnap(value: number, targets: number[]): { distance: number; target: number } | null {
+    let best: { distance: number; target: number } | null = null;
     for (const target of targets) {
-        if (Math.abs(value - target) < SNAP_THRESHOLD) {
-            return { snapped: target, guide: target };
+        const d = Math.abs(value - target);
+        if (d < SNAP_THRESHOLD && (!best || d < best.distance)) {
+            best = { distance: d, target };
         }
     }
-    // Grid snap
-    const gridSnapped = Math.round(value / GRID_SIZE) * GRID_SIZE;
-    return { snapped: gridSnapped, guide: null };
+    return best;
 }
 
 export default function DesignerCanvas({
@@ -60,7 +60,17 @@ export default function DesignerCanvas({
     onUpdateElement,
 }: DesignerCanvasProps) {
     const [guides, setGuides] = useState<SnapGuide[]>([]);
+    const [ctrlHeld, setCtrlHeld] = useState(false);
     const sorted = [...elements].sort((a, b) => a.zIndex - b.zIndex);
+
+    // Track Ctrl/Cmd key for disabling snap
+    useEffect(() => {
+        function down(e: KeyboardEvent) { if (e.ctrlKey || e.metaKey) setCtrlHeld(true); }
+        function up(e: KeyboardEvent) { if (!e.ctrlKey && !e.metaKey) setCtrlHeld(false); }
+        window.addEventListener("keydown", down);
+        window.addEventListener("keyup", up);
+        return () => { window.removeEventListener("keydown", down); window.removeEventListener("keyup", up); };
+    }, []);
 
     function getSnapTargets(dragId: string) {
         const others = elements.filter((el) => el.id !== dragId);
@@ -78,42 +88,39 @@ export default function DesignerCanvas({
         const { vTargets, hTargets } = getSnapTargets(id);
         const newGuides: SnapGuide[] = [];
 
-        // Snap left, center, right edges
-        const leftSnap = snapValue(x, vTargets);
-        const centerXSnap = snapValue(x + elWidth / 2, vTargets);
-        const rightSnap = snapValue(x + elWidth, vTargets);
+        // Check all three edge points for X: left, center, right
+        // Priority: center > left > right (center alignment is most useful)
+        const centerXSnap = findClosestSnap(x + elWidth / 2, vTargets);
+        const leftSnap = findClosestSnap(x, vTargets);
+        const rightSnap = findClosestSnap(x + elWidth, vTargets);
 
-        let finalX = x;
-        if (leftSnap.guide !== null) {
-            finalX = leftSnap.snapped;
-            newGuides.push({ type: "vertical", position: leftSnap.guide });
-        } else if (centerXSnap.guide !== null) {
-            finalX = centerXSnap.snapped - elWidth / 2;
-            newGuides.push({ type: "vertical", position: centerXSnap.guide });
-        } else if (rightSnap.guide !== null) {
-            finalX = rightSnap.snapped - elWidth;
-            newGuides.push({ type: "vertical", position: rightSnap.guide });
-        } else {
-            finalX = leftSnap.snapped;
+        let finalX = Math.round(x / GRID_SIZE) * GRID_SIZE; // grid fallback
+        if (centerXSnap) {
+            finalX = centerXSnap.target - elWidth / 2;
+            newGuides.push({ type: "vertical", position: centerXSnap.target });
+        } else if (leftSnap) {
+            finalX = leftSnap.target;
+            newGuides.push({ type: "vertical", position: leftSnap.target });
+        } else if (rightSnap) {
+            finalX = rightSnap.target - elWidth;
+            newGuides.push({ type: "vertical", position: rightSnap.target });
         }
 
-        // Snap top, middle, bottom edges
-        const topSnap = snapValue(y, hTargets);
-        const centerYSnap = snapValue(y + elHeight / 2, hTargets);
-        const bottomSnap = snapValue(y + elHeight, hTargets);
+        // Check all three edge points for Y: center, top, bottom
+        const centerYSnap = findClosestSnap(y + elHeight / 2, hTargets);
+        const topSnap = findClosestSnap(y, hTargets);
+        const bottomSnap = findClosestSnap(y + elHeight, hTargets);
 
-        let finalY = y;
-        if (topSnap.guide !== null) {
-            finalY = topSnap.snapped;
-            newGuides.push({ type: "horizontal", position: topSnap.guide });
-        } else if (centerYSnap.guide !== null) {
-            finalY = centerYSnap.snapped - elHeight / 2;
-            newGuides.push({ type: "horizontal", position: centerYSnap.guide });
-        } else if (bottomSnap.guide !== null) {
-            finalY = bottomSnap.snapped - elHeight;
-            newGuides.push({ type: "horizontal", position: bottomSnap.guide });
-        } else {
-            finalY = topSnap.snapped;
+        let finalY = Math.round(y / GRID_SIZE) * GRID_SIZE; // grid fallback
+        if (centerYSnap) {
+            finalY = centerYSnap.target - elHeight / 2;
+            newGuides.push({ type: "horizontal", position: centerYSnap.target });
+        } else if (topSnap) {
+            finalY = topSnap.target;
+            newGuides.push({ type: "horizontal", position: topSnap.target });
+        } else if (bottomSnap) {
+            finalY = bottomSnap.target - elHeight;
+            newGuides.push({ type: "horizontal", position: bottomSnap.target });
         }
 
         setGuides(newGuides);
@@ -164,17 +171,16 @@ export default function DesignerCanvas({
                     className="pointer-events-none absolute"
                     style={
                         guide.type === "vertical"
-                            ? { left: guide.position, top: 0, width: 1, height, backgroundColor: "#ef4444", zIndex: 9999 }
-                            : { left: 0, top: guide.position, width, height: 1, backgroundColor: "#ef4444", zIndex: 9999 }
+                            ? { left: guide.position - 0.5, top: 0, width: 1, height, backgroundColor: "#f43f5e", zIndex: 9999, boxShadow: "0 0 3px rgba(244,63,94,0.5)" }
+                            : { left: 0, top: guide.position - 0.5, width, height: 1, backgroundColor: "#f43f5e", zIndex: 9999, boxShadow: "0 0 3px rgba(244,63,94,0.5)" }
                     }
                 />
             ))}
 
             {sorted.map((el) => (
                 <Rnd
-                    key={el.id}
-                    size={{ width: el.width, height: el.height }}
-                    position={{ x: el.x, y: el.y }}
+                    key={`${el.id}-${el.x}-${el.y}-${el.width}-${el.height}`}
+                    default={{ x: el.x, y: el.y, width: el.width, height: el.height }}
                     bounds="parent"
                     disableDragging={el.locked}
                     enableResizing={el.locked ? false : (el.width <= 30 || el.height <= 10) ? {
@@ -189,10 +195,19 @@ export default function DesignerCanvas({
                         right: { width: Math.max(10, 20 - el.width), right: -Math.max(5, 10 - el.width / 2) },
                     }}
                     onDrag={(_e, d) => {
-                        handleDrag(el.id, d.x, d.y, el.width, el.height);
+                        if (ctrlHeld) {
+                            setGuides([]);
+                            return;
+                        }
+                        const snapped = handleDrag(el.id, d.x, d.y, el.width, el.height);
+                        // Apply magnetic snap by overriding position
+                        d.x = snapped.x;
+                        d.y = snapped.y;
                     }}
                     onDragStop={(_e, d) => {
-                        const snapped = handleDrag(el.id, d.x, d.y, el.width, el.height);
+                        const snapped = ctrlHeld
+                            ? { x: Math.round(d.x), y: Math.round(d.y) }
+                            : handleDrag(el.id, d.x, d.y, el.width, el.height);
                         onUpdateElement(el.id, { x: snapped.x, y: snapped.y });
                         setGuides([]);
                     }}
