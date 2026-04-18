@@ -19,6 +19,7 @@ import { useGuest } from "./GuestProvider";
 import { useTranslation } from "./I18nProvider";
 import ConfirmModal from "./ConfirmModal";
 import { useToast } from "./ToastProvider";
+import LayersPanel from "./designer/LayersPanel";
 import DesignerCanvas from "./designer/DesignerCanvas";
 import PropertiesPanel from "./designer/PropertiesPanel";
 import ElementsToolbar from "./designer/ElementsToolbar";
@@ -567,26 +568,46 @@ export default function TemplateDesigner({
                     </div>
                 </div>
 
-                {/* Properties panel */}
-                <div className="w-full shrink-0 lg:w-64">
-                    {selectedElement ? (
-                        <PropertiesPanel
-                            element={selectedElement}
-                            cardWidth={config.width}
-                            cardHeight={config.height}
-                            companyId={selectedCompanyId || undefined}
-                            customFieldDefs={companies.find((c) => c.id === selectedCompanyId)?.custom_field_definitions}
-                            onUpdate={(updates) => updateElement(selectedElement.id, updates)}
-                            onDelete={() => deleteElement(selectedElement.id)}
-                            onDuplicate={() => duplicateElement(selectedElement.id)}
-                            onMoveUp={() => moveLayer(selectedElement.id, "up")}
-                            onMoveDown={() => moveLayer(selectedElement.id, "down")}
+                {/* Right sidebar: Layers + Properties split */}
+                <div className="flex w-full shrink-0 flex-col lg:w-72" style={{ height: "80vh" }}>
+                    {/* Layers — top half */}
+                    <div className="flex-1 overflow-y-auto border-b border-zinc-200 pb-2">
+                        <LayersPanel
+                            elements={config.elements}
+                            selectedId={selectedId}
+                            onSelect={setSelectedId}
+                            onReorder={(reordered) => setConfig((prev) => ({ ...prev, elements: reordered }))}
+                            onUpdate={updateElement}
+                            onDelete={deleteElement}
+                            onDuplicate={duplicateElement}
+                            onAddElement={() => addElement({
+                                id: crypto.randomUUID(), type: "text", x: 20, y: 20, width: 160, height: 30, zIndex: 1,
+                                boundField: "custom", customText: "New text", fontSize: 14, fontFamily: "Inter, sans-serif", color: "#000", textAlign: "left",
+                            })}
                         />
-                    ) : (
-                        <p className="text-sm text-zinc-400">
-                            Select an element to edit its properties, or add one from the toolbar above.
-                        </p>
-                    )}
+                    </div>
+
+                    {/* Properties — bottom half */}
+                    <div className="flex-1 overflow-y-auto pt-3">
+                        {selectedElement ? (
+                            <PropertiesPanel
+                                element={selectedElement}
+                                cardWidth={config.width}
+                                cardHeight={config.height}
+                                companyId={selectedCompanyId || undefined}
+                                customFieldDefs={companies.find((c) => c.id === selectedCompanyId)?.custom_field_definitions}
+                                onUpdate={(updates) => updateElement(selectedElement.id, updates)}
+                                onDelete={() => deleteElement(selectedElement.id)}
+                                onDuplicate={() => duplicateElement(selectedElement.id)}
+                                onMoveUp={() => moveLayer(selectedElement.id, "up")}
+                                onMoveDown={() => moveLayer(selectedElement.id, "down")}
+                            />
+                        ) : (
+                            <p className="text-sm text-zinc-400">
+                                Select an element to edit its properties.
+                            </p>
+                        )}
+                    </div>
                 </div>
             </div>
 

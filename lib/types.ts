@@ -47,6 +47,8 @@ export interface CardElement {
     // Icon properties (SVG template stored separately for recoloring)
     iconSvg?: string;
     iconColor?: string;
+    // User-defined label for the layers panel
+    label?: string;
     // Shape properties
     backgroundColor?: string;
     gradient?: string;

@@ -11,6 +11,7 @@ import CardPreviewRenderer from "../components/designer/CardPreviewRenderer";
 import DesignerCanvas from "../components/designer/DesignerCanvas";
 import ElementsToolbar from "../components/designer/ElementsToolbar";
 import PropertiesPanel from "../components/designer/PropertiesPanel";
+import LayersPanel from "../components/designer/LayersPanel";
 import ImageUpload from "../components/ImageUpload";
 import type { TemplateConfig, SampleCardData, CardElement } from "@/lib/types";
 import { SAMPLE_CARD_DATA } from "@/lib/types";
@@ -629,25 +630,51 @@ function DesignerOverlay({
                         onUpdateElement={updateElement}
                     />
                 </div>
-                <div className="w-64 shrink-0 overflow-y-auto border-l border-zinc-200 bg-white p-4">
-                    {selectedElement ? (
-                        <PropertiesPanel
-                            element={selectedElement}
-                            cardWidth={config.width}
-                            cardHeight={config.height}
-                            onUpdate={(updates) => updateElement(selectedElement.id, updates)}
-                            onDelete={() => deleteElement(selectedElement.id)}
-                            onDuplicate={() => {
-                                const el = { ...selectedElement, id: crypto.randomUUID(), x: selectedElement.x + 10, y: selectedElement.y + 10 };
-                                setConfig((prev) => ({ ...prev, elements: [...prev.elements, el] }));
-                                setSelectedId(el.id);
+                <div className="flex w-72 shrink-0 flex-col border-l border-zinc-200 bg-white" style={{ height: "100%" }}>
+                    {/* Layers — top half */}
+                    <div className="flex-1 overflow-y-auto border-b border-zinc-200 p-3">
+                        <LayersPanel
+                            elements={config.elements}
+                            selectedId={selectedId}
+                            onSelect={setSelectedId}
+                            onReorder={(reordered) => setConfig((prev) => ({ ...prev, elements: reordered }))}
+                            onUpdate={updateElement}
+                            onDelete={deleteElement}
+                            onDuplicate={(id) => {
+                                const el = config.elements.find((e) => e.id === id);
+                                if (!el) return;
+                                const dup = { ...el, id: crypto.randomUUID(), x: el.x + 10, y: el.y + 10 };
+                                setConfig((prev) => ({ ...prev, elements: [...prev.elements, dup] }));
+                                setSelectedId(dup.id);
                             }}
-                            onMoveUp={() => updateElement(selectedElement.id, { zIndex: selectedElement.zIndex + 1 })}
-                            onMoveDown={() => updateElement(selectedElement.id, { zIndex: selectedElement.zIndex - 1 })}
+                            onAddElement={() => addElement({
+                                id: crypto.randomUUID(), type: "text", x: 20, y: 20, width: 160, height: 30, zIndex: 1,
+                                boundField: "custom", customText: "New text", fontSize: 14, fontFamily: "Inter, sans-serif", color: "#000", textAlign: "left",
+                            })}
                         />
-                    ) : (
-                        <p className="text-sm text-zinc-400">Select an element to edit, or add one from the toolbar.</p>
-                    )}
+                    </div>
+
+                    {/* Properties — bottom half */}
+                    <div className="flex-1 overflow-y-auto p-4">
+                        {selectedElement ? (
+                            <PropertiesPanel
+                                element={selectedElement}
+                                cardWidth={config.width}
+                                cardHeight={config.height}
+                                onUpdate={(updates) => updateElement(selectedElement.id, updates)}
+                                onDelete={() => deleteElement(selectedElement.id)}
+                                onDuplicate={() => {
+                                    const el = { ...selectedElement, id: crypto.randomUUID(), x: selectedElement.x + 10, y: selectedElement.y + 10 };
+                                    setConfig((prev) => ({ ...prev, elements: [...prev.elements, el] }));
+                                    setSelectedId(el.id);
+                                }}
+                                onMoveUp={() => updateElement(selectedElement.id, { zIndex: selectedElement.zIndex + 1 })}
+                                onMoveDown={() => updateElement(selectedElement.id, { zIndex: selectedElement.zIndex - 1 })}
+                            />
+                        ) : (
+                            <p className="text-sm text-zinc-400">Select an element to edit.</p>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>
