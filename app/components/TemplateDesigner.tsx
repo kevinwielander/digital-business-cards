@@ -35,12 +35,21 @@ interface TemplateDesignerProps {
     initialName?: string;
     initialConfig?: TemplateConfig;
     templateId?: string;
+    // Overlay mode — renders fullscreen, calls onSave/onCancel instead of DB save
+    overlay?: boolean;
+    overlayPreviewData?: SampleCardData;
+    onOverlaySave?: (config: TemplateConfig) => void;
+    onOverlayCancel?: () => void;
 }
 
 export default function TemplateDesigner({
     initialName = "",
     initialConfig,
     templateId,
+    overlay = false,
+    overlayPreviewData,
+    onOverlaySave,
+    onOverlayCancel,
 }: TemplateDesignerProps) {
     const router = useRouter();
     const guest = useGuest();
@@ -84,8 +93,15 @@ export default function TemplateDesigner({
         });
     }
 
-    // Restore draft from localStorage on mount (client-only)
+    // Restore draft / preview data on mount
     useEffect(() => {
+        if (overlay) {
+            // In overlay mode, use provided preview data and skip drafts
+            if (overlayPreviewData) setPreviewData(overlayPreviewData);
+            setReady(true);
+            return;
+        }
+
         const raw = localStorage.getItem(draftKey);
         if (raw) {
             try {
@@ -96,7 +112,6 @@ export default function TemplateDesigner({
             } catch { /* ignore */ }
         }
 
-        // Load preview data from /create flow
         const createPreview = localStorage.getItem("cardgen_create_preview");
         if (createPreview) {
             try {
@@ -114,7 +129,6 @@ export default function TemplateDesigner({
                     logoUrl: p.logoPreview || null,
                     photoUrl: p.photoPreview || null,
                 });
-                // Clean up so it doesn't persist across sessions
                 localStorage.removeItem("cardgen_create_preview");
             } catch { /* ignore */ }
         }
@@ -204,8 +218,9 @@ export default function TemplateDesigner({
 
     const selectedElement = config.elements.find((el) => el.id === selectedId) ?? null;
 
-    // Auto-save draft to localStorage
+    // Auto-save draft to localStorage (skip in overlay mode)
     useEffect(() => {
+        if (overlay) return;
         if (skipAutoSave.current) {
             skipAutoSave.current = false;
             return;
@@ -353,6 +368,11 @@ export default function TemplateDesigner({
     }, [handleKeyDown]);
 
     async function handleSave() {
+        if (overlay && onOverlaySave) {
+            onOverlaySave(config);
+            return;
+        }
+
         if (!name.trim()) {
             setError("Template name is required");
             return;
@@ -424,8 +444,8 @@ export default function TemplateDesigner({
 
     const fontsUrl = getGoogleFontsUrl(getUsedFonts(config.elements));
 
-    return (
-        <div className="flex flex-col gap-6">
+    const content = (
+        <div className={overlay ? "flex flex-1 flex-col gap-4 overflow-hidden p-4" : "flex flex-col gap-6"}>
             {/* Load Google Fonts used in the template */}
             {fontsUrl && (
                 // eslint-disable-next-line @next/next/no-css-tags
@@ -467,10 +487,37 @@ export default function TemplateDesigner({
                     ))}
                 </select>
                 <div className="hidden flex-1 sm:block" />
-                <div className="flex w-full gap-2 sm:w-auto">
+                <div className="flex w-full items-center gap-2 sm:w-auto">
+                    {/* Undo/Redo */}
+                    <div className="flex items-center gap-0.5 rounded-lg border border-zinc-200 bg-white">
+                        <button
+                            onClick={undo}
+                            disabled={undoStack.current.length === 0}
+                            className="rounded-l-lg p-2 text-zinc-500 hover:bg-zinc-50 hover:text-zinc-800 disabled:text-zinc-200 disabled:hover:bg-transparent"
+                            title="Undo (Ctrl+Z)"
+                        >
+                            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M3 7v6h6" /><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6.69 3L3 13" />
+                            </svg>
+                        </button>
+                        <div className="h-5 w-px bg-zinc-200" />
+                        <button
+                            onClick={redo}
+                            disabled={redoStack.current.length === 0}
+                            className="rounded-r-lg p-2 text-zinc-500 hover:bg-zinc-50 hover:text-zinc-800 disabled:text-zinc-200 disabled:hover:bg-transparent"
+                            title="Redo (Ctrl+Y)"
+                        >
+                            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M21 7v6h-6" /><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6.69 3L21 13" />
+                            </svg>
+                        </button>
+                    </div>
+
                     <button
                         onClick={() => {
-                            if (draftRestored) {
+                            if (overlay && onOverlayCancel) {
+                                onOverlayCancel();
+                            } else if (draftRestored) {
                                 setShowLeaveConfirm(true);
                             } else {
                                 router.back();
@@ -484,7 +531,7 @@ export default function TemplateDesigner({
                         onClick={handleSave}
                         className="rounded-lg bg-zinc-900 px-5 py-2 text-sm font-medium text-white hover:bg-zinc-700"
                     >
-                        {templateId ? t.designer_update : t.designer_save}
+                        {overlay ? "Apply Changes" : templateId ? t.designer_update : t.designer_save}
                     </button>
                 </div>
             </div>
@@ -638,4 +685,14 @@ export default function TemplateDesigner({
             )}
         </div>
     );
+
+    if (overlay) {
+        return (
+            <div className="fixed inset-0 z-50 flex flex-col bg-white">
+                {content}
+            </div>
+        );
+    }
+
+    return content;
 }

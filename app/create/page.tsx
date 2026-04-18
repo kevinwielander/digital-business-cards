@@ -8,10 +8,7 @@ import { useTranslation } from "../components/I18nProvider";
 import { useToast } from "../components/ToastProvider";
 import { SAMPLE_TEMPLATES } from "@/lib/sample-templates";
 import CardPreviewRenderer from "../components/designer/CardPreviewRenderer";
-import DesignerCanvas from "../components/designer/DesignerCanvas";
-import ElementsToolbar from "../components/designer/ElementsToolbar";
-import PropertiesPanel from "../components/designer/PropertiesPanel";
-import LayersPanel from "../components/designer/LayersPanel";
+import TemplateDesigner from "../components/TemplateDesigner";
 import ImageUpload from "../components/ImageUpload";
 import type { TemplateConfig, SampleCardData, CardElement } from "@/lib/types";
 import { SAMPLE_CARD_DATA } from "@/lib/types";
@@ -542,153 +539,14 @@ ${elementsHtml}
             )}
             {/* Designer Overlay */}
             {showDesigner && selectedTemplate && (
-                <DesignerOverlay
-                    config={selectedTemplate}
-                    previewData={previewData}
-                    onSave={handleDesignerSave}
-                    onCancel={() => setShowDesigner(false)}
+                <TemplateDesigner
+                    initialConfig={selectedTemplate}
+                    overlay
+                    overlayPreviewData={previewData}
+                    onOverlaySave={handleDesignerSave}
+                    onOverlayCancel={() => setShowDesigner(false)}
                 />
             )}
-        </div>
-    );
-}
-
-function DesignerOverlay({
-    config: initialConfig,
-    previewData,
-    onSave,
-    onCancel,
-}: {
-    config: TemplateConfig;
-    previewData: SampleCardData;
-    onSave: (config: TemplateConfig) => void;
-    onCancel: () => void;
-}) {
-    const [config, setConfig] = useState(initialConfig);
-    const [selectedId, setSelectedId] = useState<string | null>(null);
-
-    const selectedElement = config.elements.find((el) => el.id === selectedId) ?? null;
-
-    function createElementByType(type: string): CardElement {
-        const id = crypto.randomUUID();
-        const base = { id, x: 20, y: 20, zIndex: 1 };
-        switch (type) {
-            case "text": return { ...base, type: "text", width: 160, height: 30, boundField: "custom", customText: "New text", fontSize: 14, fontFamily: "Inter, sans-serif", color: "#000", textAlign: "left" as const };
-            case "photo": return { ...base, type: "image", width: 80, height: 80, imageSource: "photo", objectFit: "cover" as const, borderRadius: 999 };
-            case "rectangle": return { ...base, type: "shape", x: 0, y: 0, width: 450, height: 8, backgroundColor: "#3b82f6", shapeRadius: 0 };
-            case "circle": return { ...base, type: "shape", width: 80, height: 80, backgroundColor: "#3b82f6", shapeRadius: 999 };
-            case "line": return { ...base, type: "shape", width: 200, height: 2, backgroundColor: "#d4d4d8", shapeRadius: 1 };
-            case "qrcode": return { ...base, type: "qrcode", x: 350, y: 170, width: 80, height: 80 };
-            case "save-contact": return { ...base, type: "save-contact", width: 120, height: 28, fontSize: 12, color: "#3b82f6", fontFamily: "Inter, sans-serif", fontWeight: "500", customText: "Save Contact" };
-            default: return { ...base, type: "text", width: 160, height: 30, boundField: "custom", customText: "New text", fontSize: 14, color: "#000" };
-        }
-    }
-
-    function addElement(element: CardElement) {
-        setConfig((prev) => {
-            const maxZ = prev.elements.reduce((max, el) => Math.max(max, el.zIndex), 0);
-            return { ...prev, elements: [...prev.elements, { ...element, zIndex: maxZ + 1 }] };
-        });
-        setSelectedId(element.id);
-    }
-
-    function updateElement(id: string, updates: Partial<CardElement>) {
-        setConfig((prev) => ({
-            ...prev,
-            elements: prev.elements.map((el) => el.id === id ? { ...el, ...updates } : el),
-        }));
-    }
-
-    function deleteElement(id: string) {
-        setConfig((prev) => ({ ...prev, elements: prev.elements.filter((el) => el.id !== id) }));
-        setSelectedId(null);
-    }
-
-    return (
-        <div className="fixed inset-0 z-50 flex flex-col bg-white">
-            {/* Top bar */}
-            <div className="flex items-center justify-between border-b border-zinc-200 px-6 py-3">
-                <h2 className="text-lg font-semibold">Customize Template</h2>
-                <div className="flex items-center gap-3">
-                    <button
-                        onClick={onCancel}
-                        className="rounded-lg px-4 py-2 text-sm text-zinc-500 hover:text-zinc-800"
-                    >
-                        Cancel
-                    </button>
-                    <button
-                        onClick={() => onSave(config)}
-                        className="rounded-lg bg-zinc-900 px-5 py-2 text-sm font-medium text-white hover:bg-zinc-700"
-                    >
-                        Apply Changes
-                    </button>
-                </div>
-            </div>
-
-            {/* Toolbar */}
-            <div className="border-b border-zinc-100 px-6 py-3">
-                <ElementsToolbar onAddElement={addElement} />
-            </div>
-
-            {/* Canvas + Properties */}
-            <div className="flex flex-1 overflow-hidden">
-                <div className="flex flex-1 items-start justify-center overflow-auto bg-zinc-50 p-8">
-                    <DesignerCanvas
-                        width={config.width}
-                        height={config.height}
-                        backgroundColor={config.backgroundColor}
-                        elements={config.elements}
-                        selectedId={selectedId}
-                        sampleData={previewData}
-                        showGrid={true}
-                        onSelect={setSelectedId}
-                        onUpdateElement={updateElement}
-                    />
-                </div>
-                <div className="flex w-72 shrink-0 flex-col border-l border-zinc-200 bg-white" style={{ height: "100%" }}>
-                    {/* Layers — top half */}
-                    <div className="flex-1 overflow-y-auto border-b border-zinc-200 p-3">
-                        <LayersPanel
-                            elements={config.elements}
-                            selectedId={selectedId}
-                            onSelect={setSelectedId}
-                            onReorder={(reordered) => setConfig((prev) => ({ ...prev, elements: reordered }))}
-                            onUpdate={updateElement}
-                            onDelete={deleteElement}
-                            onDuplicate={(id) => {
-                                const el = config.elements.find((e) => e.id === id);
-                                if (!el) return;
-                                const dup = { ...el, id: crypto.randomUUID(), x: el.x + 10, y: el.y + 10 };
-                                setConfig((prev) => ({ ...prev, elements: [...prev.elements, dup] }));
-                                setSelectedId(dup.id);
-                            }}
-                            onAddElement={(type) => addElement(createElementByType(type))}
-                        />
-                    </div>
-
-                    {/* Properties — bottom half */}
-                    <div className="flex-1 overflow-y-auto p-4">
-                        {selectedElement ? (
-                            <PropertiesPanel
-                                element={selectedElement}
-                                cardWidth={config.width}
-                                cardHeight={config.height}
-                                onUpdate={(updates) => updateElement(selectedElement.id, updates)}
-                                onDelete={() => deleteElement(selectedElement.id)}
-                                onDuplicate={() => {
-                                    const el = { ...selectedElement, id: crypto.randomUUID(), x: selectedElement.x + 10, y: selectedElement.y + 10 };
-                                    setConfig((prev) => ({ ...prev, elements: [...prev.elements, el] }));
-                                    setSelectedId(el.id);
-                                }}
-                                onMoveUp={() => updateElement(selectedElement.id, { zIndex: selectedElement.zIndex + 1 })}
-                                onMoveDown={() => updateElement(selectedElement.id, { zIndex: selectedElement.zIndex - 1 })}
-                            />
-                        ) : (
-                            <p className="text-sm text-zinc-400">Select an element to edit.</p>
-                        )}
-                    </div>
-                </div>
-            </div>
         </div>
     );
 }
