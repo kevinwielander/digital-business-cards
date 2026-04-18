@@ -278,6 +278,35 @@ export default function PropertiesPanel({
                             </span>
                         </div>
                     </div>
+
+                    <Field
+                        label="Link URL"
+                        value={element.linkUrl ?? ""}
+                        onChange={(v) => onUpdate({ linkUrl: v || undefined })}
+                        placeholder="e.g. https://linkedin.com/in/..."
+                    />
+
+                    {/* Icon color — only for icons with stored SVG */}
+                    {element.iconSvg && (
+                        <div>
+                            <label className="mb-1 block text-xs font-medium text-zinc-500">Icon Color</label>
+                            <input
+                                type="color"
+                                value={element.iconColor ?? "#000000"}
+                                onChange={(e) => {
+                                    const newColor = e.target.value;
+                                    const svg = element.iconSvg!;
+                                    const colored = svg.replace(/currentColor/g, newColor);
+                                    const dataUrl = `data:image/svg+xml;base64,${btoa(colored)}`;
+                                    onUpdate({
+                                        iconColor: newColor,
+                                        imageSource: `asset:${dataUrl}` as CardElement["imageSource"],
+                                    });
+                                }}
+                                className="h-8 w-full cursor-pointer rounded border border-zinc-300"
+                            />
+                        </div>
+                    )}
                 </Section>
             )}
 

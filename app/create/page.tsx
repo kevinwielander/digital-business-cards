@@ -224,7 +224,11 @@ export default function CreatePage() {
                 const radius = el.borderRadius ?? 0;
                 const fit = el.objectFit ?? "contain";
                 const imgOpacity = el.imageOpacity !== undefined ? `opacity:${el.imageOpacity};` : "";
-                if (src) return `<div style="${baseStyle}overflow:hidden;border-radius:${radius}px;"><img src="${src}" style="width:100%;height:100%;object-fit:${fit};border-radius:${radius}px;${imgOpacity}" /></div>`;
+                if (src) {
+                    const img = `<img src="${src}" style="width:100%;height:100%;object-fit:${fit};border-radius:${radius}px;${imgOpacity}" />`;
+                    if (el.linkUrl) return `<a href="${el.linkUrl}" target="_blank" rel="noopener noreferrer" style="${baseStyle}overflow:hidden;border-radius:${radius}px;display:block;">${img}</a>`;
+                    return `<div style="${baseStyle}overflow:hidden;border-radius:${radius}px;">${img}</div>`;
+                }
                 return "";
             }
 

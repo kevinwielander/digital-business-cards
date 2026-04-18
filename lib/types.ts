@@ -43,6 +43,10 @@ export interface CardElement {
     objectFit?: "cover" | "contain";
     // Image advanced
     imageOpacity?: number;
+    linkUrl?: string;
+    // Icon properties (SVG template stored separately for recoloring)
+    iconSvg?: string;
+    iconColor?: string;
     // Shape properties
     backgroundColor?: string;
     gradient?: string;
