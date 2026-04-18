@@ -251,6 +251,21 @@ export default function TemplateDesigner({
         loadAssetUrls();
     }, [config.elements]);
 
+    function createElementByType(type: string): CardElement {
+        const id = crypto.randomUUID();
+        const base = { id, x: 20, y: 20, zIndex: 1 };
+        switch (type) {
+            case "text": return { ...base, type: "text", width: 160, height: 30, boundField: "custom", customText: "New text", fontSize: 14, fontFamily: "Inter, sans-serif", color: "#000", textAlign: "left" as const };
+            case "photo": return { ...base, type: "image", width: 80, height: 80, imageSource: "photo", objectFit: "cover" as const, borderRadius: 999 };
+            case "rectangle": return { ...base, type: "shape", x: 0, y: 0, width: 450, height: 8, backgroundColor: "#3b82f6", shapeRadius: 0 };
+            case "circle": return { ...base, type: "shape", width: 80, height: 80, backgroundColor: "#3b82f6", shapeRadius: 999 };
+            case "line": return { ...base, type: "shape", width: 200, height: 2, backgroundColor: "#d4d4d8", shapeRadius: 1 };
+            case "qrcode": return { ...base, type: "qrcode", x: 350, y: 170, width: 80, height: 80 };
+            case "save-contact": return { ...base, type: "save-contact", width: 120, height: 28, fontSize: 12, color: "#3b82f6", fontFamily: "Inter, sans-serif", fontWeight: "500", customText: "Save Contact" };
+            default: return { ...base, type: "text", width: 160, height: 30, boundField: "custom", customText: "New text", fontSize: 14, color: "#000" };
+        }
+    }
+
     function addElement(element: CardElement) {
         setConfig((prev) => {
             // New elements get the highest z-index
@@ -580,10 +595,7 @@ export default function TemplateDesigner({
                             onUpdate={updateElement}
                             onDelete={deleteElement}
                             onDuplicate={duplicateElement}
-                            onAddElement={() => addElement({
-                                id: crypto.randomUUID(), type: "text", x: 20, y: 20, width: 160, height: 30, zIndex: 1,
-                                boundField: "custom", customText: "New text", fontSize: 14, fontFamily: "Inter, sans-serif", color: "#000", textAlign: "left",
-                            })}
+                            onAddElement={(type) => addElement(createElementByType(type))}
                         />
                     </div>
 

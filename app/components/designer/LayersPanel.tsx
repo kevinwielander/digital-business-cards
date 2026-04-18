@@ -13,7 +13,7 @@ interface LayersPanelProps {
     onUpdate: (id: string, updates: Partial<CardElement>) => void;
     onDelete: (id: string) => void;
     onDuplicate: (id: string) => void;
-    onAddElement?: () => void;
+    onAddElement?: (type: string) => void;
 }
 
 function getAutoLabel(el: CardElement): string {
@@ -113,8 +113,19 @@ function EditableLabel({ value, onChange }: { value: string; onChange: (v: strin
     );
 }
 
+const ADD_OPTIONS = [
+    { type: "text", label: "Text", tag: "T", color: "bg-blue-100 text-blue-600" },
+    { type: "photo", label: "Photo", tag: "I", color: "bg-purple-100 text-purple-600" },
+    { type: "rectangle", label: "Rectangle", tag: "S", color: "bg-amber-100 text-amber-600" },
+    { type: "circle", label: "Circle", tag: "S", color: "bg-amber-100 text-amber-600" },
+    { type: "line", label: "Line", tag: "S", color: "bg-amber-100 text-amber-600" },
+    { type: "qrcode", label: "QR Code", tag: "Q", color: "bg-green-100 text-green-600" },
+    { type: "save-contact", label: "Save Contact", tag: "↓", color: "bg-sky-100 text-sky-600" },
+];
+
 export default function LayersPanel({ elements, selectedId, onSelect, onReorder, onUpdate, onDelete, onDuplicate, onAddElement }: LayersPanelProps) {
     const [contextMenu, setContextMenu] = useState<{ id: string; x: number; y: number } | null>(null);
+    const [showAddMenu, setShowAddMenu] = useState(false);
 
     const sorted = [...elements].sort((a, b) => b.zIndex - a.zIndex);
 
@@ -139,13 +150,32 @@ export default function LayersPanel({ elements, selectedId, onSelect, onReorder,
                 <div className="flex items-center gap-1">
                     <span className="text-[10px] text-zinc-300">{elements.length} elements</span>
                     {onAddElement && (
-                        <button
-                            onClick={onAddElement}
-                            className="flex h-6 w-6 items-center justify-center rounded-md text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600"
-                            title="Add text element"
-                        >
-                            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
-                        </button>
+                        <div className="relative">
+                            <button
+                                onClick={() => setShowAddMenu(!showAddMenu)}
+                                className="flex h-6 w-6 items-center justify-center rounded-md text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600"
+                                title="Add element"
+                            >
+                                <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+                            </button>
+                            {showAddMenu && (
+                                <div className="absolute right-0 top-full z-50 mt-1 w-44 rounded-xl border border-zinc-200 bg-white py-1.5 shadow-xl">
+                                    {ADD_OPTIONS.map((opt) => (
+                                        <button
+                                            key={opt.type}
+                                            onClick={() => {
+                                                onAddElement(opt.type);
+                                                setShowAddMenu(false);
+                                            }}
+                                            className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm hover:bg-zinc-50"
+                                        >
+                                            <span className={`flex h-5 w-5 items-center justify-center rounded text-[9px] font-bold ${opt.color}`}>{opt.tag}</span>
+                                            {opt.label}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
                     )}
                 </div>
             </div>
