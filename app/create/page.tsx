@@ -565,7 +565,10 @@ function DesignerOverlay({
     const selectedElement = config.elements.find((el) => el.id === selectedId) ?? null;
 
     function addElement(element: CardElement) {
-        setConfig((prev) => ({ ...prev, elements: [...prev.elements, element] }));
+        setConfig((prev) => {
+            const maxZ = prev.elements.reduce((max, el) => Math.max(max, el.zIndex), 0);
+            return { ...prev, elements: [...prev.elements, { ...element, zIndex: maxZ + 1 }] };
+        });
         setSelectedId(element.id);
     }
 

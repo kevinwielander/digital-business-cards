@@ -177,13 +177,17 @@ export default function DesignerCanvas({
                     position={{ x: el.x, y: el.y }}
                     bounds="parent"
                     disableDragging={el.locked}
-                    enableResizing={!el.locked && el.width > 24 && el.height > 24 ? true : {
+                    enableResizing={el.locked ? false : (el.width <= 30 || el.height <= 10) ? {
                         bottomRight: true,
-                        top: false, right: false, bottom: false, left: false,
+                        top: false, right: el.height <= 10, bottom: el.width <= 30, left: false,
                         topRight: false, bottomLeft: false, topLeft: false,
+                    } : true}
+                    minWidth={8}
+                    minHeight={2}
+                    resizeHandleStyles={{
+                        bottom: { height: Math.max(10, 20 - el.height), bottom: -Math.max(5, 10 - el.height / 2) },
+                        right: { width: Math.max(10, 20 - el.width), right: -Math.max(5, 10 - el.width / 2) },
                     }}
-                    minWidth={12}
-                    minHeight={12}
                     onDrag={(_e, d) => {
                         handleDrag(el.id, d.x, d.y, el.width, el.height);
                     }}
