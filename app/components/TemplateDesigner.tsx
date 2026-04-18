@@ -94,6 +94,30 @@ export default function TemplateDesigner({
                 setDraftRestored(true);
             } catch { /* ignore */ }
         }
+
+        // Load preview data from /create flow
+        const createPreview = localStorage.getItem("cardgen_create_preview");
+        if (createPreview) {
+            try {
+                const p = JSON.parse(createPreview);
+                setPreviewData({
+                    ...SAMPLE_CARD_DATA,
+                    first_name: p.firstName || SAMPLE_CARD_DATA.first_name,
+                    last_name: p.lastName || SAMPLE_CARD_DATA.last_name,
+                    full_name: `${p.firstName || "Jane"} ${p.lastName || "Smith"}`,
+                    title: p.title || SAMPLE_CARD_DATA.title,
+                    email: p.email || SAMPLE_CARD_DATA.email,
+                    phone: p.phone || SAMPLE_CARD_DATA.phone,
+                    website: p.website || SAMPLE_CARD_DATA.website,
+                    company: p.company || SAMPLE_CARD_DATA.company,
+                    logoUrl: p.logoPreview || null,
+                    photoUrl: p.photoPreview || null,
+                });
+                // Clean up so it doesn't persist across sessions
+                localStorage.removeItem("cardgen_create_preview");
+            } catch { /* ignore */ }
+        }
+
         setReady(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);

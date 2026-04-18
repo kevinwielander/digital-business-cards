@@ -35,6 +35,7 @@ export async function proxy(request: NextRequest) {
   // Public routes — accessible without login
   const isPublicRoute =
     request.nextUrl.pathname === "/" ||
+    request.nextUrl.pathname.startsWith("/create") ||
     request.nextUrl.pathname.startsWith("/login") ||
     request.nextUrl.pathname.startsWith("/auth") ||
     request.nextUrl.pathname.startsWith("/api/proxy-image") ||

@@ -264,12 +264,7 @@ export default function DesignerCanvas({
                                     className="flex h-full w-full items-center justify-center overflow-hidden"
                                     style={{
                                         borderRadius: el.borderRadius ?? 0,
-                                        backgroundImage: imgSrc
-                                            ? "linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)"
-                                            : undefined,
-                                        backgroundSize: imgSrc ? "8px 8px" : undefined,
-                                        backgroundPosition: imgSrc ? "0 0, 0 4px, 4px -4px, -4px 0px" : undefined,
-                                        backgroundColor: imgSrc ? "#e8e8e8" : "#e4e4e7",
+                                        backgroundColor: imgSrc ? "transparent" : "#e4e4e7",
                                         boxShadow: el.boxShadow ?? undefined,
                                     }}
                                 >

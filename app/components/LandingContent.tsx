@@ -30,14 +30,19 @@ export default function LandingContent() {
                     <p className="mx-auto mt-5 max-w-lg text-lg leading-relaxed text-zinc-500">
                         {t.landing_subtitle}
                     </p>
-                    <div className="mt-8 flex items-center justify-center gap-4">
+                    <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
                         <Link
-                            href="/login"
+                            href="/create"
                             className="rounded-xl bg-zinc-900 px-7 py-3 text-sm font-semibold text-white shadow-lg shadow-zinc-900/20 transition hover:bg-zinc-700"
                         >
-                            {t.landing_cta}
+                            Create Your Card
                         </Link>
-                        <TryGuestButton className="rounded-xl border border-zinc-300 px-7 py-3 text-sm font-semibold text-zinc-700 transition hover:bg-white hover:shadow-sm" />
+                        <Link
+                            href="/login"
+                            className="rounded-xl border border-zinc-300 px-7 py-3 text-sm font-semibold text-zinc-700 transition hover:bg-white hover:shadow-sm"
+                        >
+                            Manage Team Cards
+                        </Link>
                     </div>
                 </div>
             </div>
