@@ -31,9 +31,9 @@ export default function LoginPage() {
             <div className="hidden flex-col justify-between bg-zinc-900 p-12 text-white lg:flex lg:w-1/2">
                 <div className="flex items-center gap-2">
                     <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/10">
-                        <span className="text-sm font-bold">CG</span>
+                        <span className="text-sm font-bold">OC</span>
                     </div>
-                    <span className="text-lg font-bold">CardGen</span>
+                    <span className="text-lg font-bold">OwnCardly</span>
                 </div>
 
                 <div>
@@ -72,9 +72,9 @@ export default function LoginPage() {
                     {/* Mobile logo */}
                     <div className="mb-8 flex items-center justify-center gap-2 lg:hidden">
                         <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-zinc-900">
-                            <span className="text-sm font-bold text-white">CG</span>
+                            <span className="text-sm font-bold text-white">OC</span>
                         </div>
-                        <span className="text-lg font-bold">CardGen</span>
+                        <span className="text-lg font-bold">OwnCardly</span>
                     </div>
 
                     <div className="mb-8 text-center">

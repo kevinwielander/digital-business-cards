@@ -1,5 +1,5 @@
 <p align="center">
-  <h1 align="center">CardGen</h1>
+  <h1 align="center">OwnCardly</h1>
   <p align="center">
     Open-source digital business card generator with a drag-and-drop designer.
     <br />

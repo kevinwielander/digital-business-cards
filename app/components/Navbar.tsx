@@ -16,7 +16,7 @@ export async function Navbar() {
                 <div className="flex items-center gap-4 sm:gap-8">
                     <MobileMenu isLoggedIn={!!user} />
                     <Link href="/" className="text-base font-bold tracking-tight text-zinc-900">
-                        CardGen
+                        OwnCardly
                     </Link>
                     <div className="hidden md:flex">
                         {user ? (
