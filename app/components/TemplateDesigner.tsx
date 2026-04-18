@@ -597,12 +597,21 @@ export default function TemplateDesigner({
                 <div className="flex min-w-0 flex-col gap-3 overflow-x-auto">
                     <div className="flex items-center gap-4">
                         <div>
-                            <label className="mb-1 block text-xs font-medium text-zinc-500">{t.designer_background}</label>
+                            <label className="mb-1 block text-xs font-medium text-zinc-500">Card</label>
                             <input
                                 type="color"
                                 value={config.backgroundColor}
                                 onChange={(e) => setConfig((prev) => ({ ...prev, backgroundColor: e.target.value }))}
-                                className="h-8 w-20 cursor-pointer rounded border border-zinc-300"
+                                className="h-8 w-14 cursor-pointer rounded border border-zinc-300"
+                            />
+                        </div>
+                        <div>
+                            <label className="mb-1 block text-xs font-medium text-zinc-500">Page</label>
+                            <input
+                                type="color"
+                                value={config.pageBackgroundColor ?? "#f4f4f5"}
+                                onChange={(e) => setConfig((prev) => ({ ...prev, pageBackgroundColor: e.target.value }))}
+                                className="h-8 w-14 cursor-pointer rounded border border-zinc-300"
                             />
                         </div>
                         <label className="flex items-center gap-2 text-sm">
@@ -614,7 +623,7 @@ export default function TemplateDesigner({
                             {t.designer_grid}
                         </label>
                     </div>
-                    <div className="rounded-xl bg-zinc-100 p-8">
+                    <div className="rounded-xl p-8" style={{ backgroundColor: config.pageBackgroundColor ?? "#f4f4f5" }}>
                         <DesignerCanvas
                             width={config.width ?? CARD_WIDTH}
                             height={config.height ?? CARD_HEIGHT}

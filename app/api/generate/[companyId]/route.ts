@@ -96,7 +96,7 @@ function renderElementHtml(
         const lineHeight = el.lineHeight ? `line-height:${el.lineHeight};` : "";
         const textTransform = el.textTransform && el.textTransform !== "none" ? `text-transform:${el.textTransform};` : "";
         const textShadow = el.textShadow ? `text-shadow:${el.textShadow};` : "";
-        const style = `${baseStyle}display:flex;align-items:center;justify-content:${justify};font-size:${el.fontSize ?? 14}px;font-family:${el.fontFamily ?? "sans-serif"};font-weight:${el.fontWeight ?? "normal"};color:${el.color ?? "#000"};overflow:hidden;${letterSpacing}${lineHeight}${textTransform}${textShadow}`;
+        const style = `${baseStyle}display:flex;align-items:center;justify-content:${justify};font-size:${el.fontSize ?? 14}px;font-family:${el.fontFamily ?? "sans-serif"};font-weight:${el.fontWeight ?? "normal"};color:${el.color ?? "#000"};overflow:hidden;white-space:nowrap;text-overflow:ellipsis;${letterSpacing}${lineHeight}${textTransform}${textShadow}`;
         return `<div style="${style}">${getLinkedText(el, data)}</div>`;
     }
 
@@ -168,8 +168,11 @@ function renderCardHtml(
 ${fontsUrl ? `<link rel="stylesheet" href="${fontsUrl}">` : ""}
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
-body { display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #f4f4f5; }
-.card { position: relative; width: ${config.width}px; height: ${config.height}px; background: ${config.backgroundColor}; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.1); }
+body { display: flex; justify-content: center; align-items: center; min-height: 100vh; background: ${config.pageBackgroundColor ?? "#f4f4f5"}; padding: 20px; }
+.card { position: relative; width: ${config.width}px; height: ${config.height}px; background: ${config.backgroundColor}; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.1); max-width: 100%; }
+@media (max-width: ${config.width + 40}px) {
+  .card { transform: scale(calc((100vw - 40px) / ${config.width})); transform-origin: center center; }
+}
 </style>
 </head>
 <body>
