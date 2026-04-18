@@ -12,6 +12,75 @@ function el(overrides: Partial<CardElement> & { id: string; type: CardElement["t
 }
 
 export const SAMPLE_TEMPLATES: { name: string; config: TemplateConfig }[] = [
+    // --- PORTRAIT TEMPLATES (mobile-first, show first) ---
+    {
+        name: "Modern Portrait",
+        config: {
+            width: 320,
+            height: 520,
+            backgroundColor: "#ffffff",
+            pageBackgroundColor: "#f0f0f0",
+            elements: [
+                el({ id: "s1", type: "shape", x: 0, y: 0, width: 320, height: 180, gradient: "linear-gradient(135deg, #667eea, #764ba2)", zIndex: 1 }),
+                el({ id: "p1", type: "image", x: 110, y: 120, width: 100, height: 100, imageSource: "photo", objectFit: "cover", borderRadius: 999, zIndex: 3, boxShadow: "0 8px 30px rgba(0,0,0,0.2)", border: "4px solid #ffffff" }),
+                el({ id: "t1", type: "text", x: 20, y: 240, width: 280, height: 30, boundField: "full_name", fontSize: 22, fontWeight: "bold", color: "#1a1a1a", textAlign: "center", zIndex: 2 }),
+                el({ id: "t2", type: "text", x: 20, y: 272, width: 280, height: 22, boundField: "title", fontSize: 13, color: "#64748b", textAlign: "center", zIndex: 2 }),
+                el({ id: "t3", type: "text", x: 20, y: 296, width: 280, height: 22, boundField: "company", fontSize: 13, fontWeight: "600", color: "#667eea", textAlign: "center", zIndex: 2 }),
+                el({ id: "s2", type: "shape", x: 120, y: 328, width: 80, height: 2, gradient: "linear-gradient(90deg, #667eea, #764ba2)", shapeRadius: 1, zIndex: 2 }),
+                el({ id: "t4", type: "text", x: 20, y: 345, width: 280, height: 18, boundField: "email", fontSize: 11, color: "#94a3b8", textAlign: "center", zIndex: 2 }),
+                el({ id: "t5", type: "text", x: 20, y: 365, width: 280, height: 18, boundField: "phone", fontSize: 11, color: "#94a3b8", textAlign: "center", zIndex: 2 }),
+                el({ id: "t6", type: "text", x: 20, y: 385, width: 280, height: 18, boundField: "website", fontSize: 11, color: "#94a3b8", textAlign: "center", zIndex: 2 }),
+                el({ id: "sc", type: "save-contact", x: 100, y: 420, width: 120, height: 22, fontSize: 11, color: "#667eea", fontWeight: "500", customText: "Save Contact", zIndex: 2 }),
+                el({ id: "q1", type: "qrcode", x: 120, y: 450, width: 80, height: 80, zIndex: 2, opacity: 0 }),
+            ],
+        },
+    },
+    {
+        name: "Dark Portrait",
+        config: {
+            width: 320,
+            height: 520,
+            backgroundColor: "#0f172a",
+            pageBackgroundColor: "#020617",
+            elements: [
+                el({ id: "p1", type: "image", x: 0, y: 0, width: 320, height: 200, imageSource: "photo", objectFit: "cover", zIndex: 1 }),
+                el({ id: "s1", type: "shape", x: 0, y: 150, width: 320, height: 80, gradient: "linear-gradient(180deg, transparent, #0f172a)", zIndex: 2 }),
+                el({ id: "t1", type: "text", x: 24, y: 220, width: 272, height: 28, boundField: "full_name", fontSize: 22, fontWeight: "bold", color: "#ffffff", zIndex: 3 }),
+                el({ id: "t2", type: "text", x: 24, y: 250, width: 272, height: 20, boundField: "title", fontSize: 12, color: "#94a3b8", zIndex: 3 }),
+                el({ id: "t3", type: "text", x: 24, y: 272, width: 272, height: 20, boundField: "company", fontSize: 12, fontWeight: "600", color: "#38bdf8", zIndex: 3 }),
+                el({ id: "s2", type: "shape", x: 24, y: 304, width: 60, height: 2, backgroundColor: "#38bdf8", shapeRadius: 1, zIndex: 3 }),
+                el({ id: "t4", type: "text", x: 24, y: 320, width: 272, height: 18, boundField: "email", fontSize: 11, color: "#64748b", zIndex: 3 }),
+                el({ id: "t5", type: "text", x: 24, y: 340, width: 272, height: 18, boundField: "phone", fontSize: 11, color: "#64748b", zIndex: 3 }),
+                el({ id: "t6", type: "text", x: 24, y: 360, width: 272, height: 18, boundField: "website", fontSize: 11, color: "#64748b", zIndex: 3 }),
+                el({ id: "sc", type: "save-contact", x: 24, y: 400, width: 120, height: 22, fontSize: 11, color: "#38bdf8", fontWeight: "500", customText: "Save Contact", zIndex: 3 }),
+                el({ id: "i1", type: "image", x: 220, y: 440, width: 76, height: 40, imageSource: "logo", objectFit: "contain", imageOpacity: 0.4, zIndex: 3 }),
+            ],
+        },
+    },
+    {
+        name: "Clean Portrait",
+        config: {
+            width: 320,
+            height: 520,
+            backgroundColor: "#fafafa",
+            pageBackgroundColor: "#e5e5e5",
+            elements: [
+                el({ id: "s1", type: "shape", x: 0, y: 0, width: 6, height: 520, gradient: "linear-gradient(180deg, #16a34a, #15803d)", zIndex: 1 }),
+                el({ id: "p1", type: "image", x: 30, y: 40, width: 90, height: 90, imageSource: "photo", objectFit: "cover", borderRadius: 999, zIndex: 2 }),
+                el({ id: "i1", type: "image", x: 220, y: 40, width: 76, height: 36, imageSource: "logo", objectFit: "contain", zIndex: 2 }),
+                el({ id: "t1", type: "text", x: 30, y: 150, width: 260, height: 28, boundField: "full_name", fontSize: 24, fontWeight: "bold", color: "#0f172a", fontFamily: "Georgia, serif", zIndex: 2 }),
+                el({ id: "t2", type: "text", x: 30, y: 182, width: 260, height: 20, boundField: "title", fontSize: 12, color: "#16a34a", textTransform: "uppercase", letterSpacing: 2, zIndex: 2 }),
+                el({ id: "t3", type: "text", x: 30, y: 206, width: 260, height: 20, boundField: "company", fontSize: 13, color: "#64748b", zIndex: 2 }),
+                el({ id: "s2", type: "shape", x: 30, y: 240, width: 260, height: 1, backgroundColor: "#e2e8f0", zIndex: 1 }),
+                el({ id: "t4", type: "text", x: 30, y: 260, width: 260, height: 18, boundField: "email", fontSize: 12, color: "#64748b", zIndex: 2 }),
+                el({ id: "t5", type: "text", x: 30, y: 282, width: 260, height: 18, boundField: "phone", fontSize: 12, color: "#64748b", zIndex: 2 }),
+                el({ id: "t6", type: "text", x: 30, y: 304, width: 260, height: 18, boundField: "website", fontSize: 12, color: "#64748b", zIndex: 2 }),
+                el({ id: "s3", type: "shape", x: 30, y: 340, width: 260, height: 1, backgroundColor: "#e2e8f0", zIndex: 1 }),
+                el({ id: "sc", type: "save-contact", x: 30, y: 360, width: 120, height: 22, fontSize: 11, color: "#16a34a", fontWeight: "500", customText: "Save Contact", zIndex: 2 }),
+            ],
+        },
+    },
+    // --- LANDSCAPE TEMPLATES ---
     {
         name: "Gradient Wave",
         config: {

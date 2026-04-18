@@ -5,6 +5,7 @@ import { useTranslation } from "./I18nProvider";
 import UseTemplateButton from "./UseTemplateButton";
 import DeleteTemplateButton from "./DeleteTemplateButton";
 import DuplicateTemplateButton from "./DuplicateTemplateButton";
+import TemplateCard from "./TemplateCard";
 import type { TemplateConfig } from "@/lib/types";
 
 interface Template {
@@ -72,48 +73,15 @@ export default function TemplatesContent({ userTemplates, sampleTemplates }: Tem
                 <div>
                     <h2 className="mb-2 text-sm font-semibold uppercase tracking-wider text-zinc-400">{t.templates_starter}</h2>
                     <p className="mb-4 text-sm text-zinc-500">{t.templates_starter_sub}</p>
-                    <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                         {sampleTemplates.map((template) => (
-                            <div key={template.id} className="rounded-xl border border-zinc-200 bg-white p-5">
-                                <div className="mb-3">
-                                    <div className="flex items-center gap-2">
-                                        <p className="font-semibold text-zinc-900">{template.name}</p>
-                                        <span className="rounded bg-sky-50 px-1.5 py-0.5 text-[10px] font-medium text-sky-600">{t.companies_sample}</span>
-                                    </div>
-                                    <p className="text-sm text-zinc-500">
-                                        {template.config?.width ?? 450} x {template.config?.height ?? 260}
-                                        {template.config?.elements && ` · ${template.config.elements.length} elements`}
-                                    </p>
-                                </div>
-                                <div className="mb-4 flex justify-center rounded-lg bg-zinc-50 p-4">
-                                    <div
-                                        className="relative overflow-hidden rounded shadow-sm"
-                                        style={{
-                                            width: (template.config?.width ?? 450) * 0.4,
-                                            height: (template.config?.height ?? 260) * 0.4,
-                                            backgroundColor: template.config?.backgroundColor ?? "#fff",
-                                        }}
-                                    >
-                                        {(template.config?.elements ?? [])
-                                            .filter((el) => el.type === "shape")
-                                            .map((el) => (
-                                                <div
-                                                    key={el.id}
-                                                    style={{
-                                                        position: "absolute",
-                                                        left: el.x * 0.4,
-                                                        top: el.y * 0.4,
-                                                        width: el.width * 0.4,
-                                                        height: el.height * 0.4,
-                                                        background: el.gradient || el.backgroundColor,
-                                                        borderRadius: el.shapeRadius ? el.shapeRadius * 0.4 : 0,
-                                                    }}
-                                                />
-                                            ))}
-                                    </div>
-                                </div>
-                                <UseTemplateButton name={template.name} config={template.config!} />
-                            </div>
+                            <TemplateCard
+                                key={template.id}
+                                name={template.name}
+                                config={template.config!}
+                                badge={t.companies_sample}
+                                action={<UseTemplateButton name={template.name} config={template.config!} />}
+                            />
                         ))}
                     </div>
                 </div>

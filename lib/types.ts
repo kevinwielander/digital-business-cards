@@ -64,6 +64,7 @@ export interface TemplateConfig {
     width: number;
     height: number;
     backgroundColor: string;
+    pageBackgroundColor?: string;
     elements: CardElement[];
 }
 

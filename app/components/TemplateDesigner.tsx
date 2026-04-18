@@ -148,6 +148,7 @@ export default function TemplateDesigner({
     const [previewData, setPreviewData] = useState<SampleCardData>(SAMPLE_CARD_DATA);
 
     useEffect(() => {
+        if (overlay) return; // In overlay mode, no company/person data needed
         async function loadData() {
             const supabase = createClient();
             const { data: companiesData } = await supabase
@@ -168,6 +169,7 @@ export default function TemplateDesigner({
         : people;
 
     useEffect(() => {
+        if (overlay) return; // In overlay mode, preview data is provided via props
         async function loadPreview() {
             const supabase = createClient();
             const company = companies.find((c) => c.id === selectedCompanyId);
@@ -454,38 +456,43 @@ export default function TemplateDesigner({
 
             {/* Top bar */}
             <div className="flex flex-wrap items-center gap-3 sm:gap-4">
-                <input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder={t.designer_name}
-                    className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium outline-none focus:border-zinc-500 sm:w-auto"
-                />
-                <select
-                    value={selectedCompanyId}
-                    onChange={(e) => {
-                        setSelectedCompanyId(e.target.value);
-                        setSelectedPersonId("");
-                    }}
-                    className="rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500"
-                >
-                    <option value="">Company: Sample</option>
-                    {companies.map((c) => (
-                        <option key={c.id} value={c.id}>{c.name}</option>
-                    ))}
-                </select>
-                <select
-                    value={selectedPersonId}
-                    onChange={(e) => setSelectedPersonId(e.target.value)}
-                    className="rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500"
-                >
-                    <option value="">Person: Sample</option>
-                    {filteredPeople.map((p) => (
-                        <option key={p.id} value={p.id}>
+                {!overlay && (
+                    <>
+                        <input
+                            type="text"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            placeholder={t.designer_name}
+                            className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm font-medium outline-none focus:border-zinc-500 sm:w-auto"
+                        />
+                        <select
+                            value={selectedCompanyId}
+                            onChange={(e) => {
+                                setSelectedCompanyId(e.target.value);
+                                setSelectedPersonId("");
+                            }}
+                            className="rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500"
+                        >
+                            <option value="">Company: Sample</option>
+                            {companies.map((c) => (
+                                <option key={c.id} value={c.id}>{c.name}</option>
+                            ))}
+                        </select>
+                        <select
+                            value={selectedPersonId}
+                            onChange={(e) => setSelectedPersonId(e.target.value)}
+                            className="rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500"
+                        >
+                            <option value="">Person: Sample</option>
+                            {filteredPeople.map((p) => (
+                                <option key={p.id} value={p.id}>
                             {p.first_name} {p.last_name}
                         </option>
                     ))}
                 </select>
+                    </>
+                )}
+                {overlay && <h2 className="text-lg font-semibold">Customize Template</h2>}
                 <div className="hidden flex-1 sm:block" />
                 <div className="flex w-full items-center gap-2 sm:w-auto">
                     {/* Undo/Redo */}

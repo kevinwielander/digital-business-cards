@@ -164,6 +164,137 @@ type TranslationStrings = {
     form_template: string;
     form_photo: string;
     form_no_templates: string;
+
+    // Designer extra
+    designer_customize: string;
+    designer_apply: string;
+    designer_draft_restored: string;
+    designer_discard_draft: string;
+    designer_card_color: string;
+    designer_page_color: string;
+    designer_select_element: string;
+
+    // Layers
+    layers_title: string;
+    layers_elements: string;
+    layers_add: string;
+    layers_empty: string;
+    layers_front: string;
+    layers_back: string;
+    layers_duplicate: string;
+    layers_show: string;
+    layers_hide: string;
+    layers_lock: string;
+    layers_unlock: string;
+    layers_bring_front: string;
+    layers_send_back: string;
+    layers_group: string;
+    layers_ungroup: string;
+
+    // Toolbar elements
+    el_text: string;
+    el_photo: string;
+    el_shapes: string;
+    el_rectangle: string;
+    el_rounded: string;
+    el_circle: string;
+    el_line: string;
+    el_qr: string;
+    el_save_contact: string;
+    el_upload: string;
+    el_uploading: string;
+    el_select_company_upload: string;
+    el_icons: string;
+    el_pick_icon: string;
+
+    // Properties panel
+    prop_lock_position: string;
+    prop_position_size: string;
+    prop_align_card: string;
+    prop_layer: string;
+    prop_forward: string;
+    prop_back_layer: string;
+    prop_appearance: string;
+    prop_opacity: string;
+    prop_rotation: string;
+    prop_box_shadow: string;
+    prop_text: string;
+    prop_bound_field: string;
+    prop_font_size: string;
+    prop_font: string;
+    prop_weight: string;
+    prop_align: string;
+    prop_transform: string;
+    prop_letter_spacing: string;
+    prop_line_height: string;
+    prop_color: string;
+    prop_text_shadow: string;
+    prop_image: string;
+    prop_source: string;
+    prop_select_company_assets: string;
+    prop_fit: string;
+    prop_contain: string;
+    prop_cover: string;
+    prop_border_radius: string;
+    prop_image_opacity: string;
+    prop_link_url: string;
+    prop_icon_color: string;
+    prop_shape: string;
+    prop_gradient: string;
+    prop_presets: string;
+    prop_border: string;
+    prop_qr_desc: string;
+    prop_save_button_text: string;
+    prop_person_photo: string;
+
+    // Assets
+    assets_title: string;
+    assets_desc: string;
+    assets_no_assets: string;
+    assets_loading: string;
+    assets_upload_image: string;
+
+    // Image upload
+    upload_crop: string;
+    upload_zoom: string;
+    upload_use_original: string;
+    upload_crop_use: string;
+    upload_remove: string;
+    upload_drag_drop: string;
+    upload_drop_here: string;
+
+    // Quick create
+    create_title: string;
+    create_subtitle: string;
+    create_step_template: string;
+    create_step_info: string;
+    create_step_download: string;
+    create_your_info: string;
+    create_info_subtitle: string;
+    create_change_template: string;
+    create_generate: string;
+    create_customize: string;
+    create_live_preview: string;
+    create_ready: string;
+    create_ready_desc: string;
+    create_download: string;
+    create_save_account: string;
+    create_edit_info: string;
+    create_try_another: string;
+    create_go_dashboard: string;
+
+    // Font weights
+    weight_light: string;
+    weight_normal: string;
+    weight_medium: string;
+    weight_semibold: string;
+    weight_bold: string;
+
+    // Text transforms
+    transform_none: string;
+    transform_upper: string;
+    transform_lower: string;
+    transform_capitalize: string;
 };
 
 const en: TranslationStrings = {
@@ -286,6 +417,137 @@ const en: TranslationStrings = {
     form_template: "Template",
     form_photo: "Photo",
     form_no_templates: "No templates available. Create one first.",
+
+    // Designer extra
+    designer_customize: "Customize Template",
+    designer_apply: "Apply Changes",
+    designer_draft_restored: "Unsaved draft restored.",
+    designer_discard_draft: "Discard draft",
+    designer_card_color: "Card",
+    designer_page_color: "Page",
+    designer_select_element: "Select an element to edit its properties.",
+
+    // Layers
+    layers_title: "Layers",
+    layers_elements: "elements",
+    layers_add: "Add element",
+    layers_empty: "No elements yet",
+    layers_front: "FRONT",
+    layers_back: "BACK",
+    layers_duplicate: "Duplicate",
+    layers_show: "Show",
+    layers_hide: "Hide",
+    layers_lock: "Lock",
+    layers_unlock: "Unlock",
+    layers_bring_front: "Bring to Front",
+    layers_send_back: "Send to Back",
+    layers_group: "Group with selected",
+    layers_ungroup: "Ungroup",
+
+    // Toolbar elements
+    el_text: "Text",
+    el_photo: "Photo",
+    el_shapes: "Shapes",
+    el_rectangle: "Rectangle",
+    el_rounded: "Rounded",
+    el_circle: "Circle",
+    el_line: "Line / Divider",
+    el_qr: "QR",
+    el_save_contact: "Save Contact",
+    el_upload: "Upload",
+    el_uploading: "Uploading...",
+    el_select_company_upload: "Select a company to upload",
+    el_icons: "Icons",
+    el_pick_icon: "Pick an icon",
+
+    // Properties panel
+    prop_lock_position: "Lock position",
+    prop_position_size: "Position & Size",
+    prop_align_card: "Align to Card",
+    prop_layer: "Layer",
+    prop_forward: "Forward",
+    prop_back_layer: "Back",
+    prop_appearance: "Appearance",
+    prop_opacity: "Opacity",
+    prop_rotation: "Rotation",
+    prop_box_shadow: "Box Shadow",
+    prop_text: "Text",
+    prop_bound_field: "Bound Field",
+    prop_font_size: "Font Size",
+    prop_font: "Font",
+    prop_weight: "Weight",
+    prop_align: "Align",
+    prop_transform: "Transform",
+    prop_letter_spacing: "Letter Spacing",
+    prop_line_height: "Line Height",
+    prop_color: "Color",
+    prop_text_shadow: "Text Shadow",
+    prop_image: "Image",
+    prop_source: "Source",
+    prop_select_company_assets: "Select a company to manage assets",
+    prop_fit: "Fit",
+    prop_contain: "Contain",
+    prop_cover: "Cover",
+    prop_border_radius: "Border Radius",
+    prop_image_opacity: "Image Opacity",
+    prop_link_url: "Link URL",
+    prop_icon_color: "Icon Color",
+    prop_shape: "Shape",
+    prop_gradient: "Gradient",
+    prop_presets: "Presets",
+    prop_border: "Border",
+    prop_qr_desc: "Generates a QR code containing the person's vCard data.",
+    prop_save_button_text: "Button Text",
+    prop_person_photo: "Person Photo",
+
+    // Assets
+    assets_title: "Assets",
+    assets_desc: "Images you can use in your business card templates (logos, backgrounds, icons).",
+    assets_no_assets: "No assets uploaded yet",
+    assets_loading: "Loading assets...",
+    assets_upload_image: "Upload image",
+
+    // Image upload
+    upload_crop: "Crop your image",
+    upload_zoom: "Zoom",
+    upload_use_original: "Use original",
+    upload_crop_use: "Crop & Use",
+    upload_remove: "Remove",
+    upload_drag_drop: "Drag & drop or click to browse",
+    upload_drop_here: "Drop here",
+
+    // Quick create
+    create_title: "Create Your Card",
+    create_subtitle: "Pick a template to get started. You can customize it later.",
+    create_step_template: "1. Template",
+    create_step_info: "2. Your Info",
+    create_step_download: "3. Download",
+    create_your_info: "Your Information",
+    create_info_subtitle: "Fill in your details — the preview updates live.",
+    create_change_template: "Change template",
+    create_generate: "Generate My Card",
+    create_customize: "Customize in Designer",
+    create_live_preview: "Live Preview",
+    create_ready: "Your Card is Ready!",
+    create_ready_desc: "Download your business card as an HTML file. Open it in any browser, share it, or upload it to your website.",
+    create_download: "Download Card",
+    create_save_account: "Save to Account",
+    create_edit_info: "Edit info",
+    create_try_another: "Try another template",
+    create_go_dashboard: "Go to Dashboard",
+
+    // Font weights
+    weight_light: "Light",
+    weight_normal: "Normal",
+    weight_medium: "Medium",
+    weight_semibold: "Semi Bold",
+    weight_bold: "Bold",
+
+    // Text transforms
+    transform_none: "None",
+    transform_upper: "UPPERCASE",
+    transform_lower: "lowercase",
+    transform_capitalize: "Capitalize",
 };
 
 const de: TranslationStrings = {
@@ -409,6 +671,137 @@ const de: TranslationStrings = {
     form_template: "Vorlage",
     form_photo: "Foto",
     form_no_templates: "Keine Vorlagen verfügbar. Erstellen Sie zuerst eine.",
+
+    // Designer extra
+    designer_customize: "Vorlage anpassen",
+    designer_apply: "Änderungen übernehmen",
+    designer_draft_restored: "Ungespeicherter Entwurf wiederhergestellt.",
+    designer_discard_draft: "Entwurf verwerfen",
+    designer_card_color: "Karte",
+    designer_page_color: "Seite",
+    designer_select_element: "Wählen Sie ein Element aus, um seine Eigenschaften zu bearbeiten.",
+
+    // Layers
+    layers_title: "Ebenen",
+    layers_elements: "Elemente",
+    layers_add: "Element hinzufügen",
+    layers_empty: "Noch keine Elemente",
+    layers_front: "VORNE",
+    layers_back: "HINTEN",
+    layers_duplicate: "Duplizieren",
+    layers_show: "Anzeigen",
+    layers_hide: "Ausblenden",
+    layers_lock: "Sperren",
+    layers_unlock: "Entsperren",
+    layers_bring_front: "In den Vordergrund",
+    layers_send_back: "In den Hintergrund",
+    layers_group: "Mit Auswahl gruppieren",
+    layers_ungroup: "Gruppierung aufheben",
+
+    // Toolbar elements
+    el_text: "Text",
+    el_photo: "Foto",
+    el_shapes: "Formen",
+    el_rectangle: "Rechteck",
+    el_rounded: "Abgerundet",
+    el_circle: "Kreis",
+    el_line: "Linie / Trenner",
+    el_qr: "QR",
+    el_save_contact: "Kontakt speichern",
+    el_upload: "Hochladen",
+    el_uploading: "Wird hochgeladen...",
+    el_select_company_upload: "Wählen Sie ein Unternehmen zum Hochladen",
+    el_icons: "Symbole",
+    el_pick_icon: "Symbol auswählen",
+
+    // Properties panel
+    prop_lock_position: "Position sperren",
+    prop_position_size: "Position & Größe",
+    prop_align_card: "An Karte ausrichten",
+    prop_layer: "Ebene",
+    prop_forward: "Vorwärts",
+    prop_back_layer: "Zurück",
+    prop_appearance: "Darstellung",
+    prop_opacity: "Deckkraft",
+    prop_rotation: "Drehung",
+    prop_box_shadow: "Schatten",
+    prop_text: "Text",
+    prop_bound_field: "Gebundenes Feld",
+    prop_font_size: "Schriftgröße",
+    prop_font: "Schriftart",
+    prop_weight: "Stärke",
+    prop_align: "Ausrichtung",
+    prop_transform: "Umwandlung",
+    prop_letter_spacing: "Zeichenabstand",
+    prop_line_height: "Zeilenhöhe",
+    prop_color: "Farbe",
+    prop_text_shadow: "Textschatten",
+    prop_image: "Bild",
+    prop_source: "Quelle",
+    prop_select_company_assets: "Wählen Sie ein Unternehmen zur Asset-Verwaltung",
+    prop_fit: "Einpassung",
+    prop_contain: "Einpassen",
+    prop_cover: "Füllen",
+    prop_border_radius: "Eckenradius",
+    prop_image_opacity: "Bilddeckkraft",
+    prop_link_url: "Link-URL",
+    prop_icon_color: "Symbolfarbe",
+    prop_shape: "Form",
+    prop_gradient: "Verlauf",
+    prop_presets: "Voreinstellungen",
+    prop_border: "Rahmen",
+    prop_qr_desc: "Erzeugt einen QR-Code mit den vCard-Daten der Person.",
+    prop_save_button_text: "Schaltflächentext",
+    prop_person_photo: "Personenfoto",
+
+    // Assets
+    assets_title: "Assets",
+    assets_desc: "Bilder, die Sie in Ihren Visitenkartenvorlagen verwenden können (Logos, Hintergründe, Symbole).",
+    assets_no_assets: "Noch keine Assets hochgeladen",
+    assets_loading: "Assets werden geladen...",
+    assets_upload_image: "Bild hochladen",
+
+    // Image upload
+    upload_crop: "Bild zuschneiden",
+    upload_zoom: "Zoom",
+    upload_use_original: "Original verwenden",
+    upload_crop_use: "Zuschneiden & verwenden",
+    upload_remove: "Entfernen",
+    upload_drag_drop: "Ziehen & ablegen oder klicken zum Durchsuchen",
+    upload_drop_here: "Hier ablegen",
+
+    // Quick create
+    create_title: "Karte erstellen",
+    create_subtitle: "Wählen Sie eine Vorlage. Sie können sie später anpassen.",
+    create_step_template: "1. Vorlage",
+    create_step_info: "2. Ihre Daten",
+    create_step_download: "3. Download",
+    create_your_info: "Ihre Informationen",
+    create_info_subtitle: "Geben Sie Ihre Daten ein — die Vorschau aktualisiert sich live.",
+    create_change_template: "Vorlage ändern",
+    create_generate: "Karte generieren",
+    create_customize: "Im Designer anpassen",
+    create_live_preview: "Live-Vorschau",
+    create_ready: "Ihre Karte ist fertig!",
+    create_ready_desc: "Laden Sie Ihre Visitenkarte als HTML-Datei herunter. Öffnen Sie sie in jedem Browser, teilen Sie sie oder laden Sie sie auf Ihre Website hoch.",
+    create_download: "Karte herunterladen",
+    create_save_account: "Im Konto speichern",
+    create_edit_info: "Daten bearbeiten",
+    create_try_another: "Andere Vorlage versuchen",
+    create_go_dashboard: "Zur Übersicht",
+
+    // Font weights
+    weight_light: "Leicht",
+    weight_normal: "Normal",
+    weight_medium: "Mittel",
+    weight_semibold: "Halbfett",
+    weight_bold: "Fett",
+
+    // Text transforms
+    transform_none: "Keine",
+    transform_upper: "GROSSBUCHSTABEN",
+    transform_lower: "kleinbuchstaben",
+    transform_capitalize: "Großschreibung",
 };
 
 const fr: TranslationStrings = { ...en, nav_dashboard: "Tableau de bord", nav_companies: "Entreprises", nav_templates: "Modèles", nav_sign_in: "Se connecter", nav_sign_out: "Se déconnecter", landing_headline_1: "Des cartes de visite élégantes,", landing_headline_2: "créées en minutes", landing_subtitle: "Créez des cartes de visite numériques pour toute votre équipe. Éditeur glisser-déposer, génération instantanée et partage de contacts en un clic.", landing_cta: "Commencer gratuitement", landing_try_guest: "Essayer sans compte", companies_title: "Entreprises", companies_subtitle: "Gérez vos entreprises et leurs équipes.", companies_add: "+ Ajouter une entreprise", people_title: "Personnes", people_add: "+ Ajouter une personne", people_generate: "Générer des cartes", people_import: "Importer CSV", templates_title: "Modèles", templates_new: "+ Nouveau modèle", templates_use: "Utiliser ce modèle", form_company_name: "Nom de l'entreprise", form_first_name: "Prénom", form_last_name: "Nom", form_job_title: "Titre du poste", form_email: "E-mail", form_phone: "Téléphone", modal_save: "Enregistrer", modal_cancel: "Annuler", modal_delete: "Supprimer" };

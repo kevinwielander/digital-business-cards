@@ -3,12 +3,13 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { TABLES, STORAGE } from "@/lib/supabase/constants";
+import { TABLES, STORAGE } from "@/lib/supabase/constants"; // used for save-to-account
 import { useTranslation } from "../components/I18nProvider";
 import { useToast } from "../components/ToastProvider";
 import { SAMPLE_TEMPLATES } from "@/lib/sample-templates";
 import CardPreviewRenderer from "../components/designer/CardPreviewRenderer";
 import TemplateDesigner from "../components/TemplateDesigner";
+import TemplateCard from "../components/TemplateCard";
 import ImageUpload from "../components/ImageUpload";
 import type { TemplateConfig, SampleCardData, CardElement } from "@/lib/types";
 import { SAMPLE_CARD_DATA } from "@/lib/types";
@@ -51,27 +52,14 @@ export default function CreatePage() {
     const [generating, setGenerating] = useState(false);
     const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
 
-    // Load sample templates from DB
+    // Use code-defined templates — always up to date
     useEffect(() => {
-        async function loadTemplates() {
-            const supabase = createClient();
-            const { data } = await supabase
-                .from(TABLES.TEMPLATES)
-                .select("*")
-                .eq("is_sample", true);
-            if (data && data.length > 0) {
-                setTemplates(data);
-            } else {
-                // Fallback to code-defined templates
-                setTemplates(SAMPLE_TEMPLATES.map((t, i) => ({
-                    id: `local-${i}`,
-                    name: t.name,
-                    config: t.config,
-                    is_sample: true,
-                })));
-            }
-        }
-        loadTemplates();
+        setTemplates(SAMPLE_TEMPLATES.map((t, i) => ({
+            id: `local-${i}`,
+            name: t.name,
+            config: t.config,
+            is_sample: true,
+        })));
     }, []);
 
     // Photo preview
@@ -357,23 +345,12 @@ ${elementsHtml}
 
                     <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                         {templates.map((tmpl) => (
-                            <button
+                            <TemplateCard
                                 key={tmpl.id}
+                                name={tmpl.name}
+                                config={tmpl.config}
                                 onClick={() => selectTemplate(tmpl)}
-                                className="group rounded-xl border border-zinc-200 bg-white p-4 text-left transition hover:border-zinc-400 hover:shadow-md"
-                            >
-                                <div className="mb-3 flex justify-center rounded-lg bg-zinc-50 p-4">
-                                    <CardPreviewRenderer
-                                        config={tmpl.config}
-                                        data={SAMPLE_CARD_DATA}
-                                        scale={0.55}
-                                    />
-                                </div>
-                                <p className="font-semibold text-zinc-900">{tmpl.name}</p>
-                                <p className="text-sm text-zinc-500">
-                                    {tmpl.config.width} x {tmpl.config.height} · {tmpl.config.elements.length} elements
-                                </p>
-                            </button>
+                            />
                         ))}
                     </div>
                 </div>
