@@ -1,12 +1,16 @@
 <p align="center">
-  <h1 align="center">OwnCardly</h1>
+  <h1 align="center"><i>Own</i>Cardly</h1>
   <p align="center">
-    Open-source digital business card generator with a drag-and-drop designer.
+    <strong>Digital business cards you actually own.</strong>
     <br />
-    <a href="https://owncardly.com"><strong>Live Demo</strong></a>
-    ·
+    Open-source. Self-hostable. No vendor lock-in.
+    <br /><br />
+    <a href="https://owncardly.com"><strong>🌐 Live App</strong></a>
+    &nbsp;&nbsp;·&nbsp;&nbsp;
+    <a href="https://owncardly.com/create"><strong>🚀 Create Your Card</strong></a>
+    &nbsp;&nbsp;·&nbsp;&nbsp;
     <a href="https://github.com/kevinwielander/digital-business-cards/issues">Report Bug</a>
-    ·
+    &nbsp;&nbsp;·&nbsp;&nbsp;
     <a href="https://github.com/kevinwielander/digital-business-cards/issues">Request Feature</a>
   </p>
 </p>
