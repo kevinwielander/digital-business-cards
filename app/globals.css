@@ -1,15 +1,27 @@
 @import "tailwindcss";
 
 :root {
-    --background: #f9fafb;
-    --foreground: #18181b;
+    --background: #FFF4E6;
+    --foreground: #1A1128;
+    --tangerine: #FF6B35;
+    --ink: #1A1128;
+    --lilac: #C4B5FD;
+    --cream: #FFF4E6;
+    --mint: #86EFAC;
+    --charcoal: #4A3B5C;
 }
 
 @theme inline {
     --color-background: var(--background);
     --color-foreground: var(--foreground);
-    --font-sans: var(--font-geist-sans);
-    --font-mono: var(--font-geist-mono);
+    --color-tangerine: var(--tangerine);
+    --color-ink: var(--ink);
+    --color-lilac: var(--lilac);
+    --color-cream: var(--cream);
+    --color-mint: var(--mint);
+    --color-charcoal: var(--charcoal);
+    --font-sans: 'Manrope', var(--font-geist-sans);
+    --font-mono: 'JetBrains Mono', var(--font-geist-mono);
 }
 
 body {

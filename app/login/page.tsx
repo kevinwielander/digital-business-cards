@@ -26,12 +26,14 @@ export default function LoginPage() {
     return (
         <div className="flex flex-1">
             {/* Left — branding panel */}
-            <div className="hidden flex-col justify-between bg-zinc-900 p-12 text-white lg:flex lg:w-1/2">
+            <div className="hidden flex-col justify-between bg-[#1A1128] p-12 text-white lg:flex lg:w-1/2">
                 <div className="flex items-center gap-2">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/10">
-                        <span className="text-sm font-bold">OC</span>
-                    </div>
-                    <span className="text-lg font-bold">OwnCardly</span>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="/icon.svg" alt="OwnCardly" className="h-9 w-9" />
+                    <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 800, fontSize: 20 }}>
+                        <span className="italic text-[#FF6B35]">Own</span>
+                        <span className="text-white">Cardly</span>
+                    </span>
                 </div>
 
                 <div>
@@ -69,10 +71,12 @@ export default function LoginPage() {
                 <div className="w-full max-w-sm">
                     {/* Mobile logo */}
                     <div className="mb-8 flex items-center justify-center gap-2 lg:hidden">
-                        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-zinc-900">
-                            <span className="text-sm font-bold text-white">OC</span>
-                        </div>
-                        <span className="text-lg font-bold">OwnCardly</span>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src="/icon.svg" alt="OwnCardly" className="h-9 w-9" />
+                        <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 800, fontSize: 20 }}>
+                            <span className="italic text-[#FF6B35]">Own</span>
+                            <span className="text-[#1A1128]">Cardly</span>
+                        </span>
                     </div>
 
                     <div className="mb-8 text-center">

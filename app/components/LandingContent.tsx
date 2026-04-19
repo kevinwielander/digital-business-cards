@@ -11,34 +11,34 @@ export default function LandingContent() {
             {/* Hero */}
             <div className="relative flex flex-col items-center justify-center overflow-hidden px-6 py-24">
                 <div className="pointer-events-none absolute inset-0 overflow-hidden">
-                    <div className="absolute -left-20 -top-20 h-72 w-72 rounded-full bg-sky-100 opacity-60 blur-3xl" />
-                    <div className="absolute -right-20 top-10 h-60 w-60 rounded-full bg-violet-100 opacity-60 blur-3xl" />
-                    <div className="absolute bottom-0 left-1/3 h-48 w-48 rounded-full bg-amber-100 opacity-50 blur-3xl" />
+                    <div className="absolute -left-20 -top-20 h-72 w-72 rounded-full bg-[#C4B5FD] opacity-30 blur-3xl" />
+                    <div className="absolute -right-20 top-10 h-60 w-60 rounded-full bg-[#FF6B35] opacity-20 blur-3xl" />
+                    <div className="absolute bottom-0 left-1/3 h-48 w-48 rounded-full bg-[#86EFAC] opacity-30 blur-3xl" />
                 </div>
 
                 <div className="relative text-center">
-                    <div className="mb-4 inline-block rounded-full bg-sky-50 px-4 py-1.5 text-xs font-medium text-sky-700">
+                    <div className="mb-4 inline-block rounded-full bg-[#FF6B35]/10 px-4 py-1.5 text-xs font-medium text-[#FF6B35]">
                         {t.landing_free_badge}
                     </div>
-                    <h1 className="mx-auto max-w-2xl text-3xl font-extrabold tracking-tight text-zinc-900 sm:text-5xl">
+                    <h1 className="mx-auto max-w-2xl text-3xl font-extrabold tracking-tight text-[#1A1128] sm:text-5xl" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
                         {t.landing_headline_1}{" "}
-                        <span className="bg-gradient-to-r from-sky-500 to-violet-500 bg-clip-text text-transparent">
+                        <span className="text-[#FF6B35]">
                             {t.landing_headline_2}
                         </span>
                     </h1>
-                    <p className="mx-auto mt-5 max-w-lg text-lg leading-relaxed text-zinc-500">
+                    <p className="mx-auto mt-5 max-w-lg text-lg leading-relaxed text-[#4A3B5C]">
                         {t.landing_subtitle}
                     </p>
                     <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
                         <Link
                             href="/create"
-                            className="rounded-xl bg-zinc-900 px-7 py-3 text-sm font-semibold text-white shadow-lg shadow-zinc-900/20 transition hover:bg-zinc-700"
+                            className="rounded-xl bg-[#FF6B35] px-7 py-3 text-sm font-semibold text-white shadow-lg shadow-[#FF6B35]/20 transition hover:bg-[#e55a2a]"
                         >
                             Create Your Card
                         </Link>
                         <Link
                             href="/login"
-                            className="rounded-xl border border-zinc-300 px-7 py-3 text-sm font-semibold text-zinc-700 transition hover:bg-white hover:shadow-sm"
+                            className="rounded-xl border border-[#1A1128]/20 px-7 py-3 text-sm font-semibold text-[#1A1128] transition hover:bg-white hover:shadow-sm"
                         >
                             Manage Team Cards
                         </Link>

@@ -1,0 +1,22 @@
+<svg width="600" height="160" viewBox="0 0 600 160" xmlns="http://www.w3.org/2000/svg">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@800&amp;display=swap');
+    .own { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 72px; font-style: italic; fill: #FF6B35; letter-spacing: -2px; }
+    .cardly { font-family: 'Bricolage Grotesque', sans-serif; font-weight: 800; font-size: 72px; fill: #1A1128; letter-spacing: -2px; }
+  </style>
+  <!-- Icon -->
+  <g transform="translate(80 80)">
+    <g transform="rotate(-12)">
+      <rect x="-24" y="-15" width="48" height="30" rx="6" fill="#C4B5FD"/>
+    </g>
+    <g transform="rotate(8) translate(2 -2)">
+      <rect x="-24" y="-15" width="48" height="30" rx="6" fill="#FF6B35"/>
+      <circle cx="-14" cy="-3" r="4.5" fill="#FFF4E6"/>
+      <rect x="-5" y="-5.5" width="20" height="3" rx="1.5" fill="#FFF4E6"/>
+      <rect x="-5" y="0.5" width="13" height="3" rx="1.5" fill="#FFF4E6" opacity="0.75"/>
+    </g>
+  </g>
+  <!-- Wordmark -->
+  <text x="155" y="102" class="own">Own</text>
+  <text x="283" y="102" class="cardly">Cardly</text>
+</svg>
