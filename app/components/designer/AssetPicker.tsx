@@ -32,7 +32,7 @@ export default function AssetPicker({ companyId, currentSource, onSelect }: Asse
     const [uploading, setUploading] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    const loadAssetsRef = useRef<() => Promise<void>>();
+    const loadAssetsRef = useRef<(() => Promise<void>) | undefined>(undefined);
 
     useEffect(() => {
         loadAssetsRef.current = async () => {

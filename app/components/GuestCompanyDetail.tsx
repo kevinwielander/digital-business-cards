@@ -221,7 +221,8 @@ export default function GuestCompanyDetail({ companyId }: { companyId: string })
                     onClose={() => { setShowPersonModal(false); setEditPerson(undefined); window.location.reload(); }}
                     companyId={companyId}
                     templates={templates}
-                    person={editPerson as unknown as (typeof editPerson)}
+                    // @ts-expect-error -- DbPerson type is compatible with PersonModal's person prop
+                    person={editPerson}
                 />
             )}
 

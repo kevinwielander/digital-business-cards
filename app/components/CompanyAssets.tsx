@@ -33,7 +33,7 @@ export default function CompanyAssets({ companyId }: CompanyAssetsProps) {
     const [uploading, setUploading] = useState(false);
     const [deleteAsset, setDeleteAsset] = useState<Asset | null>(null);
 
-    const loadAssetsRef = useRef<() => Promise<void>>();
+    const loadAssetsRef = useRef<(() => Promise<void>) | undefined>(undefined);
 
     useEffect(() => {
         loadAssetsRef.current = async () => {
