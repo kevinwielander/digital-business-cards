@@ -1,7 +1,5 @@
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { TABLES, STORAGE } from "@/lib/supabase/constants";
-import TryGuestButton from "./components/TryGuestButton";
 import { resolveImageUrl } from "@/lib/sample-utils";
 import GuestGate from "./components/GuestGate";
 import DashboardContent from "./components/DashboardContent";

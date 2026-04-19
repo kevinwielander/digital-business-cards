@@ -84,6 +84,7 @@ export default function DashboardContent({ companies, templates, totalPeople }: 
                             className="flex items-center gap-4 rounded-xl border border-zinc-200 bg-white p-4 transition hover:border-zinc-300 hover:shadow-sm"
                         >
                             {company.logoUrl ? (
+                                // eslint-disable-next-line @next/next/no-img-element
                                 <img src={company.logoUrl} alt={company.name} className="h-10 w-10 rounded-lg object-contain" />
                             ) : (
                                 <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-zinc-100 text-sm font-semibold text-zinc-500">

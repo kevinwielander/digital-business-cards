@@ -4,14 +4,12 @@ import { useState, useEffect } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { TABLES, STORAGE } from "@/lib/supabase/constants";
 import { isGuestMode } from "@/lib/guest-store";
-import { getSampleAssetUrl } from "@/lib/sample-utils";
 import { useGuest } from "./GuestProvider";
 import { useTranslation } from "./I18nProvider";
 import ImageUpload from "./ImageUpload";
 import ConfirmModal from "./ConfirmModal";
 import CardPreviewRenderer from "./designer/CardPreviewRenderer";
 import type { TemplateConfig, SampleCardData, CustomFieldDefinition } from "@/lib/types";
-import { SAMPLE_CARD_DATA } from "@/lib/types";
 
 interface Template {
     id: string;
@@ -58,14 +56,15 @@ export default function PersonModal({ onClose, companyId, templates, companyName
 
     // Load template config when templateId changes
     useEffect(() => {
+        let cancelled = false;
         async function loadTemplate() {
-            if (!templateId) { setTemplateConfig(null); return; }
+            if (!templateId) { if (!cancelled) setTemplateConfig(null); return; }
 
             // Check guest templates first
             if (isGuestMode()) {
                 const guestTemplate = guest.data.templates.find((t) => t.id === templateId);
                 if (guestTemplate) {
-                    setTemplateConfig(guestTemplate.config as TemplateConfig);
+                    if (!cancelled) setTemplateConfig(guestTemplate.config as TemplateConfig);
                     return;
                 }
             }
@@ -76,19 +75,22 @@ export default function PersonModal({ onClose, companyId, templates, companyName
                 .select("config")
                 .eq("id", templateId)
                 .single();
-            if (data) setTemplateConfig(data.config);
+            if (!cancelled && data) setTemplateConfig(data.config);
         }
         loadTemplate();
+        return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [templateId]);
 
     // Load signed URLs for asset images in the template
     useEffect(() => {
+        let cancelled = false;
         async function loadAssetUrls() {
             if (!templateConfig) return;
             const assetPaths = templateConfig.elements
                 .filter((el) => el.imageSource?.startsWith("asset:") && !el.imageSource?.startsWith("asset:data:"))
                 .map((el) => el.imageSource!.slice(6));
-            if (assetPaths.length === 0) { setAssetUrls({}); return; }
+            if (assetPaths.length === 0) { if (!cancelled) setAssetUrls({}); return; }
 
             const supabase = createClient();
             const urls: Record<string, string> = {};
@@ -96,9 +98,10 @@ export default function PersonModal({ onClose, companyId, templates, companyName
                 const { data } = await supabase.storage.from(STORAGE.ASSETS).createSignedUrl(path, 3600);
                 if (data?.signedUrl) urls[path] = data.signedUrl;
             }
-            setAssetUrls(urls);
+            if (!cancelled) setAssetUrls(urls);
         }
         loadAssetUrls();
+        return () => { cancelled = true; };
     }, [templateConfig]);
 
     // Update photo preview when a new file is selected

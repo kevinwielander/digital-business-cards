@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect, useCallback } from "react";
+import { createContext, useContext, useState, useCallback } from "react";
 import type { GuestData, GuestCompany, GuestPerson, GuestTemplate } from "@/lib/guest-store";
 import { getGuestData, setGuestData, isGuestMode, setGuestMode, clearGuestData } from "@/lib/guest-store";
 import type { TemplateConfig } from "@/lib/types";
@@ -30,15 +30,14 @@ export function useGuest() {
 }
 
 export default function GuestProvider({ children }: { children: React.ReactNode }) {
-    const [isGuest, setIsGuest] = useState(false);
-    const [data, setData] = useState<GuestData>({ companies: [], people: [], templates: [] });
-
-    useEffect(() => {
-        setIsGuest(isGuestMode());
-        if (isGuestMode()) {
-            setData(getGuestData());
-        }
-    }, []);
+    const [isGuest, setIsGuest] = useState(() => {
+        if (typeof window === "undefined") return false;
+        return isGuestMode();
+    });
+    const [data, setData] = useState<GuestData>(() => {
+        if (typeof window === "undefined") return { companies: [], people: [], templates: [] };
+        return isGuestMode() ? getGuestData() : { companies: [], people: [], templates: [] };
+    });
 
     const persist = useCallback((newData: GuestData) => {
         setData(newData);

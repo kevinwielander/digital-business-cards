@@ -1,11 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import TryGuestButton from "../components/TryGuestButton";
 import { useTranslation } from "../components/I18nProvider";
-import LanguageSwitcher from "../components/LanguageSwitcher";
 
 export default function LoginPage() {
     const [error, setError] = useState<string | null>(null);

@@ -112,6 +112,7 @@ export default function GenerateModal({ companyId, people, onClose }: GenerateMo
                                 className="rounded border-zinc-300"
                             />
                             {person.photoSignedUrl ? (
+                                // eslint-disable-next-line @next/next/no-img-element
                                 <img
                                     src={person.photoSignedUrl}
                                     alt={`${person.first_name} ${person.last_name}`}

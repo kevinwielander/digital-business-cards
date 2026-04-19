@@ -1,7 +1,7 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect } from "react";
-import { translations, LANGUAGES } from "@/lib/i18n/translations";
+import { createContext, useContext, useState } from "react";
+import { translations } from "@/lib/i18n/translations";
 import type { LangCode } from "@/lib/i18n/translations";
 
 type TranslationStrings = typeof translations["en"];
@@ -37,13 +37,11 @@ function detectLang(): LangCode {
 }
 
 export default function I18nProvider({ children }: { children: React.ReactNode }) {
-    const [lang, setLangState] = useState<LangCode>("en");
-    const [mounted, setMounted] = useState(false);
-
-    useEffect(() => {
-        setLangState(detectLang());
-        setMounted(true);
-    }, []);
+    const [lang, setLangState] = useState<LangCode>(() => {
+        if (typeof window === "undefined") return "en";
+        return detectLang();
+    });
+    const [mounted] = useState(() => typeof window !== "undefined");
 
     function setLang(newLang: LangCode) {
         setLangState(newLang);

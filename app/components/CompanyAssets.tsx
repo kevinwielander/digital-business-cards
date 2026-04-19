@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { STORAGE } from "@/lib/supabase/constants";
 import { useTranslation } from "./I18nProvider";
@@ -33,40 +33,79 @@ export default function CompanyAssets({ companyId }: CompanyAssetsProps) {
     const [uploading, setUploading] = useState(false);
     const [deleteAsset, setDeleteAsset] = useState<Asset | null>(null);
 
-    async function loadAssets() {
-        const supabase = createClient();
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) { setLoading(false); return; }
-
-        const folder = `${user.id}/${companyId}`;
-        const { data: files } = await supabase.storage
-            .from(STORAGE.ASSETS)
-            .list(folder, { sortBy: { column: "created_at", order: "desc" } });
-
-        if (files) {
-            const list: Asset[] = [];
-            for (const file of files) {
-                if (file.name === ".emptyFolderPlaceholder") continue;
-                const storagePath = `${folder}/${file.name}`;
-                const { data } = await supabase.storage
-                    .from(STORAGE.ASSETS)
-                    .createSignedUrl(storagePath, 3600);
-                if (data?.signedUrl) {
-                    list.push({
-                        name: file.name,
-                        displayName: parseDisplayName(file.name),
-                        storagePath,
-                        signedUrl: data.signedUrl,
-                    });
-                }
-            }
-            setAssets(list);
-        }
-        setLoading(false);
-    }
+    const loadAssetsRef = useRef<() => Promise<void>>();
 
     useEffect(() => {
-        loadAssets();
+        loadAssetsRef.current = async () => {
+            const supabase = createClient();
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) { setLoading(false); return; }
+
+            const folder = `${user.id}/${companyId}`;
+            const { data: files } = await supabase.storage
+                .from(STORAGE.ASSETS)
+                .list(folder, { sortBy: { column: "created_at", order: "desc" } });
+
+            if (files) {
+                const list: Asset[] = [];
+                for (const file of files) {
+                    if (file.name === ".emptyFolderPlaceholder") continue;
+                    const storagePath = `${folder}/${file.name}`;
+                    const { data } = await supabase.storage
+                        .from(STORAGE.ASSETS)
+                        .createSignedUrl(storagePath, 3600);
+                    if (data?.signedUrl) {
+                        list.push({
+                            name: file.name,
+                            displayName: parseDisplayName(file.name),
+                            storagePath,
+                            signedUrl: data.signedUrl,
+                        });
+                    }
+                }
+                setAssets(list);
+            }
+            setLoading(false);
+        };
+    }, [companyId]);
+
+    useEffect(() => {
+        let cancelled = false;
+        async function load() {
+            const supabase = createClient();
+            const { data: { user } } = await supabase.auth.getUser();
+            if (cancelled) return;
+            if (!user) { setLoading(false); return; }
+
+            const folder = `${user.id}/${companyId}`;
+            const { data: files } = await supabase.storage
+                .from(STORAGE.ASSETS)
+                .list(folder, { sortBy: { column: "created_at", order: "desc" } });
+
+            if (cancelled) return;
+            if (files) {
+                const list: Asset[] = [];
+                for (const file of files) {
+                    if (file.name === ".emptyFolderPlaceholder") continue;
+                    const storagePath = `${folder}/${file.name}`;
+                    const { data } = await supabase.storage
+                        .from(STORAGE.ASSETS)
+                        .createSignedUrl(storagePath, 3600);
+                    if (data?.signedUrl) {
+                        list.push({
+                            name: file.name,
+                            displayName: parseDisplayName(file.name),
+                            storagePath,
+                            signedUrl: data.signedUrl,
+                        });
+                    }
+                }
+                if (!cancelled) setAssets(list);
+            }
+            if (!cancelled) setLoading(false);
+        }
+        load();
+        return () => { cancelled = true; };
     }, [companyId]);
 
     async function handleUpload(files: File[]) {
@@ -85,7 +124,7 @@ export default function CompanyAssets({ companyId }: CompanyAssetsProps) {
                 .upload(storagePath, file, { contentType: file.type });
         }
 
-        await loadAssets();
+        await loadAssetsRef.current?.();
         setUploading(false);
     }
 
@@ -94,7 +133,7 @@ export default function CompanyAssets({ companyId }: CompanyAssetsProps) {
         const supabase = createClient();
         await supabase.storage.from(STORAGE.ASSETS).remove([deleteAsset.storagePath]);
         setDeleteAsset(null);
-        await loadAssets();
+        await loadAssetsRef.current?.();
     }
 
     return (
@@ -122,6 +161,7 @@ export default function CompanyAssets({ companyId }: CompanyAssetsProps) {
                                     className="group relative overflow-hidden rounded-xl border border-zinc-200 bg-white"
                                 >
                                     <div className="flex h-24 items-center justify-center bg-zinc-50 p-2">
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
                                         <img
                                             src={asset.signedUrl}
                                             alt={asset.displayName}

@@ -23,16 +23,18 @@ export default function GuestTemplatesPage() {
     const [sampleTemplates, setSampleTemplates] = useState<SampleTemplate[]>([]);
 
     useEffect(() => {
-        async function loadSamples() {
+        let cancelled = false;
+        async function load() {
             const supabase = createClient();
             const { data } = await supabase
                 .from(TABLES.TEMPLATES)
                 .select("*")
                 .eq("is_sample", true)
                 .order("created_at", { ascending: true });
-            if (data) setSampleTemplates(data);
+            if (!cancelled && data) setSampleTemplates(data);
         }
-        loadSamples();
+        load();
+        return () => { cancelled = true; };
     }, []);
 
     if (!isGuest) return null;

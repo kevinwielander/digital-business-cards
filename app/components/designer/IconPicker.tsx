@@ -41,24 +41,6 @@ export default function IconPicker({ onAddIcon }: IconPickerProps) {
     const [open, setOpen] = useState(false);
     const [color, setColor] = useState("#000000");
 
-    function handleSelect(icon: { name: string; svg: string }) {
-        const dataUrl = svgToDataUrl(icon.svg, color);
-
-        onAddIcon({
-            id: crypto.randomUUID(),
-            type: "image",
-            x: 20,
-            y: 20,
-            width: 20,
-            height: 20,
-            zIndex: 10,
-            imageSource: `data:${dataUrl}` as `asset:${string}`,
-            objectFit: "contain",
-            borderRadius: 0,
-        });
-        setOpen(false);
-    }
-
     // For icons we store the SVG data URL directly in a custom field on the element
     // But since imageSource is typed, we'll use a workaround: store as customText on a special "icon" approach
     // Actually simpler: just create an inline SVG element rendered as an image
@@ -120,6 +102,7 @@ export default function IconPicker({ onAddIcon }: IconPickerProps) {
                                         className="flex h-9 w-9 items-center justify-center rounded-lg border border-zinc-100 transition hover:bg-zinc-100"
                                         title={icon.name}
                                     >
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
                                         <img
                                             src={svgToDataUrl(icon.svg, color)}
                                             alt={icon.name}

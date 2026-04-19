@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
-import Head from "next/head";
 import { createClient } from "@/lib/supabase/client";
 import { TABLES, STORAGE } from "@/lib/supabase/constants";
 import { getGoogleFontsUrl, getUsedFonts } from "@/lib/fonts";
@@ -149,19 +148,22 @@ export default function TemplateDesigner({
 
     useEffect(() => {
         if (overlay) return; // In overlay mode, no company/person data needed
+        let cancelled = false;
         async function loadData() {
             const supabase = createClient();
             const { data: companiesData } = await supabase
                 .from(TABLES.COMPANIES)
                 .select("id, name, logo_url, website, is_sample, custom_field_definitions");
-            if (companiesData) setCompanies(companiesData);
+            if (!cancelled && companiesData) setCompanies(companiesData);
 
             const { data: peopleData } = await supabase
                 .from(TABLES.PEOPLE)
                 .select("id, first_name, last_name, title, email, phone, photo_url, company_id, is_sample, custom_fields");
-            if (peopleData) setPeople(peopleData);
+            if (!cancelled && peopleData) setPeople(peopleData);
         }
         loadData();
+        return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const filteredPeople = selectedCompanyId
@@ -170,6 +172,7 @@ export default function TemplateDesigner({
 
     useEffect(() => {
         if (overlay) return; // In overlay mode, preview data is provided via props
+        let cancelled = false;
         async function loadPreview() {
             const supabase = createClient();
             const company = companies.find((c) => c.id === selectedCompanyId);
@@ -199,23 +202,27 @@ export default function TemplateDesigner({
                 }
             }
 
-            setPreviewData({
-                ...SAMPLE_CARD_DATA,
-                ...(company ? { company: company.name, website: (company as { website?: string }).website ?? "" } : {}),
-                ...(person ? {
-                    first_name: person.first_name,
-                    last_name: person.last_name,
-                    full_name: `${person.first_name} ${person.last_name}`,
-                    title: person.title ?? "",
-                    email: person.email ?? "",
-                    phone: person.phone ?? "",
-                } : {}),
-                logoUrl,
-                photoUrl,
-                custom_fields: person?.custom_fields ?? {},
-            });
+            if (!cancelled) {
+                setPreviewData({
+                    ...SAMPLE_CARD_DATA,
+                    ...(company ? { company: company.name, website: (company as { website?: string }).website ?? "" } : {}),
+                    ...(person ? {
+                        first_name: person.first_name,
+                        last_name: person.last_name,
+                        full_name: `${person.first_name} ${person.last_name}`,
+                        title: person.title ?? "",
+                        email: person.email ?? "",
+                        phone: person.phone ?? "",
+                    } : {}),
+                    logoUrl,
+                    photoUrl,
+                    custom_fields: person?.custom_fields ?? {},
+                });
+            }
         }
         loadPreview();
+        return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [selectedCompanyId, selectedPersonId, companies, people]);
 
     const selectedElement = config.elements.find((el) => el.id === selectedId) ?? null;
@@ -228,6 +235,7 @@ export default function TemplateDesigner({
             return;
         }
         localStorage.setItem(draftKey, JSON.stringify({ name, config }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [name, config, draftKey]);
 
     const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
@@ -246,12 +254,13 @@ export default function TemplateDesigner({
 
     // Load signed URLs for asset images used in the template
     useEffect(() => {
+        let cancelled = false;
         async function loadAssetUrls() {
             const assetPaths = config.elements
                 .filter((el) => el.imageSource?.startsWith("asset:") && !el.imageSource?.startsWith("asset:data:"))
                 .map((el) => el.imageSource!.slice(6));
 
-            if (assetPaths.length === 0) { setAssetUrls({}); return; }
+            if (assetPaths.length === 0) { if (!cancelled) setAssetUrls({}); return; }
 
             const supabase = createClient();
             const urls: Record<string, string> = {};
@@ -263,9 +272,11 @@ export default function TemplateDesigner({
                     urls[path] = assetUrls[path];
                 }
             }
-            setAssetUrls(urls);
+            if (!cancelled) setAssetUrls(urls);
         }
         loadAssetUrls();
+        return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [config.elements]);
 
     function createElementByType(type: string): CardElement {
@@ -361,6 +372,7 @@ export default function TemplateDesigner({
                 setSelectedId(null);
             }
         },
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         [selectedId]
     );
 
@@ -450,7 +462,6 @@ export default function TemplateDesigner({
         <div className={overlay ? "flex flex-1 flex-col gap-4 overflow-hidden p-4" : "flex flex-col gap-6"}>
             {/* Load Google Fonts used in the template */}
             {fontsUrl && (
-                // eslint-disable-next-line @next/next/no-css-tags
                 <link rel="stylesheet" href={fontsUrl} />
             )}
 

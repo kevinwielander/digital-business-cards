@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { TABLES, STORAGE } from "@/lib/supabase/constants"; // used for save-to-account
 import { useTranslation } from "../components/I18nProvider";
@@ -11,8 +10,7 @@ import CardPreviewRenderer from "../components/designer/CardPreviewRenderer";
 import TemplateDesigner from "../components/TemplateDesigner";
 import TemplateCard from "../components/TemplateCard";
 import ImageUpload from "../components/ImageUpload";
-import type { TemplateConfig, SampleCardData, CardElement } from "@/lib/types";
-import { SAMPLE_CARD_DATA } from "@/lib/types";
+import type { TemplateConfig, SampleCardData } from "@/lib/types";
 import Link from "next/link";
 
 interface DbTemplate {
@@ -23,7 +21,6 @@ interface DbTemplate {
 }
 
 export default function CreatePage() {
-    const router = useRouter();
     const { t } = useTranslation();
     const { toast } = useToast();
 

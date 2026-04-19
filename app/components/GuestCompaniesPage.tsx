@@ -24,15 +24,17 @@ export default function GuestCompaniesPage() {
     const [sampleCompanies, setSampleCompanies] = useState<SampleCompany[]>([]);
 
     useEffect(() => {
-        async function loadSamples() {
+        let cancelled = false;
+        async function load() {
             const supabase = createClient();
             const { data } = await supabase
                 .from(TABLES.COMPANIES)
                 .select("*")
                 .eq("is_sample", true);
-            if (data) setSampleCompanies(data);
+            if (!cancelled && data) setSampleCompanies(data);
         }
-        loadSamples();
+        load();
+        return () => { cancelled = true; };
     }, []);
 
     if (!isGuest) return null;
@@ -77,6 +79,7 @@ export default function GuestCompaniesPage() {
                             className="flex items-center gap-4 rounded-xl border border-zinc-200 bg-white p-5 transition hover:border-zinc-300 hover:shadow-sm"
                         >
                             {company.logoUrl ? (
+                                // eslint-disable-next-line @next/next/no-img-element
                                 <img src={company.logoUrl} alt={company.name} className="h-12 w-12 rounded-lg object-contain" />
                             ) : (
                                 <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-zinc-100 text-lg font-semibold text-zinc-500">

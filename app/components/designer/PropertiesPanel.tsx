@@ -362,7 +362,7 @@ export default function PropertiesPanel({
             {element.type === "qrcode" && (
                 <Section title="QR Code">
                     <p className="text-xs text-zinc-500">
-                        Generates a QR code containing the person's vCard data. Recipients can scan to save the contact.
+                        Generates a QR code containing the person&apos;s vCard data. Recipients can scan to save the contact.
                     </p>
                 </Section>
             )}

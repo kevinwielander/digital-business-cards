@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useTranslation } from "./I18nProvider";
-import TryGuestButton from "./TryGuestButton";
 
 export default function LandingContent() {
     const { t } = useTranslation();

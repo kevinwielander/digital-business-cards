@@ -46,7 +46,8 @@ export default function GuestCompanyDetail({ companyId }: { companyId: string })
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        async function loadSample() {
+        let cancelled = false;
+        async function load() {
             const supabase = createClient();
             const { data: company } = await supabase
                 .from(TABLES.COMPANIES)
@@ -55,6 +56,7 @@ export default function GuestCompanyDetail({ companyId }: { companyId: string })
                 .eq("is_sample", true)
                 .single();
 
+            if (cancelled) return;
             if (company) {
                 setSampleCompany(company);
                 const { data: people } = await supabase
@@ -62,11 +64,12 @@ export default function GuestCompanyDetail({ companyId }: { companyId: string })
                     .select("*")
                     .eq("company_id", companyId)
                     .eq("is_sample", true);
-                setSamplePeople(people ?? []);
+                if (!cancelled) setSamplePeople(people ?? []);
             }
-            setLoading(false);
+            if (!cancelled) setLoading(false);
         }
-        loadSample();
+        load();
+        return () => { cancelled = true; };
     }, [companyId]);
 
     if (!isGuest) return null;
@@ -91,6 +94,7 @@ export default function GuestCompanyDetail({ companyId }: { companyId: string })
 
                 <div className="mb-8 flex items-center gap-5">
                     {logoUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
                         <img src={logoUrl} alt={sampleCompany.name} className="h-14 w-14 rounded-xl object-contain" />
                     ) : (
                         <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-zinc-100 text-xl font-bold text-zinc-400">
@@ -123,6 +127,7 @@ export default function GuestCompanyDetail({ companyId }: { companyId: string })
                             className="flex items-center gap-4 rounded-xl border border-zinc-200 bg-white p-4"
                         >
                             {person.photoSignedUrl ? (
+                                // eslint-disable-next-line @next/next/no-img-element
                                 <img src={person.photoSignedUrl} alt={`${person.first_name} ${person.last_name}`} className="h-10 w-10 shrink-0 rounded-full object-cover" />
                             ) : (
                                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-zinc-200 text-sm font-medium text-zinc-500">
@@ -216,7 +221,7 @@ export default function GuestCompanyDetail({ companyId }: { companyId: string })
                     onClose={() => { setShowPersonModal(false); setEditPerson(undefined); window.location.reload(); }}
                     companyId={companyId}
                     templates={templates}
-                    person={editPerson as any}
+                    person={editPerson as unknown as (typeof editPerson)}
                 />
             )}
 

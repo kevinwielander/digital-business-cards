@@ -288,6 +288,7 @@ export default function DesignerCanvas({
                                     }}
                                 >
                                     {imgSrc ? (
+                                        // eslint-disable-next-line @next/next/no-img-element
                                         <img src={imgSrc} alt={imgLabel} className="h-full w-full" style={{ objectFit: el.objectFit ?? "contain", borderRadius: el.borderRadius ?? 0, opacity: el.imageOpacity ?? 1 }} />
                                     ) : (
                                         <span className="text-xs text-zinc-400">{imgLabel}</span>

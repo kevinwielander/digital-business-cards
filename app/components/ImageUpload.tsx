@@ -41,11 +41,6 @@ async function getCroppedImage(imageSrc: string, crop: Area): Promise<File> {
     });
 }
 
-async function dataUrlToFile(dataUrl: string, filename: string): Promise<File> {
-    const res = await fetch(dataUrl);
-    const blob = await res.blob();
-    return new File([blob], filename, { type: blob.type });
-}
 
 export default function ImageUpload({
     onImageReady,
@@ -190,6 +185,7 @@ export default function ImageUpload({
             {/* Preview */}
             {preview && !cropping && (
                 <div className="mb-3 flex items-center gap-3">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                         src={preview}
                         alt="Preview"

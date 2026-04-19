@@ -60,6 +60,7 @@ export default function CompanyDetailContent({ company, logoUrl, people, templat
             <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-5">
                     {logoUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
                         <img src={logoUrl} alt={company.name} className="h-14 w-14 rounded-xl object-contain" />
                     ) : (
                         <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-zinc-100 text-xl font-bold text-zinc-400">

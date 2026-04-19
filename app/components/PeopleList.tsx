@@ -98,6 +98,7 @@ export default function PeopleList({ people, companyId, templates, isSample, com
                             className="flex items-center gap-4 rounded-xl border border-zinc-200 bg-white p-4 text-left shadow-sm transition hover:shadow-md"
                         >
                             {person.photoSignedUrl ? (
+                                // eslint-disable-next-line @next/next/no-img-element
                                 <img
                                     src={person.photoSignedUrl}
                                     alt={`${person.first_name} ${person.last_name}`}

@@ -6,7 +6,6 @@ import { SAMPLE_COMPANIES } from "@/lib/sample-data";
 import { SAMPLE_TEMPLATES } from "@/lib/sample-templates";
 import { setGuestData, getGuestData } from "@/lib/guest-store";
 import type { GuestData, GuestCompany, GuestPerson, GuestTemplate } from "@/lib/guest-store";
-import type { TemplateConfig } from "@/lib/types";
 
 export default function SeedGuestData() {
     const { isGuest } = useGuest();

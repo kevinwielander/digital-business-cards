@@ -32,39 +32,78 @@ export default function AssetPicker({ companyId, currentSource, onSelect }: Asse
     const [uploading, setUploading] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-    async function loadAssets() {
-        setLoading(true);
-        const supabase = createClient();
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) { setLoading(false); return; }
-
-        const folder = `${user.id}/${companyId}`;
-        const { data: files } = await supabase.storage
-            .from(STORAGE.ASSETS)
-            .list(folder, { sortBy: { column: "created_at", order: "desc" } });
-
-        if (files) {
-            const assetList: AssetInfo[] = [];
-            for (const file of files) {
-                if (file.name === ".emptyFolderPlaceholder") continue;
-                const storagePath = `${folder}/${file.name}`;
-                const { data } = await supabase.storage
-                    .from(STORAGE.ASSETS)
-                    .createSignedUrl(storagePath, 3600);
-                assetList.push({
-                    name: file.name,
-                    displayName: parseDisplayName(file.name),
-                    storagePath,
-                    signedUrl: data?.signedUrl ?? undefined,
-                });
-            }
-            setAssets(assetList);
-        }
-        setLoading(false);
-    }
+    const loadAssetsRef = useRef<() => Promise<void>>();
 
     useEffect(() => {
-        if (companyId) loadAssets();
+        loadAssetsRef.current = async () => {
+            setLoading(true);
+            const supabase = createClient();
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) { setLoading(false); return; }
+
+            const folder = `${user.id}/${companyId}`;
+            const { data: files } = await supabase.storage
+                .from(STORAGE.ASSETS)
+                .list(folder, { sortBy: { column: "created_at", order: "desc" } });
+
+            if (files) {
+                const assetList: AssetInfo[] = [];
+                for (const file of files) {
+                    if (file.name === ".emptyFolderPlaceholder") continue;
+                    const storagePath = `${folder}/${file.name}`;
+                    const { data } = await supabase.storage
+                        .from(STORAGE.ASSETS)
+                        .createSignedUrl(storagePath, 3600);
+                    assetList.push({
+                        name: file.name,
+                        displayName: parseDisplayName(file.name),
+                        storagePath,
+                        signedUrl: data?.signedUrl ?? undefined,
+                    });
+                }
+                setAssets(assetList);
+            }
+            setLoading(false);
+        };
+    }, [companyId]);
+
+    useEffect(() => {
+        if (!companyId) return;
+        let cancelled = false;
+        async function load() {
+            setLoading(true);
+            const supabase = createClient();
+            const { data: { user } } = await supabase.auth.getUser();
+            if (cancelled) return;
+            if (!user) { setLoading(false); return; }
+
+            const folder = `${user.id}/${companyId}`;
+            const { data: files } = await supabase.storage
+                .from(STORAGE.ASSETS)
+                .list(folder, { sortBy: { column: "created_at", order: "desc" } });
+
+            if (cancelled) return;
+            if (files) {
+                const assetList: AssetInfo[] = [];
+                for (const file of files) {
+                    if (file.name === ".emptyFolderPlaceholder") continue;
+                    const storagePath = `${folder}/${file.name}`;
+                    const { data } = await supabase.storage
+                        .from(STORAGE.ASSETS)
+                        .createSignedUrl(storagePath, 3600);
+                    assetList.push({
+                        name: file.name,
+                        displayName: parseDisplayName(file.name),
+                        storagePath,
+                        signedUrl: data?.signedUrl ?? undefined,
+                    });
+                }
+                if (!cancelled) setAssets(assetList);
+            }
+            if (!cancelled) setLoading(false);
+        }
+        load();
+        return () => { cancelled = true; };
     }, [companyId]);
 
     async function handleUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -90,7 +129,7 @@ export default function AssetPicker({ companyId, currentSource, onSelect }: Asse
             return;
         }
 
-        await loadAssets();
+        await loadAssetsRef.current?.();
         onSelect(`asset:${storagePath}`);
         setUploading(false);
 
@@ -100,13 +139,12 @@ export default function AssetPicker({ companyId, currentSource, onSelect }: Asse
     async function handleDelete(asset: AssetInfo) {
         const supabase = createClient();
         await supabase.storage.from(STORAGE.ASSETS).remove([asset.storagePath]);
-        await loadAssets();
+        await loadAssetsRef.current?.();
         if (currentSource === `asset:${asset.storagePath}`) {
             onSelect("logo");
         }
     }
 
-    const isAssetSelected = currentSource?.startsWith("asset:");
 
     return (
         <div className="space-y-2">
@@ -138,6 +176,7 @@ export default function AssetPicker({ companyId, currentSource, onSelect }: Asse
                             }`}
                         >
                             {asset.signedUrl && (
+                                // eslint-disable-next-line @next/next/no-img-element
                                 <img src={asset.signedUrl} alt="" className="h-6 w-6 rounded object-contain" />
                             )}
                             <button
