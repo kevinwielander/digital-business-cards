@@ -51,85 +51,107 @@ export default function LoginPage() {
     return (
         <div className="flex flex-1">
             {/* Left — branding panel */}
-            <div className="hidden flex-col justify-between bg-[#1A1128] p-12 text-white lg:flex lg:w-1/2">
-                <div className="flex items-center gap-2">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src="/icon.svg" alt="OwnCardly" className="h-9 w-9" />
-                    <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 800, fontSize: 20 }}>
-                        <span className="italic text-[#FF6B35]">Own</span>
-                        <span className="text-white">Cardly</span>
-                    </span>
+            <div className="relative hidden overflow-hidden bg-[#1A1128] lg:flex lg:w-[45%]">
+                {/* Background pattern */}
+                <div className="absolute inset-0 opacity-[0.04]" style={{
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+                }} />
+                {/* Gradient overlay */}
+                <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-[#1A1128] to-transparent" />
+                {/* Decorative cards */}
+                <div className="absolute right-[-60px] top-[15%] rotate-12 opacity-10">
+                    <div className="h-[180px] w-[300px] rounded-2xl border-2 border-[#C4B5FD] bg-[#C4B5FD]/10" />
+                </div>
+                <div className="absolute right-[-30px] top-[20%] rotate-6 opacity-15">
+                    <div className="h-[180px] w-[300px] rounded-2xl border-2 border-[#FF6B35] bg-[#FF6B35]/10" />
                 </div>
 
-                <div>
-                    <blockquote className="text-2xl font-semibold leading-relaxed">
-                        &ldquo;{t.login_quote}&rdquo;
-                    </blockquote>
-                    <div className="mt-6 h-px bg-white/20" />
-                    <div className="mt-6 grid grid-cols-3 gap-6">
+                <div className="relative z-10 flex flex-col justify-between p-12">
+                    <div className="flex items-center gap-2.5">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src="/icon.svg" alt="OwnCardly" className="h-9 w-9" />
+                        <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 800, fontSize: 22 }}>
+                            <span className="italic text-[#FF6B35]">Own</span>
+                            <span className="text-white">Cardly</span>
+                        </span>
+                    </div>
+
+                    <div className="space-y-8">
                         <div>
-                            <p className="text-2xl font-bold">8+</p>
-                            <p className="text-sm text-zinc-400">{t.templates_starter}</p>
+                            <h2 className="text-3xl font-bold leading-tight text-white" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+                                {t.login_quote}
+                            </h2>
                         </div>
-                        <div>
-                            <p className="text-2xl font-bold">CSV</p>
-                            <p className="text-sm text-zinc-400">{t.feature_import_title}</p>
-                        </div>
-                        <div>
-                            <p className="text-2xl font-bold">vCard</p>
-                            <p className="text-sm text-zinc-400">{t.feature_export_title}</p>
+
+                        <div className="h-px bg-gradient-to-r from-[#FF6B35]/40 via-[#C4B5FD]/40 to-transparent" />
+
+                        <div className="grid grid-cols-3 gap-5">
+                            <div className="rounded-xl bg-white/5 p-4 backdrop-blur-sm">
+                                <p className="text-xl font-bold text-[#FF6B35]">11+</p>
+                                <p className="mt-0.5 text-xs text-zinc-400">{t.templates_starter}</p>
+                            </div>
+                            <div className="rounded-xl bg-white/5 p-4 backdrop-blur-sm">
+                                <p className="text-xl font-bold text-[#C4B5FD]">CSV</p>
+                                <p className="mt-0.5 text-xs text-zinc-400">{t.feature_import_title}</p>
+                            </div>
+                            <div className="rounded-xl bg-white/5 p-4 backdrop-blur-sm">
+                                <p className="text-xl font-bold text-[#86EFAC]">vCard</p>
+                                <p className="mt-0.5 text-xs text-zinc-400">{t.feature_export_title}</p>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                <div className="flex flex-wrap gap-2">
-                    {[t.feature_designer_title, t.feature_fields_title, "QR Codes", t.feature_import_title, t.feature_export_title].map((tag) => (
-                        <span key={tag} className="rounded-full bg-white/10 px-3 py-1 text-xs text-zinc-300">
-                            {tag}
-                        </span>
-                    ))}
+                    <div className="flex flex-wrap gap-2">
+                        {[t.feature_designer_title, t.feature_fields_title, "QR Codes", t.feature_import_title, t.feature_export_title].map((tag) => (
+                            <span key={tag} className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-zinc-400">
+                                {tag}
+                            </span>
+                        ))}
+                    </div>
                 </div>
             </div>
 
             {/* Right — sign in */}
-            <div className="flex flex-1 flex-col items-center justify-center px-6 py-12">
-                <div className="w-full max-w-sm">
+            <div className="flex flex-1 flex-col items-center justify-center bg-[#FFF4E6] px-6 py-12">
+                <div className="w-full max-w-[380px]">
                     {/* Mobile logo */}
-                    <div className="mb-8 flex items-center justify-center gap-2 lg:hidden">
+                    <div className="mb-10 flex items-center justify-center gap-2.5 lg:hidden">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
-                        <img src="/icon.svg" alt="OwnCardly" className="h-9 w-9" />
-                        <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 800, fontSize: 20 }}>
+                        <img src="/icon.svg" alt="OwnCardly" className="h-10 w-10" />
+                        <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontWeight: 800, fontSize: 24 }}>
                             <span className="italic text-[#FF6B35]">Own</span>
                             <span className="text-[#1A1128]">Cardly</span>
                         </span>
                     </div>
 
-                    <div className="mb-8 text-center">
-                        <h1 className="text-2xl font-bold tracking-tight">{t.login_title}</h1>
-                        <p className="mt-2 text-sm text-zinc-500">{t.login_subtitle}</p>
+                    <div className="mb-8">
+                        <h1 className="text-2xl font-bold tracking-tight text-[#1A1128]" style={{ fontFamily: "'Bricolage Grotesque', sans-serif" }}>
+                            {t.login_title}
+                        </h1>
+                        <p className="mt-2 text-sm text-[#4A3B5C]/70">{t.login_subtitle}</p>
                     </div>
 
-                    <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
+                    <div className="rounded-2xl border border-[#1A1128]/8 bg-white p-6 shadow-sm">
                         {error && (
-                            <div className="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600">
+                            <div className="mb-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">
                                 {error}
                             </div>
                         )}
 
                         {magicLinkSent ? (
-                            <div className="py-4 text-center">
-                                <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[#86EFAC]/30">
-                                    <svg className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                            <div className="py-6 text-center">
+                                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[#86EFAC]/20">
+                                    <svg className="h-7 w-7 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                     </svg>
                                 </div>
-                                <h3 className="text-lg font-semibold text-[#1A1128]">Check your email</h3>
-                                <p className="mt-1 text-sm text-[#4A3B5C]">
-                                    We sent a magic link to <span className="font-medium">{email}</span>
+                                <h3 className="text-lg font-bold text-[#1A1128]">Check your email</h3>
+                                <p className="mt-1.5 text-sm text-[#4A3B5C]/70">
+                                    We sent a magic link to <span className="font-semibold text-[#1A1128]">{email}</span>
                                 </p>
                                 <button
                                     onClick={() => { setMagicLinkSent(false); setEmail(""); }}
-                                    className="mt-4 text-sm text-[#FF6B35] hover:underline"
+                                    className="mt-5 text-sm font-medium text-[#FF6B35] hover:underline"
                                 >
                                     Use a different email
                                 </button>
@@ -139,7 +161,7 @@ export default function LoginPage() {
                                 {/* Google */}
                                 <button
                                     onClick={handleGoogleLogin}
-                                    className="flex w-full items-center justify-center gap-3 rounded-xl border border-zinc-200 bg-white px-5 py-3 text-sm font-semibold transition hover:bg-zinc-50 hover:shadow-md"
+                                    className="flex w-full items-center justify-center gap-3 rounded-xl border border-[#1A1128]/10 bg-white px-5 py-3 text-sm font-semibold text-[#1A1128] transition hover:border-[#1A1128]/20 hover:shadow-md"
                                 >
                                     <svg className="h-5 w-5" viewBox="0 0 24 24">
                                         <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4" />
@@ -151,9 +173,9 @@ export default function LoginPage() {
                                 </button>
 
                                 <div className="my-5 flex items-center gap-4">
-                                    <div className="h-px flex-1 bg-zinc-200" />
-                                    <span className="text-xs text-zinc-400">{t.login_or}</span>
-                                    <div className="h-px flex-1 bg-zinc-200" />
+                                    <div className="h-px flex-1 bg-[#C4B5FD]/30" />
+                                    <span className="text-xs font-medium text-[#4A3B5C]/40">{t.login_or}</span>
+                                    <div className="h-px flex-1 bg-[#C4B5FD]/30" />
                                 </div>
 
                                 {/* Magic Link */}
@@ -164,12 +186,12 @@ export default function LoginPage() {
                                         onChange={(e) => setEmail(e.target.value)}
                                         placeholder="you@example.com"
                                         required
-                                        className="mb-3 w-full rounded-xl border border-zinc-200 px-4 py-3 text-sm outline-none transition focus:border-[#FF6B35] focus:ring-2 focus:ring-[#FF6B35]/20"
+                                        className="mb-3 w-full rounded-xl border border-[#1A1128]/10 bg-[#FFF4E6]/50 px-4 py-3 text-sm text-[#1A1128] outline-none transition placeholder:text-[#4A3B5C]/40 focus:border-[#FF6B35] focus:bg-white focus:ring-2 focus:ring-[#FF6B35]/15"
                                     />
                                     <button
                                         type="submit"
                                         disabled={sending}
-                                        className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#FF6B35] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#e55a2a] disabled:opacity-50"
+                                        className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#FF6B35] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#e55a2a] hover:shadow-md hover:shadow-[#FF6B35]/20 disabled:opacity-50"
                                     >
                                         <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                                             <path strokeLinecap="round" strokeLinejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
@@ -179,18 +201,18 @@ export default function LoginPage() {
                                 </form>
 
                                 <div className="my-5 flex items-center gap-4">
-                                    <div className="h-px flex-1 bg-zinc-200" />
-                                    <span className="text-xs text-zinc-400">{t.login_or}</span>
-                                    <div className="h-px flex-1 bg-zinc-200" />
+                                    <div className="h-px flex-1 bg-[#C4B5FD]/30" />
+                                    <span className="text-xs font-medium text-[#4A3B5C]/40">{t.login_or}</span>
+                                    <div className="h-px flex-1 bg-[#C4B5FD]/30" />
                                 </div>
 
                                 {/* Guest */}
-                                <TryGuestButton className="flex w-full items-center justify-center gap-2 rounded-xl border border-zinc-200 px-5 py-3 text-sm font-medium text-[#4A3B5C] transition hover:bg-zinc-50" />
+                                <TryGuestButton className="flex w-full items-center justify-center gap-2 rounded-xl border border-[#1A1128]/10 px-5 py-3 text-sm font-medium text-[#4A3B5C] transition hover:border-[#1A1128]/20 hover:bg-[#FFF4E6]/50" />
                             </>
                         )}
                     </div>
 
-                    <p className="mt-6 text-center text-xs text-[#4A3B5C]/60">
+                    <p className="mt-6 text-center text-xs text-[#4A3B5C]/50">
                         {t.login_guest_note}
                     </p>
                 </div>

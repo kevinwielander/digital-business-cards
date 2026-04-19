@@ -7,9 +7,9 @@ export default function Loading() {
             <SkeletonLine className="mb-8 h-4 w-80" />
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {[1, 2, 3, 4, 5, 6].map((i) => (
-                    <div key={i} className="animate-pulse rounded-xl border border-zinc-200 bg-white p-4">
-                        <div className="mb-3 h-32 rounded-lg bg-zinc-100" />
-                        <div className="h-4 w-24 rounded bg-zinc-200" />
+                    <div key={i} className="animate-pulse rounded-xl border border-[#1A1128]/8 bg-white/80 p-4">
+                        <div className="mb-3 h-32 rounded-lg bg-[#C4B5FD]/10" />
+                        <div className="h-4 w-24 rounded bg-[#C4B5FD]/20" />
                     </div>
                 ))}
             </div>

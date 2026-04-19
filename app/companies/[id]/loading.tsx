@@ -10,7 +10,7 @@ export default function Loading() {
 
             {/* Company header */}
             <div className="mb-8 flex items-center gap-5">
-                <div className="h-14 w-14 animate-pulse rounded-xl bg-zinc-200" />
+                <div className="h-14 w-14 animate-pulse rounded-xl bg-[#C4B5FD]/20" />
                 <div className="space-y-2">
                     <SkeletonLine className="h-7 w-44" />
                     <SkeletonLine className="h-4 w-28" />

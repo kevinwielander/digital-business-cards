@@ -23,8 +23,8 @@ export default function Loading() {
             {/* Canvas + properties */}
             <div className="flex gap-6">
                 <div className="flex-1">
-                    <div className="animate-pulse rounded-xl bg-zinc-100 p-8">
-                        <div className="h-[260px] w-[450px] rounded-lg bg-zinc-200" />
+                    <div className="animate-pulse rounded-xl bg-[#C4B5FD]/10 p-8">
+                        <div className="h-[260px] w-[450px] rounded-lg bg-[#C4B5FD]/20" />
                     </div>
                 </div>
                 <div className="w-64 space-y-4">
