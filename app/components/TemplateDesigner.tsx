@@ -154,12 +154,25 @@ export default function TemplateDesigner({
             const { data: companiesData } = await supabase
                 .from(TABLES.COMPANIES)
                 .select("id, name, logo_url, website, is_sample, custom_field_definitions");
-            if (!cancelled && companiesData) setCompanies(companiesData);
+            if (!cancelled && companiesData) {
+                setCompanies(companiesData);
+                // Auto-select first company so logo/preview data loads immediately
+                if (companiesData.length > 0) {
+                    setSelectedCompanyId(companiesData[0].id);
+                }
+            }
 
             const { data: peopleData } = await supabase
                 .from(TABLES.PEOPLE)
                 .select("id, first_name, last_name, title, email, phone, photo_url, company_id, is_sample, custom_fields");
-            if (!cancelled && peopleData) setPeople(peopleData);
+            if (!cancelled && peopleData) {
+                setPeople(peopleData);
+                // Auto-select first person from the auto-selected company
+                if (companiesData && companiesData.length > 0 && peopleData.length > 0) {
+                    const firstPerson = peopleData.find((p) => p.company_id === companiesData[0].id);
+                    if (firstPerson) setSelectedPersonId(firstPerson.id);
+                }
+            }
         }
         loadData();
         return () => { cancelled = true; };

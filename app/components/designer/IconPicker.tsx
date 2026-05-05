@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import type { CardElement } from "@/lib/types";
+import type { CardElement, LinkBoundField } from "@/lib/types";
 
-const ICONS: { category: string; icons: { name: string; svg: string; defaultLink?: string }[] }[] = [
+const ICONS: { category: string; icons: { name: string; svg: string; defaultLink?: string; defaultBoundField?: LinkBoundField }[] }[] = [
     {
         category: "Social",
         icons: [
@@ -19,10 +19,10 @@ const ICONS: { category: string; icons: { name: string; svg: string; defaultLink
     {
         category: "Contact",
         icons: [
-            { name: "Email", defaultLink: "mailto:", svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>` },
-            { name: "Phone", defaultLink: "tel:", svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>` },
+            { name: "Email", defaultBoundField: "email", svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>` },
+            { name: "Phone", defaultBoundField: "phone", svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>` },
             { name: "Location", defaultLink: "https://maps.google.com/?q=", svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>` },
-            { name: "Globe", defaultLink: "https://", svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>` },
+            { name: "Globe", defaultBoundField: "website", svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>` },
             { name: "Link", defaultLink: "https://", svg: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>` },
         ],
     },
@@ -45,7 +45,7 @@ export default function IconPicker({ onAddIcon }: IconPickerProps) {
     // But since imageSource is typed, we'll use a workaround: store as customText on a special "icon" approach
     // Actually simpler: just create an inline SVG element rendered as an image
 
-    function handleSelectIcon(icon: { name: string; svg: string; defaultLink?: string }) {
+    function handleSelectIcon(icon: { name: string; svg: string; defaultLink?: string; defaultBoundField?: LinkBoundField }) {
         onAddIcon({
             id: crypto.randomUUID(),
             type: "image",
@@ -57,7 +57,8 @@ export default function IconPicker({ onAddIcon }: IconPickerProps) {
             imageSource: `asset:${svgToDataUrl(icon.svg, color)}` as `asset:${string}`,
             objectFit: "contain",
             borderRadius: 0,
-            linkUrl: icon.defaultLink,
+            linkBoundField: icon.defaultBoundField,
+            linkUrl: icon.defaultBoundField ? undefined : icon.defaultLink,
             iconSvg: icon.svg,
             iconColor: color,
         });

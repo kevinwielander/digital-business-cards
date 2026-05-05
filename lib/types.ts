@@ -15,6 +15,8 @@ export type BoundField =
     | "custom"
     | `custom:${string}`;
 
+export type LinkBoundField = "email" | "phone" | "website";
+
 export interface CardElement {
     id: string;
     type: ElementType;
@@ -44,6 +46,7 @@ export interface CardElement {
     // Image advanced
     imageOpacity?: number;
     linkUrl?: string;
+    linkBoundField?: LinkBoundField;
     // Icon properties (SVG template stored separately for recoloring)
     iconSvg?: string;
     iconColor?: string;

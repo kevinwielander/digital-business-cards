@@ -1,4 +1,4 @@
-import type { TemplateConfig, SampleCardData, CardElement } from "@/lib/types";
+import type { TemplateConfig, SampleCardData, CardElement, LinkBoundField } from "@/lib/types";
 import { getGoogleFontsUrl, getUsedFonts } from "@/lib/fonts";
 
 interface CardPreviewRendererProps {
@@ -6,6 +6,17 @@ interface CardPreviewRendererProps {
     data: SampleCardData;
     assetUrls?: Record<string, string>;
     scale?: number;
+}
+
+function resolveLink(el: CardElement, data: SampleCardData): string | null {
+    if (el.linkBoundField) {
+        const value = (data as unknown as Record<string, LinkBoundField>)[el.linkBoundField] as string ?? "";
+        if (!value) return null;
+        if (el.linkBoundField === "email") return `mailto:${value}`;
+        if (el.linkBoundField === "phone") return `tel:${value}`;
+        if (el.linkBoundField === "website") return value.startsWith("http") ? value : `https://${value}`;
+    }
+    return el.linkUrl ?? null;
 }
 
 function getDisplayText(el: CardElement, data: SampleCardData): string {
@@ -85,35 +96,36 @@ export default function CardPreviewRenderer({ config, data, assetUrls = {}, scal
                         isDataUri ? el.imageSource!.slice(6) :
                         el.imageSource?.startsWith("asset:") ? assetUrls[el.imageSource.slice(6)] ?? null :
                         data.logoUrl;
-                    return (
-                        <div
-                            key={el.id}
+                    const link = resolveLink(el, data);
+                    const containerStyle: React.CSSProperties = {
+                        ...style,
+                        borderRadius: (el.borderRadius ?? 0) * scale,
+                        overflow: "hidden",
+                        backgroundColor: src ? undefined : "#e4e4e7",
+                        display: "block",
+                    };
+                    const inner = src ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                            src={src}
+                            alt=""
                             style={{
-                                ...style,
+                                width: "100%",
+                                height: "100%",
+                                objectFit: el.objectFit ?? "contain",
+                                opacity: el.imageOpacity ?? 1,
                                 borderRadius: (el.borderRadius ?? 0) * scale,
-                                overflow: "hidden",
-                                backgroundColor: src ? undefined : "#e4e4e7",
                             }}
-                        >
-                            {src ? (
-                                // eslint-disable-next-line @next/next/no-img-element
-                                <img
-                                    src={src}
-                                    alt=""
-                                    style={{
-                                        width: "100%",
-                                        height: "100%",
-                                        objectFit: el.objectFit ?? "contain",
-                                        opacity: el.imageOpacity ?? 1,
-                                        borderRadius: (el.borderRadius ?? 0) * scale,
-                                    }}
-                                />
-                            ) : (
-                                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", fontSize: 10 * scale, color: "#a1a1aa" }}>
-                                    {el.imageSource === "logo" ? "Logo" : "Photo"}
-                                </div>
-                            )}
+                        />
+                    ) : (
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "center", height: "100%", fontSize: 10 * scale, color: "#a1a1aa" }}>
+                            {el.imageSource === "logo" ? "Logo" : "Photo"}
                         </div>
+                    );
+                    return link ? (
+                        <a key={el.id} href={link} target="_blank" rel="noopener noreferrer" style={containerStyle}>{inner}</a>
+                    ) : (
+                        <div key={el.id} style={containerStyle}>{inner}</div>
                     );
                 }
 

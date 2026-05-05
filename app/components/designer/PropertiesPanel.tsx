@@ -1,6 +1,6 @@
 "use client";
 
-import type { CardElement, BoundField, CustomFieldDefinition } from "@/lib/types";
+import type { CardElement, BoundField, LinkBoundField, CustomFieldDefinition } from "@/lib/types";
 import { BUILT_IN_FIELD_LABELS } from "@/lib/types";
 import { DESIGNER_FONTS } from "@/lib/fonts";
 import AssetPicker from "./AssetPicker";
@@ -279,12 +279,7 @@ export default function PropertiesPanel({
                         </div>
                     </div>
 
-                    <Field
-                        label="Link URL"
-                        value={element.linkUrl ?? ""}
-                        onChange={(v) => onUpdate({ linkUrl: v || undefined })}
-                        placeholder="e.g. https://linkedin.com/in/..."
-                    />
+                    <LinkField element={element} onUpdate={onUpdate} />
 
                     {/* Icon color — only for icons with stored SVG */}
                     {element.iconSvg && (
@@ -416,5 +411,54 @@ function AlignBtn({ label, onClick }: { label: string; onClick: () => void }) {
         <button onClick={onClick} className="rounded bg-zinc-100 px-1 py-1 text-xs hover:bg-zinc-200">
             {label}
         </button>
+    );
+}
+
+const LINK_BOUND_OPTIONS: { value: LinkBoundField; label: string }[] = [
+    { value: "email", label: "Email" },
+    { value: "phone", label: "Phone" },
+    { value: "website", label: "Website" },
+];
+
+function LinkField({ element, onUpdate }: { element: CardElement; onUpdate: (u: Partial<CardElement>) => void }) {
+    const selectValue = element.linkBoundField ?? (element.linkUrl ? "__custom__" : "__none__");
+
+    function handleChange(val: string) {
+        if (val === "__none__") {
+            onUpdate({ linkBoundField: undefined, linkUrl: undefined });
+        } else if (val === "__custom__") {
+            onUpdate({ linkBoundField: undefined });
+        } else {
+            onUpdate({ linkBoundField: val as LinkBoundField, linkUrl: undefined });
+        }
+    }
+
+    return (
+        <div className="flex flex-col gap-2">
+            <div>
+                <label className="mb-1 block text-xs font-medium text-zinc-500">Link to</label>
+                <select
+                    value={selectValue}
+                    onChange={(e) => handleChange(e.target.value)}
+                    className="w-full rounded border border-zinc-300 px-2 py-1.5 text-sm"
+                >
+                    <option value="__none__">None</option>
+                    <optgroup label="Person Field">
+                        {LINK_BOUND_OPTIONS.map((o) => (
+                            <option key={o.value} value={o.value}>{o.label}</option>
+                        ))}
+                    </optgroup>
+                    <option value="__custom__">Custom URL</option>
+                </select>
+            </div>
+            {selectValue === "__custom__" && (
+                <Field
+                    label="URL"
+                    value={element.linkUrl ?? ""}
+                    onChange={(v) => onUpdate({ linkUrl: v || undefined })}
+                    placeholder="e.g. https://linkedin.com/in/..."
+                />
+            )}
+        </div>
     );
 }

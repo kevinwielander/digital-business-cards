@@ -58,6 +58,17 @@ function getDisplayText(el: CardElement, data: SampleCardData): string {
     return "";
 }
 
+function resolveLink(el: CardElement, data: SampleCardData): string | null {
+    if (el.linkBoundField) {
+        const value = (data as unknown as Record<string, string>)[el.linkBoundField] ?? "";
+        if (!value) return null;
+        if (el.linkBoundField === "email") return `mailto:${value}`;
+        if (el.linkBoundField === "phone") return `tel:${value}`;
+        if (el.linkBoundField === "website") return value.startsWith("http") ? value : `https://${value}`;
+    }
+    return el.linkUrl ?? null;
+}
+
 function getLinkedText(el: CardElement, data: SampleCardData): string {
     const text = getDisplayText(el, data);
     if (!text) return "";
@@ -115,8 +126,9 @@ function renderElementHtml(
         const imgOpacity = el.imageOpacity !== undefined ? `opacity:${el.imageOpacity};` : "";
         if (src) {
             const img = `<img src="${src}" style="width:100%;height:100%;object-fit:${fit};border-radius:${radius}px;${imgOpacity}" />`;
-            if (el.linkUrl) {
-                return `<a href="${el.linkUrl}" target="_blank" rel="noopener noreferrer" style="${baseStyle}overflow:hidden;border-radius:${radius}px;display:block;">${img}</a>`;
+            const link = resolveLink(el, data);
+            if (link) {
+                return `<a href="${link}" target="_blank" rel="noopener noreferrer" style="${baseStyle}overflow:hidden;border-radius:${radius}px;display:block;">${img}</a>`;
             }
             return `<div style="${baseStyle}overflow:hidden;border-radius:${radius}px;">${img}</div>`;
         }
