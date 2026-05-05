@@ -17,6 +17,7 @@ export interface GuestPerson {
     email: string;
     phone: string;
     photo_url: string | null;
+    custom_fields?: Record<string, string>;
     created_at: string;
 }
 

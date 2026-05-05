@@ -13,6 +13,7 @@ import {
 } from "@/lib/types";
 import type { TemplateConfig, CardElement, SampleCardData } from "@/lib/types";
 import { isGuestMode } from "@/lib/guest-store";
+import type { GuestCompany, GuestPerson } from "@/lib/guest-store";
 import { getSampleAssetUrl } from "@/lib/sample-utils";
 import { useGuest } from "./GuestProvider";
 import { useTranslation } from "./I18nProvider";
@@ -39,6 +40,9 @@ interface TemplateDesignerProps {
     overlayPreviewData?: SampleCardData;
     onOverlaySave?: (config: TemplateConfig) => void;
     onOverlayCancel?: () => void;
+    // Guest mode — pre-seeded data to avoid Supabase RLS blocking unauthenticated queries
+    guestCompanies?: GuestCompany[];
+    guestPeople?: GuestPerson[];
 }
 
 export default function TemplateDesigner({
@@ -49,6 +53,8 @@ export default function TemplateDesigner({
     overlayPreviewData,
     onOverlaySave,
     onOverlayCancel,
+    guestCompanies,
+    guestPeople,
 }: TemplateDesignerProps) {
     const router = useRouter();
     const guest = useGuest();
@@ -92,6 +98,13 @@ export default function TemplateDesigner({
         });
     }
 
+    // Keep overlay preview data in sync when it changes after mount
+    useEffect(() => {
+        if (overlay && overlayPreviewData) {
+            setPreviewData(overlayPreviewData);
+        }
+    }, [overlay, overlayPreviewData]);
+
     // Restore draft / preview data on mount
     useEffect(() => {
         if (overlay) {
@@ -127,6 +140,7 @@ export default function TemplateDesigner({
                     company: p.company || SAMPLE_CARD_DATA.company,
                     logoUrl: p.logoPreview || null,
                     photoUrl: p.photoPreview || null,
+                    custom_fields: p.custom_fields ?? {},
                 });
                 localStorage.removeItem("cardgen_create_preview");
             } catch { /* ignore */ }
@@ -148,6 +162,20 @@ export default function TemplateDesigner({
 
     useEffect(() => {
         if (overlay) return; // In overlay mode, no company/person data needed
+
+        // Guest mode: seed from localStorage data (Supabase RLS blocks unauthenticated)
+        if (guestCompanies && guestPeople) {
+            const mappedCompanies = guestCompanies.map((c) => ({ ...c, is_sample: false, custom_field_definitions: undefined }));
+            setCompanies(mappedCompanies);
+            setPeople(guestPeople.map((p) => ({ ...p, is_sample: false, custom_fields: p.custom_fields ?? {} })));
+            if (guestCompanies.length > 0) {
+                setSelectedCompanyId(guestCompanies[0].id);
+                const firstPerson = guestPeople.find((p) => p.company_id === guestCompanies[0].id);
+                if (firstPerson) setSelectedPersonId(firstPerson.id);
+            }
+            return;
+        }
+
         let cancelled = false;
         async function loadData() {
             const supabase = createClient();

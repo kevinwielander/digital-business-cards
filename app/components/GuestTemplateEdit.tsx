@@ -20,6 +20,8 @@ export default function GuestTemplateEdit({ templateId }: { templateId: string }
                 templateId={template.id}
                 initialName={template.name}
                 initialConfig={template.config as TemplateConfig}
+                guestCompanies={data.companies}
+                guestPeople={data.people}
             />
         </div>
     );

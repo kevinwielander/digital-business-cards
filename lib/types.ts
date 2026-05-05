@@ -113,6 +113,7 @@ export const SAMPLE_CARD_DATA: SampleCardData = {
     website: "https://acme.com",
     logoUrl: null,
     photoUrl: null,
+    custom_fields: {},
 };
 
 export const BUILT_IN_FIELD_LABELS: Record<string, string> = {
