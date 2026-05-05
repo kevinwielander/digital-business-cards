@@ -181,16 +181,32 @@ ${fontsUrl ? `<link rel="stylesheet" href="${fontsUrl}">` : ""}
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { display: flex; justify-content: center; align-items: center; min-height: 100vh; background: ${config.pageBackgroundColor ?? "#f4f4f5"}; padding: 20px; }
-.card { position: relative; width: ${config.width}px; height: ${config.height}px; background: ${config.backgroundColor}; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.1); max-width: 100%; }
-@media (max-width: ${config.width + 40}px) {
-  .card { transform: scale(calc((100vw - 40px) / ${config.width})); transform-origin: center center; }
-}
+.card-outer { position: relative; flex-shrink: 0; }
+.card { position: absolute; top: 0; left: 0; width: ${config.width}px; height: ${config.height}px; background: ${config.backgroundColor}; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.1); transform-origin: top left; }
 </style>
 </head>
 <body>
-<div class="card">
-  ${elementsHtml}
+<div class="card-outer" id="card-outer">
+  <div class="card" id="card">
+    ${elementsHtml}
+  </div>
 </div>
+<script>
+(function () {
+  var W = ${config.width}, H = ${config.height};
+  function scale() {
+    var avail = Math.min(window.innerWidth - 40, W);
+    var s = avail / W;
+    var outer = document.getElementById('card-outer');
+    var card = document.getElementById('card');
+    outer.style.width = avail + 'px';
+    outer.style.height = (H * s) + 'px';
+    card.style.transform = 'scale(' + s + ')';
+  }
+  scale();
+  window.addEventListener('resize', scale);
+})();
+</script>
 </body>
 </html>`;
 }
