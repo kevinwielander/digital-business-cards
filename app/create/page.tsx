@@ -89,6 +89,7 @@ export default function CreatePage() {
         website: website || "example.com",
         logoUrl: logoPreview,
         photoUrl: photoPreview,
+        custom_fields: {},
     };
 
     function selectTemplate(tmpl: DbTemplate) {
@@ -185,6 +186,10 @@ export default function CreatePage() {
 
                 let text = "";
                 if (el.boundField === "custom") text = el.customText ?? "";
+                else if (el.boundField?.startsWith("custom:")) {
+                    const key = el.boundField.slice(7);
+                    text = previewData.custom_fields?.[key] ?? "";
+                }
                 else if (el.boundField) text = (previewData as unknown as Record<string, string>)[el.boundField] ?? "";
 
                 // Make email/phone/website clickable

@@ -196,6 +196,7 @@ export default function BulkImportModal({ onClose, companyId, templates, customF
                     email: row.email,
                     phone: row.phone,
                     photo_url: null,
+                    custom_fields: row.custom_fields,
                 });
             }
             setImportedCount(mapped.length);

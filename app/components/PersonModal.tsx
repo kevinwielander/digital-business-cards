@@ -147,6 +147,7 @@ export default function PersonModal({ onClose, companyId, templates, companyName
                 email,
                 phone,
                 photo_url: null as string | null,
+                custom_fields: customFields,
             };
             if (person) {
                 guest.updatePerson(person.id, row);
