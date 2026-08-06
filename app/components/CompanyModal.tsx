@@ -14,6 +14,7 @@ interface CompanyProps {
     name: string;
     domain: string;
     website: string;
+    address: string;
     logo: File | null;
     currentLogoUrl?: string | null;
 }
@@ -24,6 +25,7 @@ export function CompanyModal(props: CompanyProps) {
     const [name, setName] = useState(props.name);
     const [domain, setDomain] = useState(props.domain);
     const [website, setWebsite] = useState(props.website);
+    const [address, setAddress] = useState(props.address);
     const [logo, setLogo] = useState<File | null>(null);
     const [error, setError] = useState<string | null>(null);
 
@@ -39,9 +41,9 @@ export function CompanyModal(props: CompanyProps) {
                 logoUrl = URL.createObjectURL(logo);
             }
             if (isEdit && props.id) {
-                guest.updateCompany(props.id, { name, domain, website, logo_url: logoUrl ?? undefined });
+                guest.updateCompany(props.id, { name, domain, website, address, logo_url: logoUrl ?? undefined });
             } else {
-                guest.addCompany({ name, domain, website, logo_url: logoUrl });
+                guest.addCompany({ name, domain, website, address, logo_url: logoUrl });
             }
             props.onClose();
             return;
@@ -70,7 +72,7 @@ export function CompanyModal(props: CompanyProps) {
         }
 
         if (isEdit && props.id) {
-            const updates: Record<string, unknown> = { name, domain, website };
+            const updates: Record<string, unknown> = { name, domain, website, address };
             if (logoPath !== undefined) updates.logo_url = logoPath;
 
             const { error: updateError } = await supabase
@@ -90,6 +92,7 @@ export function CompanyModal(props: CompanyProps) {
                     name,
                     domain,
                     website,
+                    address,
                     logo_url: logoPath ?? null,
                 });
 
@@ -160,6 +163,20 @@ export function CompanyModal(props: CompanyProps) {
                             value={website}
                             onChange={(e) => setWebsite(e.target.value)}
                             placeholder="https://acme.com"
+                            className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none transition focus:border-zinc-500 focus:ring-2 focus:ring-zinc-200"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="mb-1 block text-sm font-medium text-zinc-700">
+                            {t.form_address}
+                            <span className="ml-1 text-xs font-normal text-zinc-400">({t.form_address_hint})</span>
+                        </label>
+                        <input
+                            type="text"
+                            value={address}
+                            onChange={(e) => setAddress(e.target.value)}
+                            placeholder="Hauptstraße 1, 1010 Wien"
                             className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none transition focus:border-zinc-500 focus:ring-2 focus:ring-zinc-200"
                         />
                     </div>

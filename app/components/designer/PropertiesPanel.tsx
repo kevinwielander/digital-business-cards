@@ -3,6 +3,7 @@
 import type { CardElement, BoundField, LinkBoundField, CustomFieldDefinition } from "@/lib/types";
 import { BUILT_IN_FIELD_LABELS } from "@/lib/types";
 import { DESIGNER_FONTS } from "@/lib/fonts";
+import { useTranslation } from "@/app/components/I18nProvider";
 import AssetPicker from "./AssetPicker";
 
 interface PropertiesPanelProps {
@@ -30,6 +31,7 @@ export default function PropertiesPanel({
     onMoveUp,
     onMoveDown,
 }: PropertiesPanelProps) {
+    const { t } = useTranslation();
     return (
         <div className="flex flex-col gap-4 overflow-y-auto" style={{ maxHeight: "70vh" }}>
             <div className="flex items-center justify-between">
@@ -146,6 +148,17 @@ export default function PropertiesPanel({
 
                     {element.boundField === "custom" && (
                         <Field label="Text" value={element.customText ?? ""} onChange={(v) => onUpdate({ customText: v })} />
+                    )}
+
+                    {element.boundField && element.boundField !== "custom" && (
+                        <label className="flex items-center gap-2 text-sm">
+                            <input
+                                type="checkbox"
+                                checked={element.hideIfEmpty ?? false}
+                                onChange={(e) => onUpdate({ hideIfEmpty: e.target.checked })}
+                            />
+                            {t.prop_hide_if_empty}
+                        </label>
                     )}
 
                     <Field label="Font Size" type="number" value={element.fontSize ?? 14} onChange={(v) => onUpdate({ fontSize: Number(v) })} />

@@ -111,6 +111,7 @@ export default function GuestCompaniesPage() {
                     name=""
                     domain=""
                     website=""
+                    address=""
                     logo={null}
                 />
             )}

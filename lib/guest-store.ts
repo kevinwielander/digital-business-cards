@@ -3,6 +3,7 @@ export interface GuestCompany {
     name: string;
     domain: string;
     website: string;
+    address: string;
     logo_url: string | null;
     created_at: string;
 }
@@ -13,6 +14,9 @@ export interface GuestPerson {
     template_id: string;
     first_name: string;
     last_name: string;
+    academic_prefix: string;
+    academic_suffix: string;
+    address: string;
     title: string;
     email: string;
     phone: string;

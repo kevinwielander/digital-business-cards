@@ -42,6 +42,7 @@ export default function SeedGuestData() {
                 name: company.name,
                 domain: company.domain,
                 website: company.website,
+                address: "",
                 logo_url: null,
                 created_at: new Date().toISOString(),
             });
@@ -53,6 +54,9 @@ export default function SeedGuestData() {
                     template_id: defaultTemplateId,
                     first_name: person.first_name,
                     last_name: person.last_name,
+                    academic_prefix: "",
+                    academic_suffix: "",
+                    address: "",
                     title: person.title,
                     email: person.email,
                     phone: person.phone,

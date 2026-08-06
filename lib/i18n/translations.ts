@@ -153,11 +153,18 @@ type TranslationStrings = {
     form_company_name: string;
     form_domain: string;
     form_website: string;
+    form_address: string;
+    form_address_hint: string;
     form_logo: string;
 
     // Person form
     form_first_name: string;
     form_last_name: string;
+    form_person_address_hint: string;
+    form_academic_prefix: string;
+    form_academic_prefix_hint: string;
+    form_academic_suffix: string;
+    form_academic_suffix_hint: string;
     form_job_title: string;
     form_email: string;
     form_phone: string;
@@ -208,6 +215,7 @@ type TranslationStrings = {
     el_pick_icon: string;
 
     // Properties panel
+    prop_hide_if_empty: string;
     prop_lock_position: string;
     prop_position_size: string;
     prop_align_card: string;
@@ -408,9 +416,16 @@ const en: TranslationStrings = {
     form_company_name: "Company Name",
     form_domain: "Domain",
     form_website: "Website",
+    form_address: "Address",
+    form_address_hint: "Office address (used as default for all people)",
     form_logo: "Logo",
     form_first_name: "First Name",
     form_last_name: "Last Name",
+    form_person_address_hint: "Leave empty to use company address",
+    form_academic_prefix: "Academic Prefix",
+    form_academic_prefix_hint: "e.g. Dr., Prof.",
+    form_academic_suffix: "Academic Suffix",
+    form_academic_suffix_hint: "e.g. BSc., MSc., PhD",
     form_job_title: "Job Title",
     form_email: "Email",
     form_phone: "Phone",
@@ -461,6 +476,7 @@ const en: TranslationStrings = {
     el_pick_icon: "Pick an icon",
 
     // Properties panel
+    prop_hide_if_empty: "Hide when empty",
     prop_lock_position: "Lock position",
     prop_position_size: "Position & Size",
     prop_align_card: "Align to Card",
@@ -662,9 +678,16 @@ const de: TranslationStrings = {
     form_company_name: "Unternehmensname",
     form_domain: "Domain",
     form_website: "Webseite",
+    form_address: "Adresse",
+    form_address_hint: "Büroadresse (Standard für alle Personen)",
     form_logo: "Logo",
     form_first_name: "Vorname",
     form_last_name: "Nachname",
+    form_person_address_hint: "Leer lassen, um Unternehmensadresse zu verwenden",
+    form_academic_prefix: "Akademischer Titel (vorangestellt)",
+    form_academic_prefix_hint: "z.B. Dr., Prof., Mag.",
+    form_academic_suffix: "Akademischer Grad (nachgestellt)",
+    form_academic_suffix_hint: "z.B. BSc., MSc., MBA, PhD",
     form_job_title: "Berufsbezeichnung",
     form_email: "E-Mail",
     form_phone: "Telefon",
@@ -715,6 +738,7 @@ const de: TranslationStrings = {
     el_pick_icon: "Symbol auswählen",
 
     // Properties panel
+    prop_hide_if_empty: "Ausblenden wenn leer",
     prop_lock_position: "Position sperren",
     prop_position_size: "Position & Größe",
     prop_align_card: "An Karte ausrichten",

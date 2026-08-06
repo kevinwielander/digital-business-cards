@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 import { translations } from "@/lib/i18n/translations";
 import type { LangCode } from "@/lib/i18n/translations";
 
@@ -37,20 +37,15 @@ function detectLang(): LangCode {
 }
 
 export default function I18nProvider({ children }: { children: React.ReactNode }) {
-    const [lang, setLangState] = useState<LangCode>(() => {
-        if (typeof window === "undefined") return "en";
-        return detectLang();
-    });
-    const [mounted] = useState(() => typeof window !== "undefined");
+    const [lang, setLangState] = useState<LangCode>("en");
+
+    useEffect(() => {
+        setLangState(detectLang());
+    }, []);
 
     function setLang(newLang: LangCode) {
         setLangState(newLang);
         localStorage.setItem("cardgen_lang", newLang);
-    }
-
-    // Prevent hydration mismatch
-    if (!mounted) {
-        return <I18nContext.Provider value={{ lang: "en", t: translations.en, setLang }}>{children}</I18nContext.Provider>;
     }
 
     return (

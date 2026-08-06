@@ -24,6 +24,7 @@ export default function AddCompanyButton() {
                     name=""
                     domain=""
                     website=""
+                    address=""
                     logo={null}
                 />
             )}

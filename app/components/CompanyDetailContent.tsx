@@ -13,6 +13,9 @@ interface Person {
     id: string;
     first_name: string;
     last_name: string;
+    academic_prefix: string;
+    academic_suffix: string;
+    address: string;
     title: string;
     email: string;
     phone: string;
@@ -33,6 +36,7 @@ interface CompanyDetailContentProps {
         name: string;
         domain?: string;
         website?: string;
+        address?: string;
         is_sample?: boolean;
         custom_field_definitions?: CustomFieldDefinition[];
     };
@@ -89,6 +93,7 @@ export default function CompanyDetailContent({ company, logoUrl, people, templat
                             name={company.name}
                             domain={company.domain ?? ""}
                             website={company.website ?? ""}
+                            address={company.address ?? ""}
                             logoUrl={logoUrl}
                         />
                         <DeleteCompanyButton companyId={company.id} companyName={company.name} />
@@ -119,6 +124,7 @@ export default function CompanyDetailContent({ company, logoUrl, people, templat
                 isSample={company.is_sample}
                 companyName={company.name}
                 companyLogoUrl={logoUrl}
+                companyAddress={company.address ?? ""}
                 customFieldDefs={company.custom_field_definitions ?? []}
             />
         </div>

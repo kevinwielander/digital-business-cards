@@ -23,6 +23,7 @@ function getDisplayText(el: CardElement, data: SampleCardData): string {
     if (el.type !== "text" && el.type !== "save-contact") return "";
     if (el.type === "save-contact") return el.customText ?? "Save Contact";
     if (el.boundField === "custom") return el.customText ?? "Custom text";
+    if (el.boundField === "full_name_with_titles") return data.full_name_with_titles;
     if (el.boundField?.startsWith("custom:")) {
         const key = el.boundField.slice(7);
         return data.custom_fields?.[key] ?? key;
@@ -63,6 +64,8 @@ export default function CardPreviewRenderer({ config, data, assetUrls = {}, scal
                 };
 
                 if (el.type === "text") {
+                    const text = getDisplayText(el, data);
+                    if (el.hideIfEmpty && !text) return null;
                     const align = el.textAlign ?? "left";
                     return (
                         <div
@@ -84,7 +87,7 @@ export default function CardPreviewRenderer({ config, data, assetUrls = {}, scal
                                 whiteSpace: "nowrap",
                             }}
                         >
-                            {getDisplayText(el, data)}
+                            {text}
                         </div>
                     );
                 }

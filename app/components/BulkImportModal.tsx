@@ -9,15 +9,18 @@ import { useGuest } from "./GuestProvider";
 import { useTranslation } from "./I18nProvider";
 import type { CustomFieldDefinition } from "@/lib/types";
 
-const KNOWN_FIELDS = ["first_name", "last_name", "title", "email", "phone"] as const;
+const KNOWN_FIELDS = ["first_name", "last_name", "academic_prefix", "academic_suffix", "title", "email", "phone", "address"] as const;
 type KnownField = typeof KNOWN_FIELDS[number];
 
 const FIELD_LABELS: Record<KnownField, string> = {
     first_name: "First Name",
     last_name: "Last Name",
+    academic_prefix: "Academic Prefix",
+    academic_suffix: "Academic Suffix",
     title: "Job Title",
     email: "Email",
     phone: "Phone",
+    address: "Address",
 };
 
 // Common header aliases
@@ -47,6 +50,24 @@ const HEADER_ALIASES: Record<string, KnownField> = {
     "tel": "phone",
     "telefon": "phone",
     "mobile": "phone",
+    "academic prefix": "academic_prefix",
+    "academic_prefix": "academic_prefix",
+    "prefix": "academic_prefix",
+    "titel vorname": "academic_prefix",
+    "akademischer grad": "academic_prefix",
+    "akad. grad": "academic_prefix",
+    "academic suffix": "academic_suffix",
+    "academic_suffix": "academic_suffix",
+    "suffix": "academic_suffix",
+    "namenszusatz": "academic_suffix",
+    "akad. nachgrad": "academic_suffix",
+    "address": "address",
+    "adresse": "address",
+    "standort": "address",
+    "büro": "address",
+    "office": "address",
+    "office address": "address",
+    "work address": "address",
 };
 
 function autoMapColumn(header: string): KnownField | "skip" {
@@ -144,6 +165,9 @@ export default function BulkImportModal({ onClose, companyId, templates, customF
     interface MappedRow {
         first_name: string;
         last_name: string;
+        academic_prefix: string;
+        academic_suffix: string;
+        address: string;
         title: string;
         email: string;
         phone: string;
@@ -155,6 +179,9 @@ export default function BulkImportModal({ onClose, companyId, templates, customF
             const mapped: Record<string, string> = {
                 first_name: "",
                 last_name: "",
+                academic_prefix: "",
+                academic_suffix: "",
+                address: "",
                 title: "",
                 email: "",
                 phone: "",
@@ -192,6 +219,9 @@ export default function BulkImportModal({ onClose, companyId, templates, customF
                     template_id: templateId,
                     first_name: row.first_name,
                     last_name: row.last_name,
+                    academic_prefix: row.academic_prefix,
+                    academic_suffix: row.academic_suffix,
+                    address: row.address,
                     title: row.title,
                     email: row.email,
                     phone: row.phone,
@@ -211,6 +241,9 @@ export default function BulkImportModal({ onClose, companyId, templates, customF
             template_id: templateId,
             first_name: row.first_name,
             last_name: row.last_name,
+            academic_prefix: row.academic_prefix,
+            academic_suffix: row.academic_suffix,
+            address: row.address,
             title: row.title,
             email: row.email,
             phone: row.phone,

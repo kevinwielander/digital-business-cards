@@ -80,7 +80,11 @@ export default function CreatePage() {
     const previewData: SampleCardData = {
         first_name: firstName || "Your",
         last_name: lastName || "Name",
+        academic_prefix: "",
+        academic_suffix: "",
         full_name: `${firstName || "Your"} ${lastName || "Name"}`,
+        full_name_with_titles: `${firstName || "Your"} ${lastName || "Name"}`,
+        name_with_suffix: `${firstName || "Your"} ${lastName || "Name"}`,
         title: title || "Job Title",
         email: email || "email@example.com",
         phone: phone || "+1 555 000 0000",

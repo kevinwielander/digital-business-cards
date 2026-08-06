@@ -9,10 +9,11 @@ interface EditCompanyButtonProps {
     name: string;
     domain: string;
     website: string;
+    address: string;
     logoUrl: string | null;
 }
 
-export default function EditCompanyButton({ id, name, domain, website, logoUrl }: EditCompanyButtonProps) {
+export default function EditCompanyButton({ id, name, domain, website, address, logoUrl }: EditCompanyButtonProps) {
     const { t } = useTranslation();
     const [showModal, setShowModal] = useState(false);
 
@@ -34,6 +35,7 @@ export default function EditCompanyButton({ id, name, domain, website, logoUrl }
                     name={name}
                     domain={domain}
                     website={website}
+                    address={address}
                     logo={null}
                     currentLogoUrl={logoUrl}
                 />

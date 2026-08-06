@@ -46,10 +46,21 @@ export default function SeedSampleData() {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) { setLoading(false); return; }
 
-        // Create sample templates
+        // Create sample templates (skip any that already exist by name)
         setStatus("Creating templates...");
+        const { data: existingTemplates } = await supabase
+            .from(TABLES.TEMPLATES)
+            .select("id, name")
+            .eq("user_id", user.id);
+        const existingNames = new Set((existingTemplates ?? []).map((t: { name: string }) => t.name));
+
         const templateIds: string[] = [];
         for (const sample of SAMPLE_TEMPLATES.slice(0, 2)) {
+            if (existingNames.has(sample.name)) {
+                const existing = (existingTemplates ?? []).find((t: { name: string; id: string }) => t.name === sample.name);
+                if (existing) templateIds.push(existing.id);
+                continue;
+            }
             const { data } = await supabase
                 .from(TABLES.TEMPLATES)
                 .insert({ user_id: user.id, name: sample.name, config: sample.config })

@@ -11,6 +11,9 @@ interface Person {
     id: string;
     first_name: string;
     last_name: string;
+    academic_prefix: string;
+    academic_suffix: string;
+    address: string;
     title: string;
     email: string;
     phone: string;
@@ -31,10 +34,11 @@ interface PeopleListProps {
     isSample?: boolean;
     companyName?: string;
     companyLogoUrl?: string | null;
+    companyAddress?: string;
     customFieldDefs?: CustomFieldDefinition[];
 }
 
-export default function PeopleList({ people, companyId, templates, isSample, companyName, companyLogoUrl, customFieldDefs }: PeopleListProps) {
+export default function PeopleList({ people, companyId, templates, isSample, companyName, companyLogoUrl, companyAddress, customFieldDefs }: PeopleListProps) {
     const { t } = useTranslation();
     const [showPersonModal, setShowPersonModal] = useState(false);
     const [showGenerateModal, setShowGenerateModal] = useState(false);
@@ -128,6 +132,7 @@ export default function PeopleList({ people, companyId, templates, isSample, com
                     templates={templates}
                     companyName={companyName}
                     companyLogoUrl={companyLogoUrl}
+                    companyAddress={companyAddress}
                     customFieldDefs={customFieldDefs}
                     person={editPerson}
                 />

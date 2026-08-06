@@ -24,6 +24,8 @@ interface DbPerson {
     id: string;
     first_name: string;
     last_name: string;
+    academic_prefix: string;
+    academic_suffix: string;
     title: string;
     email: string;
     phone: string;
@@ -151,7 +153,14 @@ export default function GuestCompanyDetail({ companyId }: { companyId: string })
 
     const people = data.people
         .filter((p) => p.company_id === companyId)
-        .map((p) => ({ ...p, photoSignedUrl: null, is_sample: false }));
+        .map((p) => ({
+            ...p,
+            academic_prefix: p.academic_prefix ?? "",
+            academic_suffix: p.academic_suffix ?? "",
+            address: p.address ?? "",
+            photoSignedUrl: null,
+            is_sample: false,
+        }));
 
     const templates = data.templates.map((t) => ({ id: t.id, name: t.name }));
 

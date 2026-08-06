@@ -28,14 +28,16 @@ function generateVCard(data: SampleCardData): string {
     return [
         "BEGIN:VCARD",
         "VERSION:3.0",
-        `FN:${data.full_name}`,
-        `N:${data.last_name};${data.first_name};;;`,
+        `FN:${data.full_name_with_titles}`,
+        `N:${data.last_name};${data.first_name};;${data.academic_prefix};${data.academic_suffix}`,
+        data.academic_prefix ? `PREFIX:${data.academic_prefix}` : "",
+        data.academic_suffix ? `SUFFIX:${data.academic_suffix}` : "",
         data.title ? `TITLE:${data.title}` : "",
         data.company ? `ORG:${data.company}` : "",
-        data.email ? `EMAIL:${data.email}` : "",
-        data.phone ? `TEL:${data.phone}` : "",
-        data.address ? `ADR:;;${data.address};;;;` : "",
-        data.website ? `URL:${data.website}` : "",
+        data.email ? `EMAIL;TYPE=INTERNET,WORK:${data.email}` : "",
+        data.phone ? `TEL;TYPE=WORK,VOICE:${data.phone}` : "",
+        data.address ? `ADR;TYPE=WORK:;;${data.address};;;;` : "",
+        data.website ? `URL;TYPE=WORK:${data.website}` : "",
         "END:VCARD",
     ].filter(Boolean).join("\r\n");
 }
@@ -50,6 +52,7 @@ async function generateQrDataUrl(vcard: string): Promise<string> {
 
 function getDisplayText(el: CardElement, data: SampleCardData): string {
     if (el.boundField === "custom") return el.customText ?? "";
+    if (el.boundField === "full_name_with_titles") return data.full_name_with_titles;
     if (el.boundField?.startsWith("custom:")) {
         const key = el.boundField.slice(7);
         return data.custom_fields?.[key] ?? "";
@@ -101,6 +104,8 @@ function renderElementHtml(
     const baseStyle = `position:absolute;left:${el.x}px;top:${el.y}px;width:${el.width}px;height:${el.height}px;z-index:${el.zIndex};${opacity}${rotation}${shadow}`;
 
     if (el.type === "text") {
+        const text = getDisplayText(el, data);
+        if (el.hideIfEmpty && !text) return "";
         const align = el.textAlign ?? "left";
         const justify = align === "center" ? "center" : align === "right" ? "flex-end" : "flex-start";
         const letterSpacing = el.letterSpacing ? `letter-spacing:${el.letterSpacing}px;` : "";
@@ -272,14 +277,23 @@ export async function GET(
             ? await imageToBase64(supabase, STORAGE.PHOTOS, person.photo_url)
             : null;
 
+        const prefix = person.academic_prefix ?? "";
+        const suffix = person.academic_suffix ?? "";
+        const fullName = `${person.first_name} ${person.last_name}`;
+        const fullNameWithTitles = [prefix, person.first_name, person.last_name, suffix].filter(Boolean).join(" ");
+
         const personData: SampleCardData = {
             first_name: person.first_name,
             last_name: person.last_name,
-            full_name: `${person.first_name} ${person.last_name}`,
+            academic_prefix: prefix,
+            academic_suffix: suffix,
+            full_name: fullName,
+            full_name_with_titles: fullNameWithTitles,
+        name_with_suffix: [person.first_name, person.last_name, suffix].filter(Boolean).join(" "),
             title: person.title ?? "",
             email: person.email ?? "",
             phone: person.phone ?? "",
-            address: "",
+            address: person.address || company.address || "",
             company: company.name,
             website: company.website ?? "",
             logoUrl: null,

@@ -23,10 +23,14 @@ interface PersonModalProps {
     companyName?: string;
     companyLogoUrl?: string | null;
     customFieldDefs?: CustomFieldDefinition[];
+    companyAddress?: string;
     person?: {
         id: string;
         first_name: string;
         last_name: string;
+        academic_prefix: string;
+        academic_suffix: string;
+        address: string;
         title: string;
         email: string;
         phone: string;
@@ -37,11 +41,14 @@ interface PersonModalProps {
     };
 }
 
-export default function PersonModal({ onClose, companyId, templates, companyName, companyLogoUrl, customFieldDefs, person }: PersonModalProps) {
+export default function PersonModal({ onClose, companyId, templates, companyName, companyLogoUrl, companyAddress, customFieldDefs, person }: PersonModalProps) {
     const guest = useGuest();
     const { t } = useTranslation();
     const [firstName, setFirstName] = useState(person?.first_name ?? "");
     const [lastName, setLastName] = useState(person?.last_name ?? "");
+    const [academicPrefix, setAcademicPrefix] = useState(person?.academic_prefix ?? "");
+    const [academicSuffix, setAcademicSuffix] = useState(person?.academic_suffix ?? "");
+    const [address, setAddress] = useState(person?.address ?? "");
     const [title, setTitle] = useState(person?.title ?? "");
     const [email, setEmail] = useState(person?.email ?? "");
     const [phone, setPhone] = useState(person?.phone ?? "");
@@ -113,14 +120,20 @@ export default function PersonModal({ onClose, companyId, templates, companyName
         }
     }, [photo]);
 
+    const previewFirstName = firstName || "First";
+    const previewLastName = lastName || "Last";
     const previewData: SampleCardData = {
-        first_name: firstName || "First",
-        last_name: lastName || "Last",
-        full_name: `${firstName || "First"} ${lastName || "Last"}`,
+        first_name: previewFirstName,
+        last_name: previewLastName,
+        academic_prefix: academicPrefix,
+        academic_suffix: academicSuffix,
+        full_name: `${previewFirstName} ${previewLastName}`,
+        full_name_with_titles: [academicPrefix, previewFirstName, previewLastName, academicSuffix].filter(Boolean).join(" "),
+        name_with_suffix: [previewFirstName, previewLastName, academicSuffix].filter(Boolean).join(" "),
+        address: address || companyAddress || "",
         title: title || "Job Title",
         email: email || "email@company.com",
         phone: phone || "+1 555 000 0000",
-        address: "",
         company: companyName || "Company",
         website: "",
         logoUrl: companyLogoUrl ?? null,
@@ -143,6 +156,9 @@ export default function PersonModal({ onClose, companyId, templates, companyName
                 template_id: templateId,
                 first_name: firstName,
                 last_name: lastName,
+                academic_prefix: academicPrefix,
+                academic_suffix: academicSuffix,
+                address,
                 title,
                 email,
                 phone,
@@ -184,6 +200,9 @@ export default function PersonModal({ onClose, companyId, templates, companyName
             template_id: templateId,
             first_name: firstName,
             last_name: lastName,
+            academic_prefix: academicPrefix,
+            academic_suffix: academicSuffix,
+            address,
             title,
             email,
             phone,
@@ -234,14 +253,12 @@ export default function PersonModal({ onClose, companyId, templates, companyName
     return (
         <div
             className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950/60 backdrop-blur-sm"
-            onClick={onClose}
         >
             <div
-                className="flex max-h-[90vh] w-full max-w-4xl flex-col overflow-y-auto rounded-xl bg-white p-4 shadow-2xl sm:p-8 md:flex-row md:gap-6 md:overflow-visible"
-                onClick={(e) => e.stopPropagation()}
+                className="flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-xl bg-white shadow-2xl md:flex-row"
             >
                 {/* Form */}
-                <div className="w-full md:w-1/2">
+                <div className="flex w-full flex-col overflow-y-auto p-4 sm:p-8 md:w-1/2">
                     <div className="mb-6 flex items-center justify-between">
                         <h2 className="text-xl font-semibold">
                             {person ? t.people_edit : t.people_add}
@@ -254,7 +271,8 @@ export default function PersonModal({ onClose, companyId, templates, companyName
                         </button>
                     </div>
 
-                    <form onSubmit={handleSubmit} className="space-y-4">
+                    <form onSubmit={handleSubmit} className="flex flex-1 flex-col overflow-hidden">
+                        <div className="flex-1 space-y-4 overflow-y-auto">
                         <div className="grid grid-cols-2 gap-4">
                             <div>
                                 <label className="mb-1 block text-sm font-medium text-zinc-700">{t.form_first_name}</label>
@@ -273,6 +291,29 @@ export default function PersonModal({ onClose, companyId, templates, companyName
                                     value={lastName}
                                     onChange={(e) => setLastName(e.target.value)}
                                     required
+                                    className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <div>
+                                <label className="mb-1 block text-sm font-medium text-zinc-700">{t.form_academic_prefix} <span className="text-zinc-400 font-normal">({t.form_academic_prefix_hint})</span></label>
+                                <input
+                                    type="text"
+                                    value={academicPrefix}
+                                    onChange={(e) => setAcademicPrefix(e.target.value)}
+                                    placeholder="Dr."
+                                    className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500"
+                                />
+                            </div>
+                            <div>
+                                <label className="mb-1 block text-sm font-medium text-zinc-700">{t.form_academic_suffix} <span className="text-zinc-400 font-normal">({t.form_academic_suffix_hint})</span></label>
+                                <input
+                                    type="text"
+                                    value={academicSuffix}
+                                    onChange={(e) => setAcademicSuffix(e.target.value)}
+                                    placeholder="MSc."
                                     className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500"
                                 />
                             </div>
@@ -304,6 +345,20 @@ export default function PersonModal({ onClose, companyId, templates, companyName
                                 type="tel"
                                 value={phone}
                                 onChange={(e) => setPhone(e.target.value)}
+                                className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="mb-1 block text-sm font-medium text-zinc-700">
+                                {t.form_address}
+                                <span className="ml-1 text-xs font-normal text-zinc-400">({t.form_person_address_hint})</span>
+                            </label>
+                            <input
+                                type="text"
+                                value={address}
+                                onChange={(e) => setAddress(e.target.value)}
+                                placeholder={companyAddress || "Hauptstraße 1, 1010 Wien"}
                                 className="w-full rounded-lg border border-zinc-300 px-3 py-2 text-sm outline-none focus:border-zinc-500"
                             />
                         </div>
@@ -351,9 +406,11 @@ export default function PersonModal({ onClose, companyId, templates, companyName
                             shape="round"
                         />
 
-                        {error && <p className="text-sm text-red-500">{error}</p>}
+                        </div>
 
-                        <div className="flex items-center justify-between pt-2">
+                        {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
+
+                        <div className="flex items-center justify-between border-t border-zinc-100 pt-4 mt-2">
                             {person ? (
                                 <button
                                     type="button"
@@ -384,7 +441,7 @@ export default function PersonModal({ onClose, companyId, templates, companyName
                 </div>
 
                 {/* Live Preview */}
-                <div className="mt-6 flex w-full flex-col md:mt-0 md:w-1/2">
+                <div className="flex w-full flex-col border-t border-zinc-100 p-4 sm:p-8 md:w-1/2 md:border-l md:border-t-0">
                     <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-zinc-400">Live Preview</h3>
                     <div className="flex flex-1 items-center justify-center rounded-xl bg-zinc-50 p-6">
                         {templateConfig ? (
