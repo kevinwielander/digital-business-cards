@@ -280,7 +280,8 @@ export async function GET(
         const prefix = person.academic_prefix ?? "";
         const suffix = person.academic_suffix ?? "";
         const fullName = `${person.first_name} ${person.last_name}`;
-        const fullNameWithTitles = [prefix, person.first_name, person.last_name, suffix].filter(Boolean).join(" ");
+        const nameBase = [prefix, person.first_name, person.last_name].filter(Boolean).join(" ");
+        const fullNameWithTitles = suffix ? `${nameBase}, ${suffix}` : nameBase;
 
         const personData: SampleCardData = {
             first_name: person.first_name,
@@ -289,7 +290,7 @@ export async function GET(
             academic_suffix: suffix,
             full_name: fullName,
             full_name_with_titles: fullNameWithTitles,
-        name_with_suffix: [person.first_name, person.last_name, suffix].filter(Boolean).join(" "),
+        name_with_suffix: suffix ? `${person.first_name} ${person.last_name}, ${suffix}` : `${person.first_name} ${person.last_name}`,
             title: person.title ?? "",
             email: person.email ?? "",
             phone: person.phone ?? "",
