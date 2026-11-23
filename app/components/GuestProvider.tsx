@@ -35,6 +35,7 @@ export default function GuestProvider({ children }: { children: React.ReactNode 
 
     useEffect(() => {
         if (isGuestMode()) {
+            // eslint-disable-next-line react-hooks/set-state-in-effect -- reads browser-only storage after hydration to avoid an SSR mismatch
             setIsGuest(true);
             setData(getGuestData());
         }
