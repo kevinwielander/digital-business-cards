@@ -40,6 +40,7 @@ export default function I18nProvider({ children }: { children: React.ReactNode }
     const [lang, setLangState] = useState<LangCode>("en");
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- reads browser-only storage after hydration to avoid an SSR mismatch
         setLangState(detectLang());
     }, []);
 
