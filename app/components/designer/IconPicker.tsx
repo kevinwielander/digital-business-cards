@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { CardElement, LinkBoundField } from "@/lib/types";
+import { utf8ToBase64 } from "@/lib/encoding";
 
 const ICONS: { category: string; icons: { name: string; svg: string; defaultLink?: string; defaultBoundField?: LinkBoundField }[] }[] = [
     {
@@ -30,7 +31,7 @@ const ICONS: { category: string; icons: { name: string; svg: string; defaultLink
 
 function svgToDataUrl(svg: string, color: string): string {
     const colored = svg.replace(/currentColor/g, color);
-    return `data:image/svg+xml;base64,${btoa(colored)}`;
+    return `data:image/svg+xml;base64,${utf8ToBase64(colored)}`;
 }
 
 interface IconPickerProps {

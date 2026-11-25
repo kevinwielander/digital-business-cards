@@ -1,3 +1,5 @@
+import { utf8ToBase64 } from "./encoding";
+
 function logoSvgDataUrl(name: string, color: string, style: "wordmark" | "icon-word" | "stacked"): string {
     let svg: string;
 
@@ -25,7 +27,7 @@ function logoSvgDataUrl(name: string, color: string, style: "wordmark" | "icon-w
         </svg>`;
     }
 
-    return `data:image/svg+xml;base64,${btoa(svg)}`;
+    return `data:image/svg+xml;base64,${utf8ToBase64(svg)}`;
 }
 
 export const SAMPLE_COMPANIES = [

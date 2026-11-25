@@ -3,6 +3,7 @@
 import type { CardElement, BoundField, LinkBoundField, CustomFieldDefinition } from "@/lib/types";
 import { BUILT_IN_FIELD_LABELS } from "@/lib/types";
 import { DESIGNER_FONTS } from "@/lib/fonts";
+import { utf8ToBase64 } from "@/lib/encoding";
 import { useTranslation } from "@/app/components/I18nProvider";
 import AssetPicker from "./AssetPicker";
 
@@ -305,7 +306,7 @@ export default function PropertiesPanel({
                                     const newColor = e.target.value;
                                     const svg = element.iconSvg!;
                                     const colored = svg.replace(/currentColor/g, newColor);
-                                    const dataUrl = `data:image/svg+xml;base64,${btoa(colored)}`;
+                                    const dataUrl = `data:image/svg+xml;base64,${utf8ToBase64(colored)}`;
                                     onUpdate({
                                         iconColor: newColor,
                                         imageSource: `asset:${dataUrl}` as CardElement["imageSource"],
