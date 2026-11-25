@@ -12,6 +12,7 @@ import TemplateCard from "../components/TemplateCard";
 import ImageUpload from "../components/ImageUpload";
 import type { TemplateConfig, SampleCardData } from "@/lib/types";
 import Link from "next/link";
+import { utf8ToBase64 } from "@/lib/encoding";
 
 interface DbTemplate {
     id: string;
@@ -128,6 +129,16 @@ export default function CreatePage() {
     async function handleGenerate() {
         if (!selectedTemplate) return;
         setGenerating(true);
+        try {
+            await generateCard();
+        } finally {
+            // Always reset so the UI is not stuck; errors still propagate to Sentry.
+            setGenerating(false);
+        }
+    }
+
+    async function generateCard() {
+        if (!selectedTemplate) return;
 
         // Import dependencies dynamically for client-side generation
         const QRCode = (await import("qrcode")).default;
@@ -145,7 +156,7 @@ export default function CreatePage() {
             "END:VCARD",
         ].filter(Boolean).join("\r\n");
 
-        const vcfDataUrl = `data:text/vcard;base64,${btoa(vcard)}`;
+        const vcfDataUrl = `data:text/vcard;charset=utf-8;base64,${utf8ToBase64(vcard)}`;
 
         // Generate QR if template uses it
         const hasQr = selectedTemplate.elements.some((el) => el.type === "qrcode");
@@ -269,7 +280,6 @@ ${elementsHtml}
         const url = URL.createObjectURL(blob);
         setDownloadUrl(url);
         setStep("done");
-        setGenerating(false);
     }
 
     // Also offer saving for signed-in users
